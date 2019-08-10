@@ -20,6 +20,12 @@ variables with their corresponding 'namespace', along with a flat list of
 'fully qualified' names. I also have value resolution working, which returns a
 resolved string, plus a set of any unresolved names still needed.
 
+## TODO:
+
 Next steps appear to be special handling of the 'boards.txt' file, as the
 symbols in there are "pick from this, trim off the board name, and use the rest
 for name resolution".
+
+There's also the cmd.{os} default value override mechanism that I should take
+into account for value resolution, particularly as I'm one of those weird
+people that switch between Windows, macOS, and Linux on a semi-regular basis...

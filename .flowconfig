@@ -1,0 +1,10 @@
+[ignore]
+./node_modules/
+
+[include]
+
+[libs]
+./flow_typed/
+./flow_typed/npm/
+
+[options]

@@ -18,14 +18,14 @@
 const fs = require('fs');
 const rl = require('readline');
 const proc = require('process');
-const fsp = fs.fsPromise;
+const fsp = fs.promises;
 
 /*::
 type Variable = {
   name:string,
-  value?:string
-  parent:?Namespace
-  children?:?SymbolTable,
+  value?:string,
+  parent:?Variable,
+  children:SymbolTable,
 };
 type SymbolTable = Map<string, Variable>;
 type FlatTable = Map<string, string>;
@@ -50,7 +50,7 @@ const makeFullName = (v/*:Variable*/)/*:string*/ => {
 
 const makeVariable = (fullName/*:string*/, value/*:string*/)/*:Variable*/ => {
   const pieces/*:Array<string>*/ = fullName.split('.');
-  let table = symbols;
+  let table/*:SymbolTable*/ = symbols;
   let ns/*:?Variable*/;
   for (let i = 0; i < pieces.length - 1; i++) {
     const nm/*:string*/ = pieces[i];
