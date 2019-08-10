@@ -16,4 +16,10 @@ stuff might be...
 ## Currently:
 
 I've got a simple parser together, which gives me a hierarchical list of
-variables with their corresponding 'namespace'
+variables with their corresponding 'namespace', along with a flat list of
+'fully qualified' names. I also have value resolution working, which returns a
+resolved string, plus a set of any unresolved names still needed.
+
+Next steps appear to be special handling of the 'boards.txt' file, as the
+symbols in there are "pick from this, trim off the board name, and use the rest
+for name resolution".

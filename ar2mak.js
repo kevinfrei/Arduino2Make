@@ -28,11 +28,18 @@ type Variable = {
   children?:?SymbolTable,
 };
 type SymbolTable = Map<string, Variable>;
+type FlatTable = Map<string, string>;
+
+type ResolvedValue = {
+  value:string,
+  unresolved:Set<string>
+};
 */
 
 const symbols/*:SymbolTable*/ = new Map();
+const flatsyms/*:FlatTable*/ = new Map();
 
-const fullName = (v/*:Variable*/)/*:string*/ => {
+const makeFullName = (v/*:Variable*/)/*:string*/ => {
   let res = v.name;
   while (v.parent) {
     v = v.parent;
@@ -64,9 +71,12 @@ const makeVariable = (fullName/*:string*/, value/*:string*/)/*:Variable*/ => {
   }
   const res = { name: locName, parent: ns, value, children: new Map() };
   table.set(locName, res);
+  flatsyms.set(fullName, value);
   return res;
 };
+
 const isComment = (line/*:string*/)/*:boolean*/ => line.trim().startsWith("#");
+
 const isVariable = (line/*:string*/)/*:?Variable*/ => {
   const t = line.trim();
   const eq = t.indexOf('=');
@@ -74,7 +84,9 @@ const isVariable = (line/*:string*/)/*:?Variable*/ => {
     return;
   }
   return makeVariable(t.substr(0, eq), t.substr(eq + 1));
-}
+};
+
+// This does what it says it does...
 const parseFile = async (filepath/*:string*/) => {
   const read = rl.createInterface({
     input: fs.createReadStream(filepath),
@@ -91,7 +103,63 @@ const parseFile = async (filepath/*:string*/) => {
       console.log(`Error ${num}: ${line}`);
     }
   }
-  console.log(symbols);
 };
 
-parseFile(process.argv[2]).then(a => console.log('done'));
+// This looks up a full name in the table
+const lookup = (name/*:string*/) /*:?string*/ => {
+  return flatsyms.get(name);
+};
+
+// This takes a value, and returns the resolved value plus the list of
+// undefined names within the value
+const resolveValue = (value/*:string*/) /*:ResolvedValue*/ => {
+  let res = '';
+  let loc = 0;
+  let unresolved/*:Set<string>*/ = new Set();
+  do {
+    const newloc = value.indexOf('{', loc);
+    if (newloc >= 0) {
+      res = res + value.substring(loc, newloc);
+      const close = value.indexOf('}', newloc + 1);
+      if (close < newloc) {
+        return { value: '', unresolved: new Set() };
+      }
+      const nextSym = value.substring(newloc + 1, close);
+      const symVal = lookup(nextSym);
+      if (!symVal) {
+        unresolved.add(nextSym);
+        res = `${res}{${nextSym}}`;
+      } else {
+        // Potentially unbounded recursion here. That would be bad...
+        const val = resolveValue(symVal);
+        unresolved = new Set([...unresolved, ...val.unresolved]);
+        res = res + val.value;
+      }
+      loc = close + 1;
+    } else {
+      res = res + value.substr(loc);
+      loc = -1;
+    }
+  } while (loc >= 0);
+  return { value: res, unresolved };
+};
+
+const main = async (files/*:Array<string>*/) => {
+  for (let file of files) {
+    await parseFile(file);
+  }
+  let unresolved/*:Set<string>*/ = new Set();
+  for (let i of flatsyms) {
+    const resVal = resolveValue(i[1]);
+    unresolved = new Set([...unresolved, ...resVal.unresolved]);
+    console.log(`${i[0]}: "${resVal.value}"`);
+  }
+  console.log([...unresolved].sort());
+  /*
+    const val = flatsyms.get('recipe.objcopy.hex.pattern');
+    console.log(val);
+    const reso = resolveValue(val);
+    console.log(reso);*/
+};
+
+main(process.argv.slice(2)).then(a => console.log('done'));
