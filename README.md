@@ -20,11 +20,16 @@ variables with their corresponding 'namespace', along with a flat list of
 'fully qualified' names. I also have value resolution working, which returns a
 resolved string, plus a set of any unresolved names still needed.
 
+I've also got the 'boards.txt' file spitting out a set of conditionals in
+Makefile format.
+
 ## TODO:
 
-Next steps appear to be special handling of the 'boards.txt' file, as the
-symbols in there are "pick from this, trim off the board name, and use the rest
-for name resolution".
+Next steps appear to be special handling of the menu options from the
+'boards.txt' file. It's going to be kind of clunky, but oh well.
+
+Hurray: At least in the Adafruit nRF52 platform, there's bi-directional
+dependency between board.txt and platform.txt. That will be fun to deal with.
 
 There's also the cmd.{os} default value override mechanism that I should take
 into account for value resolution, particularly as I'm one of those weird
