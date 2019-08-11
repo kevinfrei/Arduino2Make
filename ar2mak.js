@@ -36,6 +36,7 @@ type NamedTable = Map<string, SymbolTable>;
 type ParsedFile = { scopedTable:SymbolTable, flatSymbols: FlatTable };
 
 type ResolvedValue = { value:string, unresolved:Set<string> };
+type FilterFunc = (string:Variable) => boolean;
 */
 
 const makeFullName = (v/*:Variable*/)/*:string*/ => {
@@ -179,33 +180,74 @@ const getMakeValue = (
 };
 
 // top is the root of a 'namespace': We're gonna dump all the children
-const dumpMakeVariables = (top/*:Variable*/, parsedFile/*:ParsedFile*/) => {
+const dumpMakeVariables = (
+  header/*:string*/,
+  top/*:Variable*/,
+  parsedFile/*:ParsedFile*/,
+  filter/*:?FilterFunc*/
+) => {
   let toDump/*:Array<Variable>*/ = [...top.children.values()];
   while (toDump.length > 0) {
     const vrbl/*:Variable*/ = toDump.pop();
-    toDump.push(...vrbl.children.values());
-    if (vrbl.value) {
-      console.log(`\t${getMakeName(vrbl, top)}=${getMakeValue(vrbl, parsedFile)}`);
+    if (!filter || filter(vrbl)) {
+      toDump.push(...vrbl.children.values());
+      if (vrbl.value) {
+        const varName = getMakeName(vrbl, top);
+        const varValue = getMakeValue(vrbl, parsedFile);
+        console.log(`${header}${varName}=${varValue}`);
+      }
     }
   }
 };
 
+// This dumps 'menu' options nexted in ifeq's
+const dumpMakeMenuOptions = (
+  top/*:Variable*/,
+  parsedFile/*:ParsedFile*/,
+  menus/*:Set<string>*/
+) => {
+  const menu = top.children.get('menu');
+  if (!menu) {
+    return;
+  }
+  for (let toDump of menu.children.values()) {
+    let first = true;
+    const makeVarName = 'INPUT_' + toDump.name.toUpperCase();
+    for (let item of toDump.children.values()) {
+      const header = first ? 'ifeq' : 'else ifeq';
+      first = false;
+      console.log(`\t${header} $(${makeVarName}, ${item.name})`);
+      dumpMakeVariables('\t\t', item, toDump);
+    }
+    if (!first) {
+      console.log('\telse');
+      console.log(`\t\t$(error Unknown or undefined ${makeVarName} target)`);
+      console.log('\tendif');
+      }
+  }
+};
+
+// This spits out the board configuration data in Makefile format
 const dumpBoard = (board/*:ParsedFile*/) => {
   let first = true;
-  for (let item of board.scopedTable) {
-    if (item[0] === 'menu') {
-      // This stuff has some other options that we need.
-      // TODO: make this do something real, maybe, but for right now,
-      // maybe trim it?
-      continue;
+  let menus/*:Set<string>*/ = new Set();
+  for (let item of board.scopedTable.values()) {
+    if (item.name === 'menu') {
+      // AFAICT, top level 'menu' items indicate later nested options
+      const children = item.children;
+      menus = new Set([...menus, ...children.keys()]);
+    } else {
+      console.log(`${first ? 'ifeq' : 'else ifeq'} ($(INPUT_BOARD), ${item.name})`);
+      first = false;
+      dumpMakeVariables('\t', item, board, a => a.name !== 'menu');
+      dumpMakeMenuOptions(item, board, menus);
     }
-    console.log(`${first ? 'ifeq' : 'else ifeq'} ($(DEVICE), ${item[0]})`);
-    first = false;
-    dumpMakeVariables(item[1], board);
   }
-  console.log('else');
-  console.log('\t$(error Unknown DEVICE target)');
-  console.log('endif');
+  if (!first) {
+    console.log('else');
+    console.log('\t$(error Unknown or undefined INPUT_BOARD target)');
+    console.log('endif');
+  }
 };
 
 const main = async (board/*:string*/, platform/*:string*/, prog/*:string*/) => {
