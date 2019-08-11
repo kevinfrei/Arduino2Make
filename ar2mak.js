@@ -15,245 +15,18 @@
 // Once that's done, then restructre the resulting makefile to be more
 // configurable
 
-const fs = require('fs');
-const rl = require('readline');
-const proc = require('process');
 const path = require('path');
-const fsp = fs.promises;
+
+const parseFile = require('./parser.js');
+const mkutil = require('./mkutil.js');
 
 /*::
-
-type Variable = {
-  name:string,
-  value?:string,
-  parent:?Variable,
-  children:SymbolTable,
-};
-
-type SymbolTable = Map<string, Variable>;
-type FlatTable = Map<string, string>;
-type NamedTable = Map<string, SymbolTable>;
-type ParsedFile = { scopedTable:SymbolTable, flatSymbols: FlatTable };
-
-type ResolvedValue = { value:string, unresolved:Set<string> };
-type FilterFunc = (string:Variable) => boolean;
+import type {
+  Variable, SymbolTable, FlatTable, NamedTable, ParsedFile,
+  ResolvedValue, FilterFunc} from './types.js';
 */
 
-const makeFullName = (v/*:Variable*/)/*:string*/ => {
-  let res = v.name;
-  while (v.parent) {
-    v = v.parent;
-    res = `${v.name}.${res}`;
-  }
-  return res;
-}
-
-const makeVariable = (
-  fullName/*:string*/,
-  value/*:string*/,
-  table/*:SymbolTable*/
-)/*:Variable*/ => {
-  const pieces/*:Array<string>*/ = fullName.split('.');
-  let ns/*:?Variable*/;
-  for (let i = 0; i < pieces.length - 1; i++) {
-    const nm/*:string*/ = pieces[i];
-    let data = table.get(nm);
-    if (data) {
-      ns = data;
-      table = data.children;
-    } else {
-      ns = { name: nm, children: new Map(), parent: ns };
-      table.set(nm, ns);
-      table = ns.children;
-    }
-  }
-  const locName = pieces[pieces.length - 1];
-  if (table.get(locName)) {
-    console.error("Duplicate symbol definition: " + fullName);
-    console.error(table.get(locName));
-  }
-  const res = { name: locName, parent: ns, value, children: new Map() };
-  table.set(locName, res);
-  return res;
-};
-
-const isComment = (line/*:string*/)/*:boolean*/ => line.trim().startsWith("#");
-
-const isVariable = (
-  line/*:string*/,
-  table/*:SymbolTable*/,
-  flatsyms/*:FlatTable*/
-)/*:?Variable*/ => {
-  const t = line.trim();
-  const eq = t.indexOf('=');
-  if (eq < 1) {
-    return;
-  }
-  const fullName = t.substr(0, eq);
-  const value = t.substr(eq + 1);
-  flatsyms.set(fullName, value);
-  return makeVariable(fullName, value, table);
-};
-
-// This does what it says it does...
-const parseFile = async (filepath/*:string*/)/*:Promise<ParsedFile>*/ => {
-  const scopedTable/*:SymbolTable*/ = new Map();
-  const flatSymbols/*:FlatTable*/ = new Map();
-
-  const read = rl.createInterface({
-    input: fs.createReadStream(filepath),
-    output: fs.createWriteStream('/dev/null') // TODO: '\\\\.\\NUL' for windows
-  });
-  let num = 0;
-  for await (const line of read) {
-    num++;
-    if (isComment(line) || line.trim().length === 0) {
-      continue;
-    }
-    // Read the variables one by one
-    if (!isVariable(line, scopedTable, flatSymbols)) {
-      console.log(`Error ${num}: ${line}`);
-    }
-  }
-  return { scopedTable, flatSymbols };
-};
-
-// This takes a value, and returns the resolved value plus the list of
-// undefined names within the value
-const resolveValue = (
-  value/*:string*/,
-  parsedFile/*:ParsedFile*/
-) /*:ResolvedValue*/ => {
-  let res = '';
-  let loc = 0;
-  let unresolved/*:Set<string>*/ = new Set();
-  let flatSymbols = parsedFile.flatSymbols;
-  do {
-    const newloc = value.indexOf('{', loc);
-    if (newloc >= 0) {
-      res = res + value.substring(loc, newloc);
-      const close = value.indexOf('}', newloc + 1);
-      if (close < newloc) {
-        return { value: '', unresolved: new Set() };
-      }
-      const nextSym = value.substring(newloc + 1, close);
-      const symVal = flatSymbols.get(nextSym);
-      if (!symVal) {
-        unresolved.add(nextSym);
-        res = `${res}{${nextSym}}`;
-      } else {
-        // Potentially unbounded recursion here. That would be bad...
-        const val = resolveValue(symVal, parsedFile);
-        unresolved = new Set([...unresolved, ...val.unresolved]);
-        res = res + val.value;
-      }
-      loc = close + 1;
-    } else {
-      res = res + value.substr(loc);
-      loc = -1;
-    }
-  } while (loc >= 0);
-  return { value: res, unresolved };
-};
-
-// Upper-cases with underscores
-const getMakeName = (vrbl/*:Variable*/, top/*:Variable*/) => {
-  let name = vrbl.name.toUpperCase();
-  while (vrbl.parent && vrbl.parent !== top) {
-    vrbl = vrbl.parent;
-    name = vrbl.name.toUpperCase() + '_' + name;
-  }
-  return name;
-};
-
-// TODO: This should put quotes & backslashes & whatnot
-const getMakeValue = (
-  vrbl/*:Variable*/,
-  parsedFile/*:ParsedFile*/
-)/*:string*/ => {
-  if (vrbl.value) {
-    const res = resolveValue(vrbl.value, parsedFile);
-    return res.value;
-  } else {
-    return '';
-  }
-};
-
-// top is the root of a 'namespace': We're gonna dump all the children
-const dumpMakeVariables = (
-  header/*:string*/,
-  top/*:Variable*/,
-  parsedFile/*:ParsedFile*/,
-  filter/*:?FilterFunc*/
-) => {
-  let toDump/*:Array<Variable>*/ = [...top.children.values()];
-  while (toDump.length > 0) {
-    const vrbl/*:Variable*/ = toDump.pop();
-    if (!filter || filter(vrbl)) {
-      toDump.push(...vrbl.children.values());
-      if (vrbl.value) {
-        const varName = getMakeName(vrbl, top);
-        const varValue = getMakeValue(vrbl, parsedFile);
-        console.log(`${header}${varName}=${varValue}`);
-      }
-    }
-  }
-};
-
-// This dumps 'menu' options nexted in ifeq's
-const dumpMakeMenuOptions = (
-  top/*:Variable*/,
-  parsedFile/*:ParsedFile*/,
-  menus/*:Set<string>*/
-) => {
-  const menu = top.children.get('menu');
-  if (!menu) {
-    return;
-  }
-  for (let toDump of menu.children.values()) {
-    let first = true;
-    const makeVarName = 'INPUT_' + toDump.name.toUpperCase();
-    for (let item of toDump.children.values()) {
-      const header = first ? 'ifeq' : 'else ifeq';
-      first = false;
-      console.log(`\t${header} $(${makeVarName}, ${item.name})`);
-      dumpMakeVariables('\t\t', item, toDump);
-    }
-    if (!first) {
-      console.log('\telse');
-      console.log(`\t\t$(error Unknown or undefined ${makeVarName} target)`);
-      console.log('\tendif');
-      }
-  }
-};
-
-// This spits out the board configuration data in Makefile format
-const dumpBoard = (board/*:ParsedFile*/) => {
-  let first = true;
-  let menus/*:Set<string>*/ = new Set();
-  for (let item of board.scopedTable.values()) {
-    if (item.name === 'menu') {
-      // AFAICT, top level 'menu' items indicate later nested options
-      const children = item.children;
-      menus = new Set([...menus, ...children.keys()]);
-    } else {
-      console.log(`${first ? 'ifeq' : 'else ifeq'} ($(INPUT_BOARD), ${item.name})`);
-      first = false;
-      dumpMakeVariables('\t', item, board, a => a.name !== 'menu');
-      dumpMakeMenuOptions(item, board, menus);
-    }
-  }
-  if (!first) {
-    console.log('else');
-    console.log('\t$(error Unknown or undefined INPUT_BOARD target)');
-    console.log('endif');
-  }
-};
-
-const main = async (board/*:string*/, platform/*:string*/, prog/*:string*/) => {
-  const boardSyms = await parseFile(board);
-  console.log('# This is designed to be included from your own Makefile');
-  console.log('# Some general stuff that Arduino may expect');
+const dumpHeader = (platform/*:string*/) => {
   console.log('ifeq ($(OS),Windows_NT)');
   console.log('\tRUNTIME_OS=windows');
   console.log('else');
@@ -265,16 +38,88 @@ const main = async (board/*:string*/, platform/*:string*/, prog/*:string*/) => {
   console.log('\tendif');
   console.log('endif');
   console.log(`RUNTIME_PLATFORM_PATH=${path.resolve(path.dirname(platform))}`);
-  console.log('# Begin boards stuff');
-  dumpBoard(boardSyms);
-  console.log('# End boards stuff');
+};
+
+// This spits out the board configuration data in Makefile format
+// It returns the set of *probably* defined variables, for use later
+// TODO: Handle the !@#$ dependency in the Adafruit board.txt on platform.txt
+const dumpBoard = (board/*:ParsedFile*/)/*:Set<string>*/ => {
+  let first = true;
+  let menus/*:Set<string>*/ = new Set();
+  let defined/*:Set<string>*/ = new Set();
+  for (let item of board.scopedTable.values()) {
+    if (item.name === 'menu') {
+      // AFAICT, top level 'menu' items indicate later nested options
+      const children = item.children;
+      menus = new Set([...menus, ...children.keys()]);
+    } else {
+      console.log(`${first ? 'ifeq' : 'else ifeq'} ($(INPUT_BOARD), ${item.name})`);
+      first = false;
+      const defVars = mkutil.dumpVars('\t', item, board, a => a.name !== 'menu');
+      const defMore = mkutil.dumpMenuOptions(item, board, menus);
+      defined = new Set([...defined, ...defVars, ...defMore]);
+    }
+  }
+  if (!first) {
+    console.log('else');
+    console.log('\t$(error Unknown or undefined INPUT_BOARD target)');
+    console.log('endif');
+  }
+  return defined;
+};
+
+// This generates the rules & whatnot for the platform data
+// This is the 'meat' of the whole thing, as recipes generate very different
+// Makefile code.
+// It also returns the set of probably defined values generated from this code
+const dumpPlatform = (
+  board/*:Set<string>*/,
+  platform/*:ParsedFile*/
+)/*:Set<string>*/ => {
+  console.log('# TODO: generate Platform stuff!');
+/*  console.log(board);
+  console.log(platform);*/
+  return new Set();
+};
+
+// Not sure if I need to deal with this stuff
+// Adafruit, this is just bootloader crap, so I haven't done anything for it
+const dumpProgrammer = (
+  board/*:Set<string>*/,
+  platform/*:Set<string>*/,
+  programmer/*:ParsedFile*/
+) => {
+  console.log('# TODO: maybe generate Programmer stuff?');
+  //  console.log(programmer);
+};
+
+const main = async (board/*:string*/, platform/*:string*/, prog/*:string*/) => {
+  const boardSyms = await parseFile(board);
   const platformSyms = await parseFile(platform);
   const progSyms = await parseFile(prog);
 
+  console.log('# This is designed to be included from your own Makefile');
+  console.log('#');
+  console.log('# Begin general template');
+  dumpHeader(platform);
+  console.log('# End general template');
+  console.log('#');
+  console.log('# Begin boards stuff');
+  const boardDefined = dumpBoard(boardSyms);
+  console.log('# End boards stuff');
+  console.log('#');
+  console.log('# Begin platform stuff');
+  const platDefined = dumpPlatform(boardDefined, platformSyms);
+  console.log('# End platform stuff');
+  console.log('#');
+  console.log('# Begin programmer stuff');
+  dumpProgrammer(boardDefined, platDefined, progSyms);
+  console.log('# End programmer stuff');
   if (0) {
-    let unresolved/*:Set<string>*/ = new Set();
+    /*
+    let unresolved = new Set();
     for (let i of boardSyms.flatSymbols) {
-      const resVal = resolveValue(i[1], boardSyms);
+      const resVal = mkutil.resolve(i[1], boardSyms);
       unresolved = new Set([...unresolved, ...resVal.unresolved]);
       console.log(`${i[0]}: "${resVal.value}"`);
     }
@@ -283,8 +128,8 @@ const main = async (board/*:string*/, platform/*:string*/, prog/*:string*/) => {
 
     const val = flatsyms.get('recipe.objcopy.hex.pattern');
     console.log(val);
-    const reso = resolveValue(val);
-    console.log(reso);
+    const reso = mkutil.resolve(val);
+    console.log(reso);*/
   }
 };
 

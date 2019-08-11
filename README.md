@@ -25,12 +25,17 @@ Makefile format.
 
 ## TODO:
 
-Next steps appear to be special handling of the menu options from the
-'boards.txt' file. It's going to be kind of clunky, but oh well.
+Get the platforms stuff working.
 
-Hurray: At least in the Adafruit nRF52 platform, there's bi-directional
+Maybe make the project an actual node module, complete with flow type removal
+malarkey?
+
+Hurray :/ At least in the Adafruit nRF52 platform, there's bi-directional
 dependency between board.txt and platform.txt. That will be fun to deal with.
 
 There's also the cmd.{os} default value override mechanism that I should take
 into account for value resolution, particularly as I'm one of those weird
 people that switch between Windows, macOS, and Linux on a semi-regular basis...
+
+And, finally, eventually, make some tests, probably. Jest seems reasonable.
+Seriously, I've found it pretty darned useful in a few other projects...
