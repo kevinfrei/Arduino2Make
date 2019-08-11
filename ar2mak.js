@@ -170,8 +170,12 @@ const getMakeValue = (
   vrbl/*:Variable*/,
   parsedFile/*:ParsedFile*/
 )/*:string*/ => {
-  const res = resolveValue(vrbl.value, parsedFile);
-  return res.value;
+  if (vrbl.value) {
+    const res = resolveValue(vrbl.value, parsedFile);
+    return res.value;
+  } else {
+    return '';
+  }
 };
 
 // top is the root of a 'namespace': We're gonna dump all the children
@@ -242,5 +246,5 @@ const main = async (board/*:string*/, platform/*:string*/, prog/*:string*/) => {
   }
 };
 
-main(process.argv[2], process.argv[3], process.argv[4]).then(a => {});
+main(process.argv[2], process.argv[3], process.argv[4]).then(a => { });
 
