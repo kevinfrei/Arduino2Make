@@ -9,13 +9,53 @@ import type {
   FlatTable,
   NamedTable,
   ParsedFile,
-  ResolvedValue,
-  FilterFunc
+  DependentValue,
+  FilterFunc,
+  ValueMakerFunc,
+  Condition,
+  Definition
 } from './types.js';
+
+const makeCondition = (
+  op: string,
+  variable: string,
+  value: string
+): Condition => ({
+  op,
+  variable,
+  value
+});
+
+const makeDefinition = (
+  name: string,
+  value: string,
+  dependsOn?: Array<string> | Condition | 'default',
+  condition?: Condition | 'default'
+): Definition => {
+  const err = { name, value, dependsOn: [''] };
+  if (condition !== undefined && dependsOn !== undefined) {
+    if (Array.isArray(dependsOn)) {
+      return { name, value, dependsOn, condition };
+    } else {
+      return err;
+    }
+  } else if (dependsOn !== undefined) {
+    if (Array.isArray(dependsOn)) {
+      return { name, value, dependsOn };
+    } else {
+      return { name, value, dependsOn: [], condition: dependsOn };
+    }
+  } else {
+    return { name, value, dependsOn: [] };
+  }
+};
 
 // This takes a value, and returns the resolved value plus the list of
 // undefined names within the value
-const resolveValue = (value: string, parsedFile: ParsedFile): ResolvedValue => {
+const resolveValue = (
+  value: string,
+  parsedFile: ParsedFile
+): DependentValue => {
   let res = '';
   let loc = 0;
   let unresolved: Set<string> = new Set();
@@ -59,7 +99,7 @@ const getMakeName = (vrbl: Variable, top: Variable) => {
 };
 
 // TODO: This should handle any escaping necessary
-const getMakeValue = (vrbl: Variable, parsedFile: ParsedFile): string => {
+const resolvedValue = (vrbl: Variable, parsedFile: ParsedFile): string => {
   if (vrbl.value) {
     const res = resolveValue(vrbl.value, parsedFile);
     return res.value;
@@ -68,11 +108,49 @@ const getMakeValue = (vrbl: Variable, parsedFile: ParsedFile): string => {
   }
 };
 
+const makifyName = (nm: string): string => {
+  return nm.toUpperCase().replace(/\./g, '_');
+};
+
+const unresolvedValue = (value: string): DependentValue => {
+  let res = '';
+  let unresolved: Set<string> = new Set();
+  let loc = 0;
+  do {
+    const newloc = value.indexOf('{', loc);
+    if (newloc >= 0) {
+      res = res + value.substring(loc, newloc);
+      const close = value.indexOf('}', newloc + 1);
+      if (close < newloc) {
+        return { value: '', unresolved: new Set() };
+      }
+      const nextSym = value.substring(newloc + 1, close);
+      const symName = makifyName(nextSym);
+      unresolved.add(symName);
+      res = res + '${' + symName + '}';
+      loc = close + 1;
+    } else {
+      res = res + value.substr(loc);
+      loc = -1;
+    }
+  } while (loc >= 0);
+  return { value: res, unresolved };
+};
+
+const getUnresolvedValue: ValueMakerFunc = (
+  vrbl: Variable,
+  parsedFile: ParsedFile
+): DependentValue =>
+  vrbl.value
+    ? unresolvedValue(vrbl.value)
+    : { value: '', unresolved: new Set() };
+
 // top is the root of a 'namespace': We're gonna dump all the children
 const dumpMakeVariables = (
   header: string,
   top: Variable,
   parsedFile: ParsedFile,
+  valueMaker: ValueMakerFunc,
   filter: ?FilterFunc
 ): Set<string> => {
   let defined: Set<string> = new Set();
@@ -83,9 +161,31 @@ const dumpMakeVariables = (
       toDump.push(...vrbl.children.values());
       if (vrbl.value) {
         const varName = getMakeName(vrbl, top);
-        const varValue = getMakeValue(vrbl, parsedFile);
-        console.log(`${header}${varName}=${varValue}`);
+        const varValue = valueMaker(vrbl, parsedFile);
+        console.log(`${header}${varName}=${varValue.value}`);
         defined.add(varName);
+      }
+    }
+  }
+  return defined;
+};
+
+const makeDefinitions = (
+  top: Variable,
+  valueMaker: ValueMakerFunc,
+  condition: Condition,
+  parsedFile: ParsedFile,
+  filter?: FilterFunc
+): Array<Definition> => {
+  let defined: Array<Definition> = [];
+  let toDef: Array<Variable> = [...top.children.values()];
+  while (toDef.length > 0) {
+    const vrbl: Variable = toDef.pop();
+    if (!filter || filter(vrbl)) {
+      if (vrbl.value) {
+        const varName = getMakeName(vrbl, top);
+        const { value, unresolved: deps } = valueMaker(vrbl, parsedFile);
+        defined.push(makeDefinition(varName, value, [...deps], condition));
       }
     }
   }
@@ -111,7 +211,12 @@ const dumpMakeMenuOptions = (
       const header = first ? 'ifeq' : 'else ifeq';
       first = false;
       console.log(`\t${header} $(${makeVarName}, ${item.name})`);
-      const subDef = dumpMakeVariables('\t\t', item, parsedFile);
+      const subDef = dumpMakeVariables(
+        '\t\t',
+        item,
+        parsedFile,
+        getUnresolvedValue
+      );
       defined = new Set([...defined, ...subDef]);
     }
     if (!first) {
@@ -123,10 +228,47 @@ const dumpMakeMenuOptions = (
   return defined;
 };
 
+const makeMenuOptions = (
+  top: Variable,
+  parsedFile: ParsedFile,
+  menus: Set<string>
+): Array<Definition> => {
+  let defs:Array<Definition> = [];
+  const menu = top.children.get('menu');
+  if (!menu) {
+    return defs;
+  }
+  for (let toDump of menu.children.values()) {
+    const makeVarName = 'INPUT_' + toDump.name.toUpperCase();
+    for (let item of toDump.children.values()) {
+      const cn = makeCondition('ifeq', '${'+makeVarName+'}', item.name)
+      const subDef = dumpMakeVariables(
+        item,
+        parsedFile,
+        getUnresolvedValue
+      );
+      defined = new Set([...defined, ...subDef]);
+    }
+    if (!first) {
+      console.log('\telse');
+      console.log(`\t\t$(error Unknown or undefined ${makeVarName} target)`);
+      console.log('\tendif');
+    }
+  }
+  return defined;
+
+};
+
 module.exports = {
   dumpVars: dumpMakeVariables,
   dumpMenuOptions: dumpMakeMenuOptions,
-  getValue: getMakeValue,
+  getValue: resolveValue,
+  getPlainValue: getUnresolvedValue,
   getName: getMakeName,
-  resolve: resolveValue
+  resolve: resolvedValue,
+  unresolve: unresolvedValue,
+  definition: makeDefinition,
+  condition: makeCondition,
+  makeDefinitions,
+  makeMenuOptions
 };

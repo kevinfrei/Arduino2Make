@@ -21,7 +21,6 @@ const dumpProgrammer = (
   programmer: ParsedFile
 ) => {
   console.log('# TODO: maybe generate Programmer stuff?');
-  //  console.log(programmer);
 };
 
 module.exports = dumpProgrammer;

@@ -17,41 +17,27 @@
 const path = require('path');
 
 const parseFile = require('./parser.js');
+const { definition: def, condition: cond } = require('./mkutil.js');
 const dumpBoard = require('./board.js');
 const dumpPlatform = require('./platform.js');
 const dumpProgrammer = require('./programmer.js');
 
-import type { ParsedFile } from './types.js';
+import type { ParsedFile, Condition, Definition } from './types.js';
 
 const main = async (board: string, platform: string, prog: string) => {
   const boardSyms = await parseFile(board);
   const platformSyms = await parseFile(platform);
   const progSyms = await parseFile(prog);
-
-  console.log('# This is designed to be included from your own Makefile');
-  console.log('#');
-  console.log('# Begin general template');
-  console.log('ifeq ($(OS),Windows_NT)');
-  console.log('\tRUNTIME_OS=windows');
-  console.log('else');
-  console.log('\tuname:=$(shell uname -s)');
-  console.log('\tifeq ($(uname),Darwin)');
-  console.log('\t\tRUNTIME_OS=macos');
-  console.log('\telse');
-  console.log('\t\tRUNTIME_OS=linux');
-  console.log('\tendif');
-  console.log('endif');
-  console.log(`RUNTIME_PLATFORM_PATH=${path.resolve(path.dirname(platform))}`);
-  console.log('RUNTIME_IDE_VERSION=10808');
-  console.log('IDE_VERSION=10808');
-  console.log('# TODO: Check for other vars that the user needs to set');
-  console.log('# End general template');
-  console.log('#');
-  console.log('# Begin boards stuff');
+  const initial = [
+    def('RUNTIME_OS', 'windows', cond('ifeq', '$(OS)', 'Windows_NT')),
+    def('uname', '$(shell uname -s)', cond('ifneq', '$(OS)', 'Windows_NT')),
+    def('RUNTIME_OS', 'macos', ['uname'], cond('ifeq', '$(uname)', 'Darwin')),
+    def('RUNTIME_OS', 'linux', ['uname'], cond('ifneq', '$(uname)', 'Darwin')),
+    def('RUNTIME_PLATFORM_PATH', path.resolve(path.dirname(platform))),
+    def('RUNTIME_IDE_VERSION', '10808'),
+    def('IDE_VERSION', '10808')
+  ];
   const boardDefined = dumpBoard(boardSyms);
-  console.log('# End boards stuff');
-  console.log('#');
-  console.log('# Begin platform stuff');
   const platDefined = dumpPlatform(boardDefined, platformSyms);
   console.log('# End platform stuff');
   console.log('#');
