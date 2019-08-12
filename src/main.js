@@ -21,11 +21,9 @@ const dumpBoard = require('./board.js');
 const dumpPlatform = require('./platform.js');
 const dumpProgrammer = require('./programmer.js');
 
-/*::
-import type {ParsedFile} from './types.js';
-*/
+import type { ParsedFile } from './types.js';
 
-const main = async (board/*:string*/, platform/*:string*/, prog/*:string*/) => {
+const main = async (board: string, platform: string, prog: string) => {
   const boardSyms = await parseFile(board);
   const platformSyms = await parseFile(platform);
   const progSyms = await parseFile(prog);

@@ -1,0 +1,4 @@
+{
+  "flow.coverageSeverity": "warn",
+  "flow.runOnAllFiles": true
+}

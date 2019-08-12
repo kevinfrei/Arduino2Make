@@ -6,13 +6,15 @@
 const fs = require('fs');
 const rl = require('readline');
 
-/*::
 import type {
-  Variable, SymbolTable, FlatTable, NamedTable, ParsedFile
+  Variable,
+  SymbolTable,
+  FlatTable,
+  NamedTable,
+  ParsedFile
 } from './types.js';
-*/
 
-const makeFullName = (v/*:Variable*/)/*:string*/ => {
+const makeFullName = (v: Variable): string => {
   let res = v.name;
   while (v.parent) {
     v = v.parent;
@@ -22,14 +24,14 @@ const makeFullName = (v/*:Variable*/)/*:string*/ => {
 };
 
 const makeVariable = (
-  fullName/*:string*/,
-  value/*:string*/,
-  table/*:SymbolTable*/
-)/*:Variable*/ => {
-  const pieces/*:Array<string>*/ = fullName.split('.');
-  let ns/*:?Variable*/;
+  fullName: string,
+  value: string,
+  table: SymbolTable
+): Variable => {
+  const pieces: Array<string> = fullName.split('.');
+  let ns: ?Variable;
   for (let i = 0; i < pieces.length - 1; i++) {
-    const nm/*:string*/ = pieces[i];
+    const nm: string = pieces[i];
     let data = table.get(nm);
     if (data) {
       ns = data;
@@ -42,7 +44,7 @@ const makeVariable = (
   }
   const locName = pieces[pieces.length - 1];
   if (table.get(locName)) {
-    console.error("Duplicate symbol definition: " + fullName);
+    console.error('Duplicate symbol definition: ' + fullName);
     console.error(table.get(locName));
   }
   const res = { name: locName, parent: ns, value, children: new Map() };
@@ -50,15 +52,15 @@ const makeVariable = (
   return res;
 };
 
-const isComment = (line/*:string*/)/*:boolean*/ => {
-  return line.trim().startsWith("#");
+const isComment = (line: string): boolean => {
+  return line.trim().startsWith('#');
 };
 
 const isVariable = (
-  line/*:string*/,
-  table/*:SymbolTable*/,
-  flatsyms/*:FlatTable*/
-)/*:?Variable*/ => {
+  line: string,
+  table: SymbolTable,
+  flatsyms: FlatTable
+): ?Variable => {
   const t = line.trim();
   const eq = t.indexOf('=');
   if (eq < 1) {
@@ -71,9 +73,9 @@ const isVariable = (
 };
 
 // This does what it says it does...
-const parseFile = async (filepath/*:string*/)/*:Promise<ParsedFile>*/ => {
-  const scopedTable/*:SymbolTable*/ = new Map();
-  const flatSymbols/*:FlatTable*/ = new Map();
+const parseFile = async (filepath: string): Promise<ParsedFile> => {
+  const scopedTable: SymbolTable = new Map();
+  const flatSymbols: FlatTable = new Map();
 
   const read = rl.createInterface({ input: fs.createReadStream(filepath) });
   let num = 0;

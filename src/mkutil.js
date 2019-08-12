@@ -3,21 +3,22 @@
 
 // Utilities for doing Makefile stuff
 
-/*::
 import type {
-  Variable, SymbolTable, FlatTable, NamedTable, ParsedFile,
-  ResolvedValue, FilterFunc} from './types.js';
-*/
+  Variable,
+  SymbolTable,
+  FlatTable,
+  NamedTable,
+  ParsedFile,
+  ResolvedValue,
+  FilterFunc
+} from './types.js';
 
 // This takes a value, and returns the resolved value plus the list of
 // undefined names within the value
-const resolveValue = (
-  value/*:string*/,
-  parsedFile/*:ParsedFile*/,
-) /*:ResolvedValue*/ => {
+const resolveValue = (value: string, parsedFile: ParsedFile): ResolvedValue => {
   let res = '';
   let loc = 0;
-  let unresolved/*:Set<string>*/ = new Set();
+  let unresolved: Set<string> = new Set();
   let flatSymbols = parsedFile.flatSymbols;
   do {
     const newloc = value.indexOf('{', loc);
@@ -48,7 +49,7 @@ const resolveValue = (
 };
 
 // Upper-cases with underscores
-const getMakeName = (vrbl/*:Variable*/, top/*:Variable*/) => {
+const getMakeName = (vrbl: Variable, top: Variable) => {
   let name = vrbl.name.toUpperCase();
   while (vrbl.parent && vrbl.parent !== top) {
     vrbl = vrbl.parent;
@@ -58,10 +59,7 @@ const getMakeName = (vrbl/*:Variable*/, top/*:Variable*/) => {
 };
 
 // TODO: This should handle any escaping necessary
-const getMakeValue = (
-  vrbl/*:Variable*/,
-  parsedFile/*:ParsedFile*/
-)/*:string*/ => {
+const getMakeValue = (vrbl: Variable, parsedFile: ParsedFile): string => {
   if (vrbl.value) {
     const res = resolveValue(vrbl.value, parsedFile);
     return res.value;
@@ -72,15 +70,15 @@ const getMakeValue = (
 
 // top is the root of a 'namespace': We're gonna dump all the children
 const dumpMakeVariables = (
-  header/*:string*/,
-  top/*:Variable*/,
-  parsedFile/*:ParsedFile*/,
-  filter/*:?FilterFunc*/
-)/*:Set<string>*/ => {
-  let defined/*:Set<string>*/ = new Set();
-  let toDump/*:Array<Variable>*/ = [...top.children.values()];
+  header: string,
+  top: Variable,
+  parsedFile: ParsedFile,
+  filter: ?FilterFunc
+): Set<string> => {
+  let defined: Set<string> = new Set();
+  let toDump: Array<Variable> = [...top.children.values()];
   while (toDump.length > 0) {
-    const vrbl/*:Variable*/ = toDump.pop();
+    const vrbl: Variable = toDump.pop();
     if (!filter || filter(vrbl)) {
       toDump.push(...vrbl.children.values());
       if (vrbl.value) {
@@ -97,11 +95,11 @@ const dumpMakeVariables = (
 // This dumps 'menu' options nexted in ifeq's
 // It returns the set of *probably* defined variables
 const dumpMakeMenuOptions = (
-  top/*:Variable*/,
-  parsedFile/*:ParsedFile*/,
-  menus/*:Set<string>*/
-)/*:Set<string>*/ => {
-  let defined/*:Set<string>*/ = new Set();
+  top: Variable,
+  parsedFile: ParsedFile,
+  menus: Set<string>
+): Set<string> => {
+  let defined: Set<string> = new Set();
   const menu = top.children.get('menu');
   if (!menu) {
     return defined;

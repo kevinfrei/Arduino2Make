@@ -4,7 +4,6 @@
 
 // Call main with boards.txt platform.txt programmers.txt
 
-const main = require('./src/main.js');
+const main = require('./lib/main.js');
 
-main(process.argv[2], process.argv[3], process.argv[4]).then(a => { });
-
+main(process.argv[2], process.argv[3], process.argv[4]).then(a => {});

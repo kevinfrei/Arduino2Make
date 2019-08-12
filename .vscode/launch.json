@@ -1,0 +1,24 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "program": "${workspaceFolder}/ar2mak.js",
+      "runtimeArgs": ["-r", "flow-remove-types/register"],
+      "args": [
+        "../Adafruit_nRF52_Arduino/boards.txt",
+        "../Adafruit_nRF52_Arduino/platform.txt",
+        "../Adafruit_nRF52_Arduino/programmers.txt"
+      ],
+      // I apparently need to set this to get node debugging working :/
+      "env": {
+        "PATH": "/usr/local/bin"
+      }
+    }
+  ]
+}

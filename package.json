@@ -1,10 +1,18 @@
 {
-  "name": "Arduino2Make",
+  "name": "arduino2make",
   "version": "0.0.1",
   "description": "Arduino platform and library to Makefile conversion tool",
   "main": "ar2mak.js",
   "repository": "https://github.com/kevinfrei/Arduino2Make.git",
   "author": "Kevin Frei <kevinfrei@hotmail.com>",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "scripts": {
+    "flow": "flow",
+    "build": "flow-remove-types src/ -d lib/ --all --pretty"
+  },
+  "devDependencies": {
+    "flow-bin": "^0.105.1",
+    "flow-remove-types": "^2.105.0"
+  }
 }
