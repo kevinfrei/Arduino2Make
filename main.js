@@ -44,6 +44,9 @@ const main = async (board/*:string*/, platform/*:string*/, prog/*:string*/) => {
   console.log('\tendif');
   console.log('endif');
   console.log(`RUNTIME_PLATFORM_PATH=${path.resolve(path.dirname(platform))}`);
+  console.log('RUNTIME_IDE_VERSION=10808');
+  console.log('IDE_VERSION=10808');
+  console.log('# TODO: Check for other vars that the user needs to set');
   console.log('# End general template');
   console.log('#');
   console.log('# Begin boards stuff');
