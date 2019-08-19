@@ -59,3 +59,6 @@ typings/
 
 # next.js build output
 .next
+
+# No output directory from flow-remove-types
+lib

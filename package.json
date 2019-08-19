@@ -9,7 +9,8 @@
   "private": false,
   "scripts": {
     "flow": "flow",
-    "build": "flow-remove-types src/ -d lib/ --all --pretty"
+    "build": "flow-remove-types src/ -d lib/ --all --pretty",
+    "prepublish": "yarn run build"
   },
   "devDependencies": {
     "flow-bin": "^0.105.1",

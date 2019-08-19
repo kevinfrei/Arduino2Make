@@ -38,6 +38,7 @@ const main = async (board: string, platform: string, prog: string) => {
     def('IDE_VERSION', '10808')
   ];
   const boardDefined = dumpBoard(boardSyms);
+  // Working to here!
   const platDefined = dumpPlatform(boardDefined, platformSyms);
   console.log('# End platform stuff');
   console.log('#');
