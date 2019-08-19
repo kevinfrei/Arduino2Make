@@ -27,3 +27,10 @@ export type Definition = {
   dependsOn: Array<string>,
   condition?: Condition | 'default'
 };
+
+export type Recipe = {
+  src: string,
+  dst: string,
+  pattern: string,
+  dependsOn: Array<string>
+};

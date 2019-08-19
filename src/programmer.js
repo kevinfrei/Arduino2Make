@@ -9,15 +9,15 @@ import type {
   FlatTable,
   NamedTable,
   ParsedFile,
-  ResolvedValue,
+  Definition,
   FilterFunc
 } from './types.js';
 
 // Not sure if I need to deal with this stuff
 // Adafruit, this is just bootloader crap, so I haven't done anything for it
 const dumpProgrammer = (
-  board: Set<string>,
-  platform: Set<string>,
+  board: Array<Definition>,
+  platform: Array<Definition>,
   programmer: ParsedFile
 ) => {
   console.log('# TODO: maybe generate Programmer stuff?');

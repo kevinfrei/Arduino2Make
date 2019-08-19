@@ -176,8 +176,8 @@ const dumpMakeVariables = (
 const makeDefinitions = (
   top: Variable,
   valueMaker: ValueMakerFunc,
-  condition: Condition,
   parsedFile: ParsedFile,
+  condition: ?Condition,
   filter?: FilterFunc
 ): Array<Definition> => {
   let defined: Array<Definition> = [];
@@ -189,7 +189,10 @@ const makeDefinitions = (
       if (vrbl.value) {
         const varName = getMakeName(vrbl, top);
         const { value, unresolved: deps } = valueMaker(vrbl, parsedFile);
-        defined.push(makeDefinition(varName, value, [...deps], condition));
+        const def = condition
+          ? makeDefinition(varName, value, [...deps], condition)
+          : makeDefinition(varName, value, [...deps]);
+        defined.push(def);
       }
     }
   }
@@ -246,7 +249,6 @@ const makeMenuOptions = (
     const makeVarName = 'INPUT_' + toDump.name.toUpperCase();
     for (let item of toDump.children.values()) {
       const cn = makeCondition('ifeq', '${' + makeVarName + '}', item.name);
-      debugger;
       const subDef = makeDefinitions(item, getUnresolvedValue, cn, parsedFile);
       defined = [...defined, ...subDef];
     }

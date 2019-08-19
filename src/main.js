@@ -31,36 +31,22 @@ const main = async (board: string, platform: string, prog: string) => {
   const initial = [
     def('RUNTIME_OS', 'windows', cond('ifeq', '$(OS)', 'Windows_NT')),
     def('uname', '$(shell uname -s)', cond('ifneq', '$(OS)', 'Windows_NT')),
-    def('RUNTIME_OS', 'macos', ['uname'], cond('ifeq', '$(uname)', 'Darwin')),
+    def('RUNTIME_OS', 'macosx', ['uname'], cond('ifeq', '$(uname)', 'Darwin')),
     def('RUNTIME_OS', 'linux', ['uname'], cond('ifneq', '$(uname)', 'Darwin')),
     def('RUNTIME_PLATFORM_PATH', path.resolve(path.dirname(platform))),
     def('RUNTIME_IDE_VERSION', '10808'),
     def('IDE_VERSION', '10808')
   ];
   const boardDefined = dumpBoard(boardSyms);
-  // Working to here!
+  // TODO: Don't have recipes & tools handled in the platform yet
   const platDefined = dumpPlatform(boardDefined, platformSyms);
-  console.log('# End platform stuff');
-  console.log('#');
-  console.log('# Begin programmer stuff');
-  dumpProgrammer(boardDefined, platDefined, progSyms);
-  console.log('# End programmer stuff');
-  if (0) {
-    /*
-    let unresolved = new Set();
-    for (let i of boardSyms.flatSymbols) {
-      const resVal = mkutil.resolve(i[1], boardSyms);
-      unresolved = new Set([...unresolved, ...resVal.unresolved]);
-      console.log(`${i[0]}: "${resVal.value}"`);
-    }
-    console.log([...unresolved].sort());
+  // Not gonna deal with the programmer stuff yet, as (at least for Adafruit)
+  // it seems to be just for burning a new bootloader, not for programming an
+  // actual sketch...
+  // dumpProgrammer(boardDefined, platDefined, progSyms);
 
-
-    const val = flatsyms.get('recipe.objcopy.hex.pattern');
-    console.log(val);
-    const reso = mkutil.resolve(val);
-    console.log(reso);*/
-  }
+  // TODO: Make definitions dependent on their condition values, so that I can
+  // put errors in place when mandatory symbols aren't defined before inclusion
 };
 
 module.exports = main;

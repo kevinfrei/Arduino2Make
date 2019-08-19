@@ -8,7 +8,7 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceFolder}/ar2mak.js",
+      "program": "${workspaceFolder}/dbg.js",
       "runtimeArgs": ["-r", "flow-remove-types/register"],
       "args": [
         "../Adafruit_nRF52_Arduino/boards.txt",
