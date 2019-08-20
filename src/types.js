@@ -31,6 +31,6 @@ export type Definition = {
 export type Recipe = {
   src: string,
   dst: string,
-  pattern: string,
+  command: string,
   dependsOn: Array<string>
 };

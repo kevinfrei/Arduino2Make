@@ -18,9 +18,10 @@ const path = require('path');
 
 const parseFile = require('./parser.js');
 const { definition: def, condition: cond } = require('./mkutil.js');
-const dumpBoard = require('./board.js');
-const dumpPlatform = require('./platform.js');
-const dumpProgrammer = require('./programmer.js');
+const buildBoard = require('./board.js');
+const buildPlatform = require('./platform.js');
+const buildProgrammer = require('./programmer.js');
+const {order, emitChecks, emitDefs, emitRules} = require('./postprocessor.js');
 
 import type { ParsedFile, Condition, Definition } from './types.js';
 
@@ -37,9 +38,9 @@ const main = async (board: string, platform: string, prog: string) => {
     def('RUNTIME_IDE_VERSION', '10808'),
     def('IDE_VERSION', '10808')
   ];
-  const boardDefined = dumpBoard(boardSyms);
+  const boardDefined = buildBoard(boardSyms);
   // TODO: Don't have recipes & tools handled in the platform yet
-  const platDefined = dumpPlatform(boardDefined, platformSyms);
+  const { defs: platDefined, rules } = buildPlatform(boardDefined, platformSyms);
   // Not gonna deal with the programmer stuff yet, as (at least for Adafruit)
   // it seems to be just for burning a new bootloader, not for programming an
   // actual sketch...
@@ -47,6 +48,10 @@ const main = async (board: string, platform: string, prog: string) => {
 
   // TODO: Make definitions dependent on their condition values, so that I can
   // put errors in place when mandatory symbols aren't defined before inclusion
+  const {checks, defs} = order([...boardDefined, ...platDefined], rules);
+  emitChecks(checks);
+  emitDefs(defs);
+  emitRules(rules);
 };
 
 module.exports = main;

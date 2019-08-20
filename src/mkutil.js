@@ -249,7 +249,7 @@ const makeMenuOptions = (
     const makeVarName = 'INPUT_' + toDump.name.toUpperCase();
     for (let item of toDump.children.values()) {
       const cn = makeCondition('ifeq', '${' + makeVarName + '}', item.name);
-      const subDef = makeDefinitions(item, getUnresolvedValue, cn, parsedFile);
+      const subDef = makeDefinitions(item, getUnresolvedValue, parsedFile, cn);
       defined = [...defined, ...subDef];
     }
   }
