@@ -48,7 +48,7 @@ const main = async (board: string, platform: string, prog: string) => {
 
   // TODO: Make definitions dependent on their condition values, so that I can
   // put errors in place when mandatory symbols aren't defined before inclusion
-  const {checks, defs} = order([...boardDefined, ...platDefined], rules);
+  const {checks, defs} = order([...initial, ...boardDefined, ...platDefined], rules);
   emitChecks(checks);
   emitDefs(defs);
   emitRules(rules);

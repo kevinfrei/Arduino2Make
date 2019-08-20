@@ -93,7 +93,7 @@ const getMakeName = (vrbl: Variable, top: Variable) => {
   let name = vrbl.name.toUpperCase();
   while (vrbl.parent && vrbl.parent !== top) {
     vrbl = vrbl.parent;
-    name = vrbl.name.toUpperCase() + '_' + name;
+    name = vrbl.name.toUpperCase().replace(/[^A-Z0-9]/g, '_') + '_' + name;
   }
   return name;
 };
@@ -109,7 +109,7 @@ const resolvedValue = (vrbl: Variable, parsedFile: ParsedFile): string => {
 };
 
 const makifyName = (nm: string): string => {
-  return nm.toUpperCase().replace(/\./g, '_');
+  return nm.toUpperCase().replace(/[^A-Z0-9]/g, '_');
 };
 
 const unresolvedValue = (value: string): DependentValue => {

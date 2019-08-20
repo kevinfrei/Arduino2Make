@@ -23,14 +23,15 @@ const order = (
 
   // First, let's identify all the mandatory user-defined symbols
   const allDefs = new Set(defs.map(d => d.name));
-  const allDeps = new Set([].concat(...defs.map(d => d.dependsOn)));
+  const allDeps = new Set(
+    [].concat(...defs.map(d => d.dependsOn), ...rules.map(rec => rec.dependsOn))
+  );
   // Remove allDefs from allDeps
   const checks: Array<string> = [...allDeps].filter(x => !allDefs.has(x));
 
   // Arbitrarily sort the definitions
-  const sorted = defs.sort((a:Definition) => a.name);
 
-  return { checks, defs: sorted };
+  return { checks, defs };
 };
 
 const emitChecks = (checks: Array<string>) => {
