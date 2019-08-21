@@ -15,6 +15,14 @@ import type {
   Recipe
 } from './types.js';
 
+const optionalDefs: Array<string> = [
+  'INCLUDES',
+  'COMPILER_S_EXTRA_FLAGS',
+  'COMPILER_C_EXTRA_FLAGS',
+  'COMPILER_CPP_EXTRA_FLAGS',
+  'UPLOAD_VERBOSE'
+];
+
 const order = (
   defs: Array<Definition>,
   rules: Array<Recipe>
@@ -27,11 +35,15 @@ const order = (
     [].concat(...defs.map(d => d.dependsOn), ...rules.map(rec => rec.dependsOn))
   );
   // Remove allDefs from allDeps
-  const checks: Array<string> = [...allDeps].filter(x => !allDefs.has(x));
+  const checks: Set<string> = new Set(
+    [...allDeps].filter(x => !allDefs.has(x))
+  );
+  // Clear out known optional values
+  optionalDefs.forEach(a => checks.delete(a));
 
-  // Arbitrarily sort the definitions
+  // Sort the definitions in dependent order
 
-  return { checks, defs };
+  return { checks: [...checks.keys()], defs };
 };
 
 const emitChecks = (checks: Array<string>) => {

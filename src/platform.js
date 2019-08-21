@@ -82,10 +82,9 @@ const dumpPlatform = (
   const skip = a => a.name !== 'recipe' && a.name !== 'tools';
   const plain = mkutil.getPlainValue;
   const defined = mkutil.makeDefinitions(fakeTop, plain, platform, null, skip);
-  // TODO: Do something with the recipes & tools
-  // Tools first
+
   const onlyTools = a => a.name === 'tools';
-  // KBF: Continue here, this isn't working yet
+  // TODO: Continue here, this isn't complete yet
   const parentTool = (a: Variable): boolean => {
     for (; a.parent; a = a.parent) {
       if (a.name === 'tools') {
@@ -102,6 +101,8 @@ const dumpPlatform = (
     parentTool
   );
   // TODO: Handle the macosx/windows suffixed tools
+  // TODO: Also handle the {cmd} thing which clearly refers to
+  // the locally scoped cmd (or cmd.windows/cmd.macosx thing)
 
   // Build up all the various make rules from the recipes in the platform file
   const recipeSyms = platform.scopedTable.get('recipe');
