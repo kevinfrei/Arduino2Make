@@ -88,32 +88,79 @@ const emitChecks = (checks: Array<string>) => {
   });
 };
 
+const handleCondition = (
+  prevCond: ?Condition,
+  newCond: ?Condition,
+  depth: string
+): string => {
+  // Some quick, early exits:
+  if (!prevCond && !newCond) {
+    // No conditions before or after
+    return depth;
+  }
+  // stuff on newCond make Flow stop whining :/
+  if (!prevCond && newCond !== null && newCond !== undefined) {
+    // No previous only new
+    console.log(
+      `${depth}${newCond.op} (${newCond.variable}, ${newCond.value})`
+    );
+    return depth + '  ';
+  }
+  const opIndent: string = depth.substr(0, depth.length - 2);
+  if (!newCond) {
+    console.log(opIndent + 'endif');
+    return opIndent;
+  }
+  if (!prevCond) {
+    console.error('NFW: This is here for Flow :/');
+    return opIndent;
+  }
+  // Now we have transitions to optimize
+  const { op: pop, variable: pvar, value: pval } = prevCond;
+  const { op: nop, variable: nvar, value: nval } = newCond;
+  if (pvar !== nvar) {
+    // If they're not operating on the same variable, no optimization
+    console.log(opIndent + 'endif');
+    console.log(`${opIndent}${nop} (${nvar}, ${nval})`);
+    return depth;
+  }
+  if (pval === nval) {
+    if (pop === nop) {
+      // Same condition: no output necessary
+    } else if ((pop === 'ifneq' && nop === 'ifeq') ||
+    (pop === 'ifeq' && nop === 'ifneq')) {
+      // Opposite conditions on the same value & variable, plain 'else'
+      console.log(opIndent + 'else');
+    } else {
+      // Same value & variable, but different condition, no opt
+    console.log(opIndent + 'endif');
+    console.log(`${opIndent}${nop} (${nvar}, ${nval})`);
+    }
+      return depth;
+  }
+  // different values
+  if (pop === 'ifeq' && nop === 'ifeq') {
+    // Checking equality to the same variable, but with different value: else if
+    console.log(`${opIndent}else ${nop} (${nvar}, ${nval})`);
+  } else {
+    // Same variable, different value, but other ops, no optimization
+    console.log(opIndent + 'endif');
+    console.log(`${opIndent}${nop} (${nvar}, ${nval})`);
+  }
+  return depth;
+};
+
 const emitDefs = (defs: Array<Definition>) => {
   console.log('# And here are all the definitions');
   console.log('# with maximally unoptimized condition checks');
-  let curCond: string = '';
+  let cond: ?Condition;
   let depth = '';
   defs.forEach((def: Definition) => {
-    if (def.condition) {
-      const { op, variable, value } = def.condition;
-      const newCond = `${op} (${variable}, ${value})`;
-      if (newCond !== curCond) {
-        if (curCond.length > 0) {
-          console.log('endif');
-        } else {
-          depth = depth + '  ';
-        }
-        console.log(newCond);
-        curCond = newCond;
-      }
-    } else if (curCond.length > 0) {
-      console.log('endif');
-      curCond = '';
-      depth = depth.substr(0, depth.length - 2);
-    }
+    depth = handleCondition(cond, def.condition, depth);
     console.log(`${depth}${def.name}=${def.value}`);
+    cond = def.condition;
   });
-  if (curCond.length > 0) {
+  if (cond) {
     console.log('endif');
   }
 };
