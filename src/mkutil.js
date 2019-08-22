@@ -29,8 +29,8 @@ const makeCondition = (
 const makeDefinition = (
   name: string,
   value: string,
-  dependsOn?: Array<string> | Condition | 'default',
-  condition?: Condition | 'default'
+  dependsOn?: Array<string> | Condition,
+  condition?: Condition
 ): Definition => {
   const err = { name, value, dependsOn: [''] };
   if (condition !== undefined && dependsOn !== undefined) {
