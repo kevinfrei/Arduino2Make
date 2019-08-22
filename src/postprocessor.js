@@ -105,7 +105,11 @@ const emitDefs = (defs: Array<Definition>) => {
 
 const emitRules = (rules: Array<Recipe>) => {
   console.log('# And now the build rules!');
-
+  rules.forEach((rule:Recipe)=>{
+    console.log('');
+    console.log(`%.${rule.dst}:%.${rule.src}`);
+    console.log(`\t${rule.command}`);
+  });
 };
 
 module.exports = {
