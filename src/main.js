@@ -35,13 +35,28 @@ const main = async (board: string, platform: string, prog: string) => {
   const platformSyms = await parseFile(platform);
   const progSyms = await parseFile(prog);
   const initial = [
-    def('RUNTIME_OS', 'windows', cond('ifeq', '$(OS)', 'Windows_NT')),
-    def('uname', '$(shell uname -s)', cond('ifneq', '$(OS)', 'Windows_NT')),
-    def('RUNTIME_OS', 'macosx', ['uname'], cond('ifeq', '$(uname)', 'Darwin')),
-    def('RUNTIME_OS', 'linux', ['uname'], cond('ifneq', '$(uname)', 'Darwin')),
-    def('RUNTIME_PLATFORM_PATH', path.resolve(path.dirname(platform))),
-    def('RUNTIME_IDE_VERSION', '10808'),
-    def('IDE_VERSION', '10808')
+    def('RUNTIME_OS', 'windows', [], [cond('ifeq', '$(OS)', 'Windows_NT')]),
+    def(
+      'uname',
+      '$(shell uname -s)',
+      [],
+      [cond('ifneq', '$(OS)', 'Windows_NT')]
+    ),
+    def(
+      'RUNTIME_OS',
+      'macosx',
+      ['uname'],
+      [cond('ifeq', '$(uname)', 'Darwin')]
+    ),
+    def(
+      'RUNTIME_OS',
+      'linux',
+      ['uname'],
+      [cond('ifneq', '$(uname)', 'Darwin')]
+    ),
+    def('RUNTIME_PLATFORM_PATH', path.resolve(path.dirname(platform)), [], []),
+    def('RUNTIME_IDE_VERSION', '10808', [], []),
+    def('IDE_VERSION', '10808', [], [])
   ];
   const boardDefined = buildBoard(boardSyms);
   // TODO: Don't have recipes & tools fully handled in the platform yet

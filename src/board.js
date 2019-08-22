@@ -32,7 +32,7 @@ const dumpBoard = (board: ParsedFile): Array<Definition> => {
         item,
         mkutil.getPlainValue,
         board,
-        brd,
+        [brd],
         notMenu
       );
       const defMore = mkutil.makeMenuOptions(item, board, menus);

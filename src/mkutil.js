@@ -29,25 +29,10 @@ const makeCondition = (
 const makeDefinition = (
   name: string,
   value: string,
-  dependsOn?: Array<string> | Condition,
-  condition?: Condition
+  dependsOn: Array<string>,
+  condition: Array<Condition>
 ): Definition => {
-  const err = { name, value, dependsOn: [''] };
-  if (condition !== undefined && dependsOn !== undefined) {
-    if (Array.isArray(dependsOn)) {
-      return { name, value, dependsOn, condition };
-    } else {
-      return err;
-    }
-  } else if (dependsOn !== undefined) {
-    if (Array.isArray(dependsOn)) {
-      return { name, value, dependsOn };
-    } else {
-      return { name, value, dependsOn: [], condition: dependsOn };
-    }
-  } else {
-    return { name, value, dependsOn: [] };
-  }
+  return { name, value, dependsOn, condition };
 };
 
 // This takes a value, and returns the resolved value plus the list of
@@ -177,7 +162,7 @@ const makeDefinitions = (
   top: Variable,
   valueMaker: ValueMakerFunc,
   parsedFile: ParsedFile,
-  condition: ?Condition,
+  condition: ?Array<Condition>,
   filter?: FilterFunc
 ): Array<Definition> => {
   let defined: Array<Definition> = [];
@@ -189,9 +174,7 @@ const makeDefinitions = (
       if (vrbl.value) {
         const varName = getMakeName(vrbl, top);
         const { value, unresolved: deps } = valueMaker(vrbl, parsedFile);
-        const def = condition
-          ? makeDefinition(varName, value, [...deps], condition)
-          : makeDefinition(varName, value, [...deps]);
+        const def = makeDefinition(varName, value, [...deps], condition || []);
         defined.push(def);
       }
     }
@@ -249,7 +232,9 @@ const makeMenuOptions = (
     const makeVarName = 'INPUT_' + toDump.name.toUpperCase();
     for (let item of toDump.children.values()) {
       const cn = makeCondition('ifeq', '${' + makeVarName + '}', item.name);
-      const subDef = makeDefinitions(item, getUnresolvedValue, parsedFile, cn);
+      const subDef = makeDefinitions(item, getUnresolvedValue, parsedFile, [
+        cn
+      ]);
       defined = [...defined, ...subDef];
     }
   }

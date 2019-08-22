@@ -25,7 +25,7 @@ export type Definition = {
   name: string,
   value: string,
   dependsOn: Array<string>,
-  condition?: Condition
+  condition: Array<Condition>
 };
 
 export type Recipe = {

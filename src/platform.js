@@ -70,7 +70,7 @@ const dumpPlatform = (
     mkutil.definition(
       'BUILD_CORE_PATH',
       '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}',
-      ['RUNTIME_PLATFORM_PATH', 'BUILD_CORE']
+      ['RUNTIME_PLATFORM_PATH', 'BUILD_CORE'],[]
     )
   ];
   // Now spit out all the variables

@@ -153,14 +153,15 @@ const handleCondition = (
 const emitDefs = (defs: Array<Definition>) => {
   console.log('# And here are all the definitions');
   console.log('# with maximally unoptimized condition checks');
-  let cond: ?Condition;
+  let prevCond: ?Condition;
   let depth = '';
   defs.forEach((def: Definition) => {
-    depth = handleCondition(cond, def.condition, depth);
+    const curCond = (def.condition.length > 0) ? def.condition[0] : undefined;
+    depth = handleCondition(prevCond, curCond, depth);
     console.log(`${depth}${def.name}=${def.value}`);
-    cond = def.condition;
+    prevCond = curCond;
   });
-  if (cond) {
+  if (prevCond) {
     console.log('endif');
   }
 };
