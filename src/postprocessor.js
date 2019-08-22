@@ -83,7 +83,7 @@ const emitChecks = (checks: Array<string>) => {
   console.log('# First, add some errors for undefined values');
   checks.forEach((val: string) => {
     console.log(`ifndef ${val}`);
-    console.log(` $(error ${val} is not defined!)`);
+    console.log(`  $(error ${val} is not defined!)`);
     console.log('endif');
   });
 };
@@ -91,21 +91,36 @@ const emitChecks = (checks: Array<string>) => {
 const emitDefs = (defs: Array<Definition>) => {
   console.log('# And here are all the definitions');
   console.log('# with maximally unoptimized condition checks');
+  let curCond: string = '';
+  let depth = '';
   defs.forEach((def: Definition) => {
     if (def.condition) {
       const { op, variable, value } = def.condition;
-      console.log(`${op} (${variable}, ${value})`);
-    }
-    console.log(`${def.name}=${def.value}`);
-    if (def.condition) {
+      const newCond = `${op} (${variable}, ${value})`;
+      if (newCond !== curCond) {
+        if (curCond.length > 0) {
+          console.log('endif');
+        } else {
+          depth = depth + '  ';
+        }
+        console.log(newCond);
+        curCond = newCond;
+      }
+    } else if (curCond.length > 0) {
       console.log('endif');
+      curCond = '';
+      depth = depth.substr(0, depth.length - 2);
     }
+    console.log(`${depth}${def.name}=${def.value}`);
   });
+  if (curCond.length > 0) {
+    console.log('endif');
+  }
 };
 
 const emitRules = (rules: Array<Recipe>) => {
   console.log('# And now the build rules!');
-  rules.forEach((rule:Recipe)=>{
+  rules.forEach((rule: Recipe) => {
     console.log('');
     console.log(`%.${rule.dst}:%.${rule.src}`);
     console.log(`\t${rule.command}`);
