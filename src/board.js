@@ -35,7 +35,8 @@ const dumpBoard = (board: ParsedFile): Array<Definition> => {
         [brd],
         notMenu
       );
-      const defMore = mkutil.makeMenuOptions(item, board, menus);
+      // TODO: Make this deal with nested conditions
+      const defMore = mkutil.makeMenuOptions(item, board, menus, []);
       defined = [...defined, ...defVars, ...defMore];
     }
   }

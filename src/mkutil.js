@@ -221,7 +221,8 @@ const dumpMakeMenuOptions = (
 const makeMenuOptions = (
   top: Variable,
   parsedFile: ParsedFile,
-  menus: Set<string>
+  menus: Set<string>,
+  initConds: Array<Condition>
 ): Array<Definition> => {
   let defined: Array<Definition> = [];
   const menu = top.children.get('menu');
@@ -233,6 +234,7 @@ const makeMenuOptions = (
     for (let item of toDump.children.values()) {
       const cn = makeCondition('ifeq', '${' + makeVarName + '}', item.name);
       const subDef = makeDefinitions(item, getUnresolvedValue, parsedFile, [
+        ...initConds,
         cn
       ]);
       defined = [...defined, ...subDef];

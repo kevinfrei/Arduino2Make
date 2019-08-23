@@ -152,7 +152,6 @@ const handleCondition = (
 
 const emitDefs = (defs: Array<Definition>) => {
   console.log('# And here are all the definitions');
-  console.log('# with maximally unoptimized condition checks');
   let prevCond: ?Condition;
   let depth = '';
   defs.forEach((def: Definition) => {
