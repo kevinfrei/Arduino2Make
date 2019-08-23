@@ -35,6 +35,9 @@ const dumpBoard = (board: ParsedFile): Array<Definition> => {
         [brd],
         notMenu
       );
+      defVars.forEach((def:Definition) => {
+        def.dependsOn.push('INPUT_BOARD');
+      });
       const defMore = mkutil.makeMenuOptions(item, board, menus, [brd]);
       defined = [...defined, ...defVars, ...defMore];
     }

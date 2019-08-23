@@ -237,6 +237,9 @@ const makeMenuOptions = (
         ...initConds,
         cn
       ]);
+      subDef.forEach((def:Definition) => {
+        def.dependsOn.push(makeVarName);
+      });
       defined = [...defined, ...subDef];
     }
   }
