@@ -54,6 +54,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
         dependsOn: [...unresolved.keys()]
       });
     }
+    // TODO: Add more recipe support in here!
   }
   return result;
 };
