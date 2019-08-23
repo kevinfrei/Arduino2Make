@@ -15,27 +15,20 @@ stuff might be...
 
 ## Currently:
 
-I've got a simple parser together, which gives me a hierarchical list of
-variables with their corresponding 'namespace', along with a flat list of
-'fully qualified' names. I also have value resolution working, which returns a
-resolved string, plus a set of any unresolved names still needed.
+The basics work, but I haven't actually tried it yet. I don't have all
+'recipes' functional, but compiling looks right. I still need to get the
+linking recipe working, then elf to hex and finally flashing.
 
-I've also got the 'boards.txt' file spitting out a set of conditionals in
-Makefile format.
+I don't intend to deal with the bootloader stuff. That happens rarely enough it
+doesn't seem worth the effort. Just use the Arduino IDE...
 
 ## TODO:
 
-Get the platforms stuff working.
-
-Maybe make the project an actual node module, complete with flow type removal
-malarkey?
-
-Hurray :/ At least in the Adafruit nRF52 platform, there's bi-directional
-dependency between board.txt and platform.txt. That will be fun to deal with.
-
-There's also the cmd.{os} default value override mechanism that I should take
-into account for value resolution, particularly as I'm one of those weird
-people that switch between Windows, macOS, and Linux on a semi-regular basis...
-
-And, finally, eventually, make some tests, probably. Jest seems reasonable.
+* Make if's indent properly.
+* Handle rules beyond just compilation/assembling.
+* Try the stuff out (probably with FreiKeys)
+* There's the cmd.{os} default value override mechanism that I should take into
+account for value resolution, particularly as I'm one of those weird people
+that switch between Windows, macOS, and Linux on a semi-regular basis...
+* And, finally, eventually, make some tests, probably. Jest seems reasonable.
 Seriously, I've found it pretty darned useful in a few other projects...
