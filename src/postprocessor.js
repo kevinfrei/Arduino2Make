@@ -89,13 +89,10 @@ const emitChecks = (checks: Array<string>) => {
 };
 
 const itemEqual = (a: Condition, b: Condition): boolean => {
-return      a.op === b.op &&      a.value === b.value &&      a.variable === b.variable;
+  return a.op === b.op && a.value === b.value && a.variable === b.variable;
 };
 
-const openConditions = (
-  conds: Array<Condition>,
-  begin: number
-) => {
+const openConditions = (conds: Array<Condition>, begin: number) => {
   // TODO: Indent
   for (let i = begin; i < conds.length; i++) {
     const cond = conds[i];
@@ -103,7 +100,7 @@ const openConditions = (
   }
 };
 
-const closeConditions = (count: number): string => {
+const closeConditions = (count: number) => {
   // TODO: Indent
   while (count--) {
     console.log('endif');
@@ -120,11 +117,13 @@ const handleCondition = (
   if (index === prevCond.length && index === newCond.length) {
     // Both are done
     return;
-  } else if (index === prevCond.length) {
+  }
+  if (index === prevCond.length) {
     // prev are done, just open new
     openConditions(newCond, index);
     return;
-  } else if (index === newCond.length) {
+  }
+  if (index === newCond.length) {
     // new are done, just close the prev's
     closeConditions(prevCond.length - index);
     return;
@@ -132,7 +131,7 @@ const handleCondition = (
     // If they're the same, nothing to do at this depth, go deeper
     handleCondition(prevCond, newCond, index + 1);
     return;
-  } */ else {
+  } */
   // Now we have "transitions" to optimize
   const { op: pop, variable: pvar, value: pval } = prevCond[index];
   const { op: nop, variable: nvar, value: nval } = newCond[index];
@@ -142,58 +141,61 @@ const handleCondition = (
     closeConditions(prevCond.length - index);
     // open the new uncommon conditions
     openConditions(newCond, index);
-    return;
   }
-  // Continue here...
   // We're operating on the same variable name
-  if (pval === nval) {
+  else if (pval === nval) {
     if (pop === nop) {
-      // Same condition: no output necessary, just recurse!
-      handleCondition(prevCond, newCond, index+1);
-      return;
+      // Same condition: no change necessary, just recurse!
+      handleCondition(prevCond, newCond, index + 1);
     } else if (
+      // different operations...
       (pop === 'ifneq' && nop === 'ifeq') ||
       (pop === 'ifeq' && nop === 'ifneq')
     ) {
       // Opposite conditions on the same value & variable,
       // First close out prevConds,
-closeConditions(prevCond.length - index - 1);
-// then a plain 'else'
+      closeConditions(prevCond.length - index - 1);
+      // then a plain 'else'
       console.log('else');
       // then open the newConds
-      openConditions(newConds, index + 1);
+      openConditions(newCond, index + 1);
     } else {
       // Same value & variable, but different condition, no opt
-      console.log(opIndent + 'endif');
-      console.log(`${opIndent}${nop} (${nvar}, ${nval})`);
+      // Close the previous uncommon conditions
+      closeConditions(prevCond.length - index);
+      // open the new uncommon conditions
+      openConditions(newCond, index);
     }
-    return depth;
-  }
-  // different values
-  if (pop === 'ifeq' && nop === 'ifeq') {
+  } // different values
+  else if (pop === 'ifeq' && nop === 'ifeq') {
     // Checking equality to the same variable, but with different value: else if
-    console.log(`${opIndent}else ${nop} (${nvar}, ${nval})`);
+    // First close out prevConds,
+    closeConditions(prevCond.length - index - 1);
+    // Spit out the else-if
+    console.log(`else ${nop} (${nvar}, ${nval})`);
+    // then open the newConds
+    openConditions(newCond, index + 1);
   } else {
     // Same variable, different value, but other ops, no optimization
-    console.log(opIndent + 'endif');
-    console.log(`${opIndent}${nop} (${nvar}, ${nval})`);
+    // Same value & variable, but different condition, no opt
+    // Close the previous uncommon conditions
+    closeConditions(prevCond.length - index);
+    // open the new uncommon conditions
+    openConditions(newCond, index);
   }
-  return depth;
 };
 
 const emitDefs = (defs: Array<Definition>) => {
   console.log('# And here are all the definitions');
   let prevCond: Array<Condition> = [];
-  let depth = '';
+  //  let depth = '';
   defs.forEach((def: Definition) => {
     const curCond = def.condition.length > 0 ? def.condition : [];
-    depth = handleCondition(prevCond, curCond, depth);
-    console.log(`${depth}${def.name}=${def.value}`);
+    /*depth =*/ handleCondition(prevCond, curCond, 0);
+    console.log(`${def.name}=${def.value}`);
     prevCond = curCond;
   });
-  if (prevCond) {
-    console.log('endif');
-  }
+  closeConditions(prevCond.length);
 };
 
 const emitRules = (rules: Array<Recipe>) => {
