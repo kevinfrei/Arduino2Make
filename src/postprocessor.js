@@ -88,55 +88,86 @@ const emitChecks = (checks: Array<string>) => {
   });
 };
 
+const itemEqual = (a: Condition, b: Condition): boolean => {
+return      a.op === b.op &&      a.value === b.value &&      a.variable === b.variable;
+};
+
+const openConditions = (
+  conds: Array<Condition>,
+  begin: number
+) => {
+  // TODO: Indent
+  for (let i = begin; i < conds.length; i++) {
+    const cond = conds[i];
+    console.log(`${cond.op} (${cond.variable}, ${cond.value})`);
+  }
+};
+
+const closeConditions = (count: number): string => {
+  // TODO: Indent
+  while (count--) {
+    console.log('endif');
+  }
+};
+
+// Recursive, so I can convince myself that it works
 const handleCondition = (
-  prevCond: ?Condition,
-  newCond: ?Condition,
-  depth: string
-): string => {
-  // Some quick, early exits:
-  if (!prevCond && !newCond) {
-    // No conditions before or after
-    return depth;
-  }
-  // stuff on newCond make Flow stop whining :/
-  if (!prevCond && newCond !== null && newCond !== undefined) {
-    // No previous only new
-    console.log(
-      `${depth}${newCond.op} (${newCond.variable}, ${newCond.value})`
-    );
-    return depth + '  ';
-  }
-  const opIndent: string = depth.substr(0, depth.length - 2);
-  if (!newCond) {
-    console.log(opIndent + 'endif');
-    return opIndent;
-  }
-  if (!prevCond) {
-    console.error('NFW: This is here for Flow :/');
-    return opIndent;
-  }
-  // Now we have transitions to optimize
-  const { op: pop, variable: pvar, value: pval } = prevCond;
-  const { op: nop, variable: nvar, value: nval } = newCond;
+  prevCond: Array<Condition>,
+  newCond: Array<Condition>,
+  index: number
+) => {
+  // Recursion termination conditions:
+  if (index === prevCond.length && index === newCond.length) {
+    // Both are done
+    return;
+  } else if (index === prevCond.length) {
+    // prev are done, just open new
+    openConditions(newCond, index);
+    return;
+  } else if (index === newCond.length) {
+    // new are done, just close the prev's
+    closeConditions(prevCond.length - index);
+    return;
+  } /*else if (itemEqual(prevCond[index], newCode[index])) {
+    // If they're the same, nothing to do at this depth, go deeper
+    handleCondition(prevCond, newCond, index + 1);
+    return;
+  } */ else {
+  // Now we have "transitions" to optimize
+  const { op: pop, variable: pvar, value: pval } = prevCond[index];
+  const { op: nop, variable: nvar, value: nval } = newCond[index];
   if (pvar !== nvar) {
     // If they're not operating on the same variable, no optimization
-    console.log(opIndent + 'endif');
-    console.log(`${opIndent}${nop} (${nvar}, ${nval})`);
-    return depth;
+    // Close the previous uncommon conditions
+    closeConditions(prevCond.length - index);
+    // open the new uncommon conditions
+    openConditions(newCond, index);
+    return;
   }
+  // Continue here...
+  // We're operating on the same variable name
   if (pval === nval) {
     if (pop === nop) {
-      // Same condition: no output necessary
-    } else if ((pop === 'ifneq' && nop === 'ifeq') ||
-    (pop === 'ifeq' && nop === 'ifneq')) {
-      // Opposite conditions on the same value & variable, plain 'else'
-      console.log(opIndent + 'else');
+      // Same condition: no output necessary, just recurse!
+      handleCondition(prevCond, newCond, index+1);
+      return;
+    } else if (
+      (pop === 'ifneq' && nop === 'ifeq') ||
+      (pop === 'ifeq' && nop === 'ifneq')
+    ) {
+      // Opposite conditions on the same value & variable,
+      // First close out prevConds,
+closeConditions(prevCond.length - index - 1);
+// then a plain 'else'
+      console.log('else');
+      // then open the newConds
+      openConditions(newConds, index + 1);
     } else {
       // Same value & variable, but different condition, no opt
-    console.log(opIndent + 'endif');
-    console.log(`${opIndent}${nop} (${nvar}, ${nval})`);
+      console.log(opIndent + 'endif');
+      console.log(`${opIndent}${nop} (${nvar}, ${nval})`);
     }
-      return depth;
+    return depth;
   }
   // different values
   if (pop === 'ifeq' && nop === 'ifeq') {
@@ -152,10 +183,10 @@ const handleCondition = (
 
 const emitDefs = (defs: Array<Definition>) => {
   console.log('# And here are all the definitions');
-  let prevCond: ?Condition;
+  let prevCond: Array<Condition> = [];
   let depth = '';
   defs.forEach((def: Definition) => {
-    const curCond = (def.condition.length > 0) ? def.condition[0] : undefined;
+    const curCond = def.condition.length > 0 ? def.condition : [];
     depth = handleCondition(prevCond, curCond, depth);
     console.log(`${depth}${def.name}=${def.value}`);
     prevCond = curCond;
