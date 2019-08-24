@@ -95,18 +95,24 @@ const itemEqual = (a: Condition, b: Condition): boolean => {
   return a.op === b.op && a.value === b.value && a.variable === b.variable;
 };
 
+const getSpaces = (len: number): string => {
+  let str = '';
+  while (--len >= 0) str += '  ';
+  return str;
+};
+
 const openConditions = (conds: Array<Condition>, begin: number) => {
   // TODO: Indent
   for (let i = begin; i < conds.length; i++) {
     const cond = conds[i];
-    console.log(`${cond.op} (${cond.variable}, ${cond.value})`);
+    console.log(`${getSpaces(i)}${cond.op} (${cond.variable}, ${cond.value})`);
   }
 };
 
-const closeConditions = (count: number) => {
+const closeConditions = (indent: number, count: number) => {
   // TODO: Indent
   while (count--) {
-    console.log('endif');
+    console.log(`${getSpaces(--indent)}endif`);
   }
 };
 
@@ -128,20 +134,16 @@ const handleCondition = (
   }
   if (index === newCond.length) {
     // new are done, just close the prev's
-    closeConditions(prevCond.length - index);
+    closeConditions(prevCond.length, prevCond.length - index);
     return;
-  } /*else if (itemEqual(prevCond[index], newCode[index])) {
-    // If they're the same, nothing to do at this depth, go deeper
-    handleCondition(prevCond, newCond, index + 1);
-    return;
-  } */
+  }
   // Now we have "transitions" to optimize
   const { op: pop, variable: pvar, value: pval } = prevCond[index];
   const { op: nop, variable: nvar, value: nval } = newCond[index];
   if (pvar !== nvar) {
     // If they're not operating on the same variable, no optimization
     // Close the previous uncommon conditions
-    closeConditions(prevCond.length - index);
+    closeConditions(prevCond.length, prevCond.length - index);
     // open the new uncommon conditions
     openConditions(newCond, index);
   }
@@ -157,15 +159,15 @@ const handleCondition = (
     ) {
       // Opposite conditions on the same value & variable,
       // First close out prevConds,
-      closeConditions(prevCond.length - index - 1);
+      closeConditions(prevCond.length, prevCond.length - index - 1);
       // then a plain 'else'
-      console.log('else');
+      console.log(`${getSpaces(index)}else`);
       // then open the newConds
       openConditions(newCond, index + 1);
     } else {
       // Same value & variable, but different condition, no opt
       // Close the previous uncommon conditions
-      closeConditions(prevCond.length - index);
+      closeConditions(prevCond.length, prevCond.length - index);
       // open the new uncommon conditions
       openConditions(newCond, index);
     }
@@ -173,16 +175,16 @@ const handleCondition = (
   else if (pop === 'ifeq' && nop === 'ifeq') {
     // Checking equality to the same variable, but with different value: else if
     // First close out prevConds,
-    closeConditions(prevCond.length - index - 1);
+    closeConditions(prevCond.length, prevCond.length - index - 1);
     // Spit out the else-if
-    console.log(`else ${nop} (${nvar}, ${nval})`);
+    console.log(`${getSpaces(index)}else ${nop} (${nvar}, ${nval})`);
     // then open the newConds
     openConditions(newCond, index + 1);
   } else {
     // Same variable, different value, but other ops, no optimization
     // Same value & variable, but different condition, no opt
     // Close the previous uncommon conditions
-    closeConditions(prevCond.length - index);
+    closeConditions(prevCond.length, prevCond.length - index);
     // open the new uncommon conditions
     openConditions(newCond, index);
   }
@@ -195,11 +197,11 @@ const emitDefs = (defs: Array<Definition>) => {
   defs.forEach((def: Definition) => {
     const curCond = def.condition.length > 0 ? def.condition : [];
     /*depth =*/ handleCondition(prevCond, curCond, 0);
-    const indent = def.condition.map(a=>'  ').join('');
+    const indent = def.condition.map(a => '  ').join('');
     console.log(`${indent}${def.name}=${def.value}`);
     prevCond = curCond;
   });
-  closeConditions(prevCond.length);
+  closeConditions(prevCond.length - 1, prevCond.length);
 };
 
 const emitRules = (rules: Array<Recipe>) => {

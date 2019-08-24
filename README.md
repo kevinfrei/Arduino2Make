@@ -25,13 +25,12 @@ doesn't seem worth the effort. Just use the Arduino IDE...
 ## TODO:
 
 * Get the user source file list
-* Handle enumerating the source code properly (I think this also means some
-  special casing for the variant folder?)
+* Handle enumerating the source code properly
+  * The board contains both the core and, if it exists, the variant to include
 * Create the list of .o's for both user & system
 * Try the stuff out (probably with FreiKeys)
 * There's the cmd.{os} default value override mechanism that I should take into
   account for value resolution, particularly as I'm one of those weird people
   that switch between Windows, macOS, and Linux on a semi-regular basis...
-* Make if's indent properly.
 * And, finally, eventually, make some tests, probably. Jest seems reasonable.
   Seriously, I've found it pretty darned useful in a few other projects...
