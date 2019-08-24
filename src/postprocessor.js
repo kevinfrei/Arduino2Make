@@ -20,6 +20,9 @@ const optionalDefs: Array<string> = [
   'COMPILER_S_EXTRA_FLAGS',
   'COMPILER_C_EXTRA_FLAGS',
   'COMPILER_CPP_EXTRA_FLAGS',
+  'COMPILER_C_ELF_EXTRA_FLAGS',
+  'COMPILER_ELF2HEX_EXTRA_FLAGS',
+  'COMPILER_AR_EXTRA_FLAGS',
   'UPLOAD_VERBOSE'
 ];
 
@@ -192,7 +195,8 @@ const emitDefs = (defs: Array<Definition>) => {
   defs.forEach((def: Definition) => {
     const curCond = def.condition.length > 0 ? def.condition : [];
     /*depth =*/ handleCondition(prevCond, curCond, 0);
-    console.log(`${def.name}=${def.value}`);
+    const indent = def.condition.map(a=>'  ').join('');
+    console.log(`${indent}${def.name}=${def.value}`);
     prevCond = curCond;
   });
   closeConditions(prevCond.length);
@@ -202,7 +206,23 @@ const emitRules = (rules: Array<Recipe>) => {
   console.log('# And now the build rules!');
   rules.forEach((rule: Recipe) => {
     console.log('');
-    console.log(`%.${rule.dst}:%.${rule.src}`);
+    if (rule.dst === 'o') {
+      console.log(`$\{BUILD_PATH\}/%.${rule.dst}:%.${rule.src}`);
+    } else if (rule.dst === 'a') {
+      console.log('${BUILD_PATH}/system.a: ${SYSTEM_OBJS}');
+    } else if (rule.dst === 'elf') {
+      console.log(
+        '${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf: ' +
+          '${BUILD_PATH}/system.a ${USER_OBJS}'
+      );
+    } else {
+      console.log(
+        '${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
+          rule.dst +
+          ':${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
+          rule.src
+      );
+    }
     console.log(`\t${rule.command}`);
   });
 };

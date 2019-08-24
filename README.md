@@ -24,11 +24,14 @@ doesn't seem worth the effort. Just use the Arduino IDE...
 
 ## TODO:
 
-* Make if's indent properly.
-* Handle rules beyond just compilation/assembling.
+* Get the user source file list
+* Handle enumerating the source code properly (I think this also means some
+  special casing for the variant folder?)
+* Create the list of .o's for both user & system
 * Try the stuff out (probably with FreiKeys)
 * There's the cmd.{os} default value override mechanism that I should take into
-account for value resolution, particularly as I'm one of those weird people
-that switch between Windows, macOS, and Linux on a semi-regular basis...
+  account for value resolution, particularly as I'm one of those weird people
+  that switch between Windows, macOS, and Linux on a semi-regular basis...
+* Make if's indent properly.
 * And, finally, eventually, make some tests, probably. Jest seems reasonable.
-Seriously, I've found it pretty darned useful in a few other projects...
+  Seriously, I've found it pretty darned useful in a few other projects...

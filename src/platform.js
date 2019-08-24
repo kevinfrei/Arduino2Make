@@ -10,52 +10,111 @@ import type {
   NamedTable,
   ParsedFile,
   FilterFunc,
+  DependentValue,
   Definition,
   Condition,
   Recipe
 } from './types.js';
 
+const getNestedChild = (vrbl: Variable, children: Array<string>): ?Variable => {
+  let v: ?Variable = vrbl;
+  for (let child of children) {
+    if (!v) {
+      return;
+    }
+    v = v.children.get(child);
+  }
+  return v;
+};
+
+// For reference, stuff like $@, $^, and $< are called 'automatic variables'
+// in the GNU Makefile documentation
 const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
+  const getRule = (location: Array<string>): ?DependentValue => {
+    const pattern: ?Variable = getNestedChild(recipes, location);
+    if (pattern) {
+      let res = mkutil.getPlainValue(pattern, plat);
+      if (res.value.length > 0) {
+        return res;
+      }
+    }
+  };
+
+  const makeRule = (
+    location: Array<string>,
+    lhs: string,
+    rhs: string
+  ): ?DependentValue => {
+    const depVal = getRule(location);
+    if (!depVal || !depVal.unresolved.has(rhs) || !depVal.unresolved.has(lhs)) {
+      return;
+    }
+    let value = depVal.value
+      .replace('${' + rhs + '}', '$<')
+      .replace('${' + lhs + '}', '$@');
+    depVal.unresolved.delete(lhs);
+    depVal.unresolved.delete(rhs);
+    return { value, unresolved: depVal.unresolved };
+  };
   let result: Array<Recipe> = [];
   // Produces a bunch of things like this:
   // (outdir)%.S.o: %.S
   //  ${tool} -c ${flags} -o $@ $<
 
-  // I expect .S.o, .c.o, and .cpp.o compilation patterns
-  // There are also .c.combine which is really .o's to .elf
-  // simple .ar to which is "shove a .o into an .ar"
-  // Then there's objcopy.hex, which is actually .elf to .hex
-  // Also objcopy.zip which is .hex to .zip
-  // In addition, there's size which is to figure out the size of the package
-  // and a couple others
-
   // First, let's just get the .o producers
   for (let src of ['S', 'c', 'cpp']) {
-    const sym: ?Variable = recipes.children.get(src);
-    if (!sym) continue;
-    const o: ?Variable = sym.children.get('o');
-    if (!o) continue;
-    const pattern: ?Variable = o.children.get('pattern');
-    if (!pattern) continue;
-    // We've got the pattern. Get the value, and replace the special things
-    // as appropriate
-    const { value, unresolved } = mkutil.getPlainValue(pattern, plat);
-    if (value.length === 0) continue;
-    if (unresolved.has('SOURCE_FILE') && unresolved.has('OBJECT_FILE')) {
-      const command = value
-        .replace('${SOURCE_FILE}', '$<')
-        .replace('${OBJECT_FILE}', '$@');
-      unresolved.delete('SOURCE_FILE');
-      unresolved.delete('OBJECT_FILE');
-      result.push({
-        src,
-        dst: 'o',
-        command,
-        dependsOn: [...unresolved.keys()]
-      });
-    }
-    // TODO: Add more recipe support in here!
+    const depVal: ?DependentValue = makeRule(
+      [src, 'o', 'pattern'],
+      'OBJECT_FILE',
+      'SOURCE_FILE'
+    );
+    if (!depVal) continue;
+    const dependsOn = [...depVal.unresolved];
+    result.push({ src, dst: 'o', command: depVal.value, dependsOn });
   }
+
+  // Create archives (recipe.ar.pattern) sys*.o's => sys.a
+  const arcDepVal: ?DependentValue = makeRule(
+    ['ar', 'pattern'],
+    'ARCHIVE_FILE_PATH',
+    'OBJECT_FILE'
+  );
+  if (arcDepVal) {
+    const dependsOn = [...arcDepVal.unresolved];
+    result.push({ src: 'o', dst: 'a', command: arcDepVal.value, dependsOn });
+  }
+  // linker (recipe.c.combine.patthern) *.o + sys.a => %.elf
+  const linkDepVal: ?DependentValue = getRule(['c', 'combine', 'pattern']);
+  if (linkDepVal) {
+    let { value: command, unresolved: deps } = linkDepVal;
+    deps.delete('OBJECT_FILES');
+    deps.delete('ARCHIVE_FILE');
+    command = command
+      .replace('${OBJECT_FILES}', '${USER_OBJS}')
+      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf', '$@')
+      .replace('${ARCHIVE_FILE}', 'system.a');
+    result.push({ src: 'o-a', dst: 'elf', command, dependsOn: [...deps] });
+  }
+  // hex (recipe.objcopy.hex.pattern) .elf => .hex
+  const hexDepVal: ?DependentValue = getRule(['objcopy', 'hex', 'pattern']);
+  if (hexDepVal) {
+    let { value: command, unresolved: deps } = hexDepVal;
+    command = command
+      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf', '$<')
+      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex', '$@');
+    result.push({ src: 'elf', dst: 'hex', command, dependsOn: [...deps] });
+  }
+  // dfu zip packager (recipe.objcopy.zip.pattern) .hex => .zip
+  const zipDepVal: ?DependentValue = getRule(['objcopy', 'zip', 'pattern']);
+  if (zipDepVal) {
+    let { value: command, unresolved: deps } = zipDepVal;
+    command = command
+      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex', '$<')
+      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.zip', '$@');
+    result.push({ src: 'hex', dst: 'zip', command, dependsOn: [...deps] });
+  }
+  // Future: Add more recipe support in here?
+  // size, and whatever the 'output.tmp_file/save_file stuff is used for...
   return result;
 };
 
@@ -86,7 +145,6 @@ const dumpPlatform = (
   const defined = mkutil.makeDefinitions(fakeTop, plain, platform, null, skip);
 
   const onlyTools = a => a.name === 'tools';
-  // TODO: Continue here, this isn't complete yet
   const parentTool = (a: Variable): boolean => {
     for (; a.parent; a = a.parent) {
       if (a.name === 'tools') {
@@ -105,6 +163,8 @@ const dumpPlatform = (
   // TODO: Handle the macosx/windows suffixed tools
   // TODO: Also handle the {cmd} thing which clearly refers to
   // the locally scoped cmd (or cmd.windows/cmd.macosx thing)
+  // as well as the tools.(name).OPERATION.pattern
+  // and tools.(name).OPERATION.params.VARNAME
 
   // Build up all the various make rules from the recipes in the platform file
   const recipeSyms = platform.scopedTable.get('recipe');
@@ -112,6 +172,7 @@ const dumpPlatform = (
     ? makeRecipes(recipeSyms, platform)
     : [];
 
+  // TODO: Get the file list together (just more definitions, I think)
   return { defs: [...defs, ...defined, ...toolDefs], rules };
 };
 

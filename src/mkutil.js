@@ -122,7 +122,7 @@ const unresolvedValue = (value: string): DependentValue => {
   return { value: res, unresolved };
 };
 
-const getUnresolvedValue: ValueMakerFunc = (
+const getPlainValue: ValueMakerFunc = (
   vrbl: Variable,
   parsedFile: ParsedFile
 ): DependentValue => {
@@ -131,31 +131,6 @@ const getUnresolvedValue: ValueMakerFunc = (
   } else {
     return { value: '', unresolved: new Set() };
   }
-};
-
-// top is the root of a 'namespace': We're gonna dump all the children
-const dumpMakeVariables = (
-  header: string,
-  top: Variable,
-  parsedFile: ParsedFile,
-  valueMaker: ValueMakerFunc,
-  filter: ?FilterFunc
-): Set<string> => {
-  let defined: Set<string> = new Set();
-  let toDump: Array<Variable> = [...top.children.values()];
-  while (toDump.length > 0) {
-    const vrbl: Variable = toDump.pop();
-    if (!filter || filter(vrbl)) {
-      toDump.push(...vrbl.children.values());
-      if (vrbl.value) {
-        const varName = getMakeName(vrbl, top);
-        const varValue = valueMaker(vrbl, parsedFile);
-        console.log(`${header}${varName}=${varValue.value}`);
-        defined.add(varName);
-      }
-    }
-  }
-  return defined;
 };
 
 const makeDefinitions = (
@@ -182,42 +157,6 @@ const makeDefinitions = (
   return defined;
 };
 
-// This dumps 'menu' options nexted in ifeq's
-// It returns the set of *probably* defined variables
-const dumpMakeMenuOptions = (
-  top: Variable,
-  parsedFile: ParsedFile,
-  menus: Set<string>
-): Set<string> => {
-  let defined: Set<string> = new Set();
-  const menu = top.children.get('menu');
-  if (!menu) {
-    return defined;
-  }
-  for (let toDump of menu.children.values()) {
-    let first = true;
-    const makeVarName = 'INPUT_' + toDump.name.toUpperCase();
-    for (let item of toDump.children.values()) {
-      const header = first ? 'ifeq' : 'else ifeq';
-      first = false;
-      console.log(`\t${header} $(${makeVarName}, ${item.name})`);
-      const subDef = dumpMakeVariables(
-        '\t\t',
-        item,
-        parsedFile,
-        getUnresolvedValue
-      );
-      defined = new Set([...defined, ...subDef]);
-    }
-    if (!first) {
-      console.log('\telse');
-      console.log(`\t\t$(error Unknown or undefined ${makeVarName} target)`);
-      console.log('\tendif');
-    }
-  }
-  return defined;
-};
-
 const makeMenuOptions = (
   top: Variable,
   parsedFile: ParsedFile,
@@ -233,7 +172,7 @@ const makeMenuOptions = (
     const makeVarName = 'INPUT_' + toDump.name.toUpperCase();
     for (let item of toDump.children.values()) {
       const cn = makeCondition('ifeq', '${' + makeVarName + '}', item.name);
-      const subDef = makeDefinitions(item, getUnresolvedValue, parsedFile, [
+      const subDef = makeDefinitions(item, getPlainValue, parsedFile, [
         ...initConds,
         cn
       ]);
@@ -247,13 +186,8 @@ const makeMenuOptions = (
 };
 
 module.exports = {
-  dumpVars: dumpMakeVariables,
-  dumpMenuOptions: dumpMakeMenuOptions,
-  getValue: resolveValue,
-  getPlainValue: getUnresolvedValue,
-  getName: getMakeName,
+  getPlainValue,
   resolve: resolvedValue,
-  unresolve: unresolvedValue,
   definition: makeDefinition,
   condition: makeCondition,
   makeDefinitions,
