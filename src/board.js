@@ -16,7 +16,6 @@ import type {
 
 // This spits out the board configuration data in Makefile format
 // It returns the set of *probably* defined variables, for use later
-// TODO: Handle the !@#$ dependency in the Adafruit board.txt on platform.txt
 const dumpBoard = (board: ParsedFile): Array<Definition> => {
   let menus: Set<string> = new Set();
   let defined: Array<Definition> = [];

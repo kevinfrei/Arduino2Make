@@ -1,7 +1,12 @@
 // @flow
 // @format
 
+const fs = require('fs');
+const path = require('path');
+
 const mkutil = require('./mkutil.js');
+const mkdef = mkutil.definition;
+const mkcnd = mkutil.condition;
 
 import type {
   Variable,
@@ -118,22 +123,44 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
   return result;
 };
 
+const enumerateFiles = (root: string): Array<string> =>
+  fs.statSync(root).isDirectory()
+    ? [].concat.apply(
+        [],
+        fs.readdirSync(root).map(f => enumerateFiles(path.join(root, f)))
+      )
+    : [root];
+
+const getPath = (fn: string) => fn.substr(0, fn.lastIndexOf('/'));
+const getFileList = (path: string) => {
+  const allFiles: Array<string> = enumerateFiles(path);
+  const c = allFiles.filter(fn => fn.endsWith('.c'));
+  const cpp = allFiles.filter(fn => fn.endsWith('.cpp'));
+  const s = allFiles.filter(fn => fn.endsWith('.S'));
+  const paths = [...new Set(allFiles.map(getPath))];
+  /*const inc = [
+    ...new Set(allFiles.filter(fn => fn.endsWith('.h')).map(getPath))
+  ];*/
+  return { c, cpp, s, paths /*, inc */ };
+};
 // This generates the rules & whatnot for the platform data
 // This is the 'meat' of the whole thing, as recipes generate very different
 // Makefile code.
 // It also returns the set of probably defined values generated from this code
 const dumpPlatform = (
   boardDefs: Array<Definition>,
-  platform: ParsedFile
+  platform: ParsedFile,
+  rootpath: string
 ): { defs: Array<Definition>, rules: Array<Recipe> } => {
   let defs: Array<Definition> = [
-    mkutil.definition(
+    mkdef(
       'BUILD_CORE_PATH',
       '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}',
       ['RUNTIME_PLATFORM_PATH', 'BUILD_CORE'],
       []
     )
   ];
+
   // Now spit out all the variables
   const fakeTop = {
     name: 'fake',
@@ -173,7 +200,80 @@ const dumpPlatform = (
     : [];
 
   // TODO: Get the file list together (just more definitions, I think)
-  return { defs: [...defs, ...defined, ...toolDefs], rules };
+  // For each build.core, create a file list
+  const cores: Set<string> = new Set(
+    boardDefs.filter(def => def.name === 'BUILD_CORE').map(def => def.value)
+  );
+
+  const variants: Set<string> = new Set(
+    boardDefs.filter(def => def.name === 'BUILD_VARIANT').map(def => def.value)
+  );
+
+  let fileDefs: Array<Definition> = [];
+  // Get the full file list & include path for each core & variant
+  const mkSysList = (
+    name: string,
+    files: Array<string>,
+    depend: string,
+    cnd: Array<Condition>
+  ): Definition => mkdef(name, files.join(' \\\n    '), [depend], cnd);
+
+  for (let core of cores) {
+    const { c, cpp, s, paths /*, inc*/ } = getFileList(
+      rootpath + '/cores/' + core
+    );
+    const cnd = [mkcnd('ifeq', '${BUILD_CORE}', core)];
+    fileDefs.push(mkSysList('C_SYS_CORE_SRCS', c, 'BUILD_CORE', cnd));
+    fileDefs.push(mkSysList('CPP_SYS_CORE_SRCS', cpp, 'BUILD_CORE', cnd));
+    fileDefs.push(mkSysList('S_SYS_CORE_SRCS', s, 'BUILD_CORE', cnd));
+    //    fileDefs.push(mkSysList('SYS_CORE_INCLUDES', inc, 'BUILD_CORE', cnd));
+
+    // I need to decide: VPATH or multiple rules!
+    // VPATH is easier, so for now let's do that
+    fileDefs.push(mkdef('VPATH_CORE', paths.join(':'), ['BUILD_CORE'], cnd));
+  }
+  for (let vrn of variants) {
+    const { c, cpp, s, paths /*, inc*/ } = getFileList(
+      rootpath + '/variants/' + vrn
+    );
+    const cnd = [mkcnd('ifeq', '${BUILD_VARIANT}', vrn)];
+    fileDefs.push(mkSysList('C_SYS_VAR_SRCS', c, 'BUILD_VARIANT', cnd));
+    fileDefs.push(mkSysList('CPP_SYS_VAR_SRCS', cpp, 'BUILD_VARIANT', cnd));
+    fileDefs.push(mkSysList('S_SYS_VAR_SRCS', s, 'BUILD_VARIANT', cnd));
+    //    fileDefs.push(mkSysList('SYS_VAR_INCLUDES', inc, 'BUILD_VARIANT', cnd));
+    // I need to decide: VPATH or multiple rules!
+    // VPATH is easier, so for now let's do that
+    fileDefs.push(mkdef('VPATH_VAR', paths.join(':'), ['BUILD_VARIANT'], cnd));
+  }
+
+  const sycSrcVal =
+    '${C_SYS_VAR_SRCS} ${CPP_SYS_VAR_SRCS} ${S_SYS_VAR_SRCS} ' +
+    '${C_SYS_CORE_SRCS} ${CPP_SYS_CORE_SRCS} ${S_SYS_CORE_SRCS}';
+  const usrSrcVal = '${USER_C_SRCS} ${USER_CPP_SRCS} ${USER_S_SRCS}';
+  fileDefs.push(mkdef('SYS_SRC', sycSrcVal, [], []));
+  fileDefs.push(mkdef('USER_SRC', usrSrcVal, [], []));
+
+  // Add the transformations for source files to obj's
+  fileDefs.push(mkdef('ALL_SRC', '${SYS_SRC} ${USER_SRC}', [], []));
+  fileDefs.push(mkdef('VPATH', '${VPATH_CORE}:${VPATH_VAR}', [], []));
+  const mkObjList = (name: string, varname: string): Definition =>
+    mkdef(
+      name,
+      `\\
+  $(addprefix $\{BUILD_PATH}/, \\
+    $(patsubst %.c, %.c.o, \\
+      $(patsubst %.cpp, %.cpp.o, \\
+        $(patsubst %.S, %.S.o, $(notdir $\{${varname}\})))))`,
+      [],
+      []
+    );
+  fileDefs.push(mkObjList('SYS_OBJS', 'SYS_SRC'));
+  fileDefs.push(mkObjList('USER_OBJS', 'USER_SRC'));
+  fileDefs.push(mkdef('ALL_OBJS', '${USER_OBJS} ${SYS_OBJS}', [], []));
+  //ALL_OBJS = \
+  // $(addprefix ${M_OUT}/, $(patsubst %.cpp, %.cpp.o, $(notdir ${TUSB_SRCS})))
+
+  return { defs: [...defs, ...defined, ...toolDefs, ...fileDefs], rules };
 };
 
 module.exports = dumpPlatform;

@@ -49,7 +49,11 @@ const main = async (board: string, platform: string, prog: string) => {
   ];
   const boardDefined = buildBoard(boardSyms);
   // TODO: Don't have recipes & tools fully handled in the platform yet
-  const { defs: platDefined, rules } = buildPlatform(boardDefined, platSyms);
+  const { defs: platDefined, rules } = buildPlatform(
+    boardDefined,
+    platSyms,
+    platform.substr(0, platform.lastIndexOf('/'))
+  );
   // Not gonna deal with the programmer stuff yet, as (at least for Adafruit)
   // it seems to be just for burning a new bootloader, not for programming an
   // actual sketch...

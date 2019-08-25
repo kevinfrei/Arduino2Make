@@ -15,20 +15,19 @@ stuff might be...
 
 ## Currently:
 
-The basics work, but I haven't actually tried it yet. I don't have all
-'recipes' functional, but compiling looks right. I still need to get the
-linking recipe working, then elf to hex and finally flashing.
+Compiling is progressing, but not completing because I'm missing a few things.
+There are also a couple of explicit things I've had to work around
+
+To see the almost functioning input, checkout my FreiKeys projects 'bt-3piece'
+branch, for the 'test-a2m.mak' makefile.
 
 I don't intend to deal with the bootloader stuff. That happens rarely enough it
 doesn't seem worth the effort. Just use the Arduino IDE...
 
 ## TODO:
 
-* Get the user source file list
-* Handle enumerating the source code properly
-  * The board contains both the core and, if it exists, the variant to include
-* Create the list of .o's for both user & system
-* Try the stuff out (probably with FreiKeys)
+* Get the -D defines wrapped in quotes properly
+* Eliminate the silly workarounds currently necessary for some implicit oddities
 * There's the cmd.{os} default value override mechanism that I should take into
   account for value resolution, particularly as I'm one of those weird people
   that switch between Windows, macOS, and Linux on a semi-regular basis...

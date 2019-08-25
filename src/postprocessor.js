@@ -89,6 +89,16 @@ const emitChecks = (checks: Array<string>) => {
     console.log(`  $(error ${val} is not defined!)`);
     console.log('endif');
   });
+  console.log(`
+# Check for some source files
+ifndef USER_C_SRCS
+  ifndef USER_CPP_SRCS
+    ifndef USER_S_SRCS
+      $(error You must define USER_C_SRCS, USER_CPP_SRCS, or USER_S_SRCS)
+    endif
+  endif
+endif
+`);
 };
 
 const itemEqual = (a: Condition, b: Condition): boolean => {
@@ -209,19 +219,19 @@ const emitRules = (rules: Array<Recipe>) => {
   rules.forEach((rule: Recipe) => {
     console.log('');
     if (rule.dst === 'o') {
-      console.log(`$\{BUILD_PATH\}/%.${rule.dst}:%.${rule.src}`);
+      console.log(`$\{BUILD_PATH\}/%.${rule.src}.o : %.${rule.src}`);
     } else if (rule.dst === 'a') {
-      console.log('${BUILD_PATH}/system.a: ${SYSTEM_OBJS}');
+      console.log('${BUILD_PATH}/system.a : ${SYS_OBJS}');
     } else if (rule.dst === 'elf') {
       console.log(
-        '${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf: ' +
+        '${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf : ' +
           '${BUILD_PATH}/system.a ${USER_OBJS}'
       );
     } else {
       console.log(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
           rule.dst +
-          ':${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
+          ' : ${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
           rule.src
       );
     }
