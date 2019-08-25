@@ -208,7 +208,7 @@ const emitDefs = (defs: Array<Definition>) => {
     const curCond = def.condition.length > 0 ? def.condition : [];
     /*depth =*/ handleCondition(prevCond, curCond, 0);
     const indent = def.condition.map(a => '  ').join('');
-    console.log(`${indent}${def.name}=${def.value}`);
+    console.log(`${indent}${def.name}:=${def.value}`);
     prevCond = curCond;
   });
   closeConditions(prevCond.length - 1, prevCond.length);

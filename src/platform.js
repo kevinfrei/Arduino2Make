@@ -32,6 +32,26 @@ const getNestedChild = (vrbl: Variable, children: Array<string>): ?Variable => {
   return v;
 };
 
+const cleanup = (val: string): string =>
+  // there's a -DFOO="${VAR}" in the recipe text
+  // This requires that you spit out '-DFOO="${VAR}"'
+  val
+    .split(' ')
+    .map(v => {
+      const first = v.indexOf('"');
+      const last = v.lastIndexOf('"');
+      if (first < 0 && last < 0) {
+        return v;
+      }
+      if (first === 0 && last === v.length - 1) {
+        if (v.indexOf('"', 1) === last) {
+          return v;
+        }
+      }
+      return `'${v}'`;
+    })
+    .join(' ');
+
 // For reference, stuff like $@, $^, and $< are called 'automatic variables'
 // in the GNU Makefile documentation
 const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
@@ -75,7 +95,8 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     );
     if (!depVal) continue;
     const dependsOn = [...depVal.unresolved];
-    result.push({ src, dst: 'o', command: depVal.value, dependsOn });
+    let cleanedVal = cleanup(depVal.value);
+    result.push({ src, dst: 'o', command: cleanedVal, dependsOn });
   }
 
   // Create archives (recipe.ar.pattern) sys*.o's => sys.a
@@ -86,7 +107,12 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
   );
   if (arcDepVal) {
     const dependsOn = [...arcDepVal.unresolved];
-    result.push({ src: 'o', dst: 'a', command: arcDepVal.value, dependsOn });
+    result.push({
+      src: 'o',
+      dst: 'a',
+      command: arcDepVal.value.replace('"$<"', '$^'),
+      dependsOn
+    });
   }
   // linker (recipe.c.combine.patthern) *.o + sys.a => %.elf
   const linkDepVal: ?DependentValue = getRule(['c', 'combine', 'pattern']);
@@ -138,10 +164,10 @@ const getFileList = (path: string) => {
   const cpp = allFiles.filter(fn => fn.endsWith('.cpp'));
   const s = allFiles.filter(fn => fn.endsWith('.S'));
   const paths = [...new Set(allFiles.map(getPath))];
-  /*const inc = [
+  const inc = [
     ...new Set(allFiles.filter(fn => fn.endsWith('.h')).map(getPath))
-  ];*/
-  return { c, cpp, s, paths /*, inc */ };
+  ];
+  return { c, cpp, s, paths, inc };
 };
 // This generates the rules & whatnot for the platform data
 // This is the 'meat' of the whole thing, as recipes generate very different
@@ -219,9 +245,7 @@ const dumpPlatform = (
   ): Definition => mkdef(name, files.join(' \\\n    '), [depend], cnd);
 
   for (let core of cores) {
-    const { c, cpp, s, paths /*, inc*/ } = getFileList(
-      rootpath + '/cores/' + core
-    );
+    const { c, cpp, s, paths } = getFileList(rootpath + '/cores/' + core);
     const cnd = [mkcnd('ifeq', '${BUILD_CORE}', core)];
     fileDefs.push(mkSysList('C_SYS_CORE_SRCS', c, 'BUILD_CORE', cnd));
     fileDefs.push(mkSysList('CPP_SYS_CORE_SRCS', cpp, 'BUILD_CORE', cnd));
@@ -233,14 +257,14 @@ const dumpPlatform = (
     fileDefs.push(mkdef('VPATH_CORE', paths.join(':'), ['BUILD_CORE'], cnd));
   }
   for (let vrn of variants) {
-    const { c, cpp, s, paths /*, inc*/ } = getFileList(
+    const { c, cpp, s, paths, inc } = getFileList(
       rootpath + '/variants/' + vrn
     );
     const cnd = [mkcnd('ifeq', '${BUILD_VARIANT}', vrn)];
     fileDefs.push(mkSysList('C_SYS_VAR_SRCS', c, 'BUILD_VARIANT', cnd));
     fileDefs.push(mkSysList('CPP_SYS_VAR_SRCS', cpp, 'BUILD_VARIANT', cnd));
     fileDefs.push(mkSysList('S_SYS_VAR_SRCS', s, 'BUILD_VARIANT', cnd));
-    //    fileDefs.push(mkSysList('SYS_VAR_INCLUDES', inc, 'BUILD_VARIANT', cnd));
+    fileDefs.push(mkSysList('SYS_VAR_INCLUDES', inc, 'BUILD_VARIANT', cnd));
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
     fileDefs.push(mkdef('VPATH_VAR', paths.join(':'), ['BUILD_VARIANT'], cnd));
@@ -255,7 +279,7 @@ const dumpPlatform = (
 
   // Add the transformations for source files to obj's
   fileDefs.push(mkdef('ALL_SRC', '${SYS_SRC} ${USER_SRC}', [], []));
-  fileDefs.push(mkdef('VPATH', '${VPATH_CORE}:${VPATH_VAR}', [], []));
+  fileDefs.push(mkdef('VPATH', '${VPATH}:${VPATH_CORE}:${VPATH_VAR}', [], []));
   const mkObjList = (name: string, varname: string): Definition =>
     mkdef(
       name,

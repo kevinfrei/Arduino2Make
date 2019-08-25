@@ -26,10 +26,14 @@ doesn't seem worth the effort. Just use the Arduino IDE...
 
 ## TODO:
 
-* Get the -D defines wrapped in quotes properly
 * Eliminate the silly workarounds currently necessary for some implicit oddities
 * There's the cmd.{os} default value override mechanism that I should take into
   account for value resolution, particularly as I'm one of those weird people
   that switch between Windows, macOS, and Linux on a semi-regular basis...
+* Add support for Arduino libraries: Maybe automatic discovery or something
+  similar? Currently, you'd just have to do it all yourself which sucks
+* Add usage of the .d files. They're produced by default, may as well try to
+  use them...
+* Clean up the input variable names. They're highly inconsistent.
 * And, finally, eventually, make some tests, probably. Jest seems reasonable.
   Seriously, I've found it pretty darned useful in a few other projects...
