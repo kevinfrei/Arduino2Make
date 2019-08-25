@@ -165,10 +165,80 @@ const getFileList = (path: string) => {
   const s = allFiles.filter(fn => fn.endsWith('.S'));
   const paths = [...new Set(allFiles.map(getPath))];
   const inc = [
-    ...new Set(allFiles.filter(fn => fn.endsWith('.h')).map(getPath))
+    ...new Set(
+      allFiles.filter(fn => fn.endsWith('.h')).map(fn => '-I' + getPath(fn))
+    )
   ];
   return { c, cpp, s, paths, inc };
 };
+
+const mkSrcList = (
+  name: string,
+  files: Array<string>,
+  depend: string | Array<string>,
+  cnd: Array<Condition>
+): Definition =>
+  mkdef(
+    name,
+    `$\{${name}\} \\\n    ${files.join(' \\\n    ')}`,
+    typeof depend === 'string' ? [depend] : depend,
+    cnd
+  );
+
+const getLibInfo = (
+  root: string
+): { defs: Array<Definition>, rules: Array<Recipe> } => {
+  const { c, cpp, s, paths, inc } = getFileList(root);
+  const libName = root.substr(root.lastIndexOf('/') + 1);
+  const libDefName = 'LIB_' + libName.toUpperCase();
+  const libCond = mkcnd('ifeq', `$\{${libDefName}\}`, '1');
+  // I need to define a source list, include list
+  // In addition, I need to define a variable that the user can include on
+  // a lib list to be linked against
+  /*
+ifdef LIB_WIRE => ifneq (${LIBWIRE},)
+CPP_SYS_CORE_SRC := ${CPP_SYS_CORE_SRC} Wire.cpp
+SYS_VAR_INCLUDES := ${SYS_VAR_INCLUDES} -I../libLocation/.../Wire/
+VPATH:=${VPATH}:../libLocation/.../Wire/
+endif
+  */
+  const defs = [];
+  if (c.length) {
+    defs.push(mkSrcList('C_SYS_CORE_SRCS', c, [], [libCond]));
+  }
+  if (cpp.length) {
+    defs.push(mkSrcList('CPP_SYS_CORE_SRCS', cpp, [], [libCond]));
+  }
+  if (s.length) {
+    defs.push(mkSrcList('S_SYS_SRCS', s, [], [libCond]));
+  }
+  defs.push(mkSrcList('SYS_INCLUDES', inc, [], [libCond]));
+  defs.push(
+    mkdef('VPATH_MORE', '${VPATH_MORE}:' + paths.join(':'), [], [libCond])
+  );
+  return { defs, rules: [] };
+};
+
+// Given a set of locations, get all the defs & rules for libraries under them
+const addLibs = (
+  locs: Array<string>
+): { defs: Array<Definition>, rules: Array<Recipe> } => {
+  const defs: Array<Definition> = [];
+  const rules: Array<Recipe> = [];
+  for (let loc of locs) {
+    // First, find any 'library.properties' files
+    const libRoots = enumerateFiles(loc).filter(fn =>
+      fn.endsWith('/library.properties')
+    );
+    for (let libRoot of libRoots) {
+      const libData = getLibInfo(getPath(libRoot));
+      defs.push(...libData.defs);
+      rules.push(...libData.rules);
+    }
+  }
+  return { defs, rules };
+};
+
 // This generates the rules & whatnot for the platform data
 // This is the 'meat' of the whole thing, as recipes generate very different
 // Makefile code.
@@ -176,7 +246,8 @@ const getFileList = (path: string) => {
 const dumpPlatform = (
   boardDefs: Array<Definition>,
   platform: ParsedFile,
-  rootpath: string
+  rootpath: string,
+  libLocs: Array<string>
 ): { defs: Array<Definition>, rules: Array<Recipe> } => {
   let defs: Array<Definition> = [
     mkdef(
@@ -237,20 +308,19 @@ const dumpPlatform = (
 
   let fileDefs: Array<Definition> = [];
   // Get the full file list & include path for each core & variant
-  const mkSysList = (
-    name: string,
-    files: Array<string>,
-    depend: string,
-    cnd: Array<Condition>
-  ): Definition => mkdef(name, files.join(' \\\n    '), [depend], cnd);
-
   for (let core of cores) {
     const { c, cpp, s, paths } = getFileList(rootpath + '/cores/' + core);
     const cnd = [mkcnd('ifeq', '${BUILD_CORE}', core)];
-    fileDefs.push(mkSysList('C_SYS_CORE_SRCS', c, 'BUILD_CORE', cnd));
-    fileDefs.push(mkSysList('CPP_SYS_CORE_SRCS', cpp, 'BUILD_CORE', cnd));
-    fileDefs.push(mkSysList('S_SYS_CORE_SRCS', s, 'BUILD_CORE', cnd));
-    //    fileDefs.push(mkSysList('SYS_CORE_INCLUDES', inc, 'BUILD_CORE', cnd));
+    if (c.length) {
+      fileDefs.push(mkSrcList('C_SYS_SRCS', c, 'BUILD_CORE', cnd));
+    }
+    if (cpp.length) {
+      fileDefs.push(mkSrcList('CPP_SYS_SRCS', cpp, 'BUILD_CORE', cnd));
+    }
+    if (s.length) {
+      fileDefs.push(mkSrcList('S_SYS_SRCS', s, 'BUILD_CORE', cnd));
+    }
+    // fileDefs.push(mkSrcList('SYS_CORE_INCLUDES', inc, 'BUILD_CORE', cnd));
 
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
@@ -261,25 +331,34 @@ const dumpPlatform = (
       rootpath + '/variants/' + vrn
     );
     const cnd = [mkcnd('ifeq', '${BUILD_VARIANT}', vrn)];
-    fileDefs.push(mkSysList('C_SYS_VAR_SRCS', c, 'BUILD_VARIANT', cnd));
-    fileDefs.push(mkSysList('CPP_SYS_VAR_SRCS', cpp, 'BUILD_VARIANT', cnd));
-    fileDefs.push(mkSysList('S_SYS_VAR_SRCS', s, 'BUILD_VARIANT', cnd));
-    fileDefs.push(mkSysList('SYS_VAR_INCLUDES', inc, 'BUILD_VARIANT', cnd));
+    if (c.length) {
+      fileDefs.push(mkSrcList('C_SYS_SRCS', c, 'BUILD_VARIANT', cnd));
+    }
+    if (cpp.length) {
+      fileDefs.push(mkSrcList('CPP_SYS_SRCS', cpp, 'BUILD_VARIANT', cnd));
+    }
+    if (s.length) {
+      fileDefs.push(mkSrcList('S_SYS_SRCS', s, 'BUILD_VARIANT', cnd));
+    }
+    fileDefs.push(mkSrcList('SYS_INCLUDES', inc, 'BUILD_VARIANT', cnd));
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
     fileDefs.push(mkdef('VPATH_VAR', paths.join(':'), ['BUILD_VARIANT'], cnd));
   }
 
-  const sycSrcVal =
-    '${C_SYS_VAR_SRCS} ${CPP_SYS_VAR_SRCS} ${S_SYS_VAR_SRCS} ' +
-    '${C_SYS_CORE_SRCS} ${CPP_SYS_CORE_SRCS} ${S_SYS_CORE_SRCS}';
+  const { defs: libsDefs, rules: libRules } = addLibs([rootpath, ...libLocs]);
+  fileDefs.push(...libsDefs);
+  rules.push(...libRules);
+  const sycSrcVal = '${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}';
   const usrSrcVal = '${USER_C_SRCS} ${USER_CPP_SRCS} ${USER_S_SRCS}';
   fileDefs.push(mkdef('SYS_SRC', sycSrcVal, [], []));
   fileDefs.push(mkdef('USER_SRC', usrSrcVal, [], []));
 
   // Add the transformations for source files to obj's
   fileDefs.push(mkdef('ALL_SRC', '${SYS_SRC} ${USER_SRC}', [], []));
-  fileDefs.push(mkdef('VPATH', '${VPATH}:${VPATH_CORE}:${VPATH_VAR}', [], []));
+  fileDefs.push(
+    mkdef('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}', [], [])
+  );
   const mkObjList = (name: string, varname: string): Definition =>
     mkdef(
       name,

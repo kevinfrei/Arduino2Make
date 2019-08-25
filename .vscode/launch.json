@@ -9,7 +9,10 @@
       "request": "launch",
       "name": "Launch Program",
       "program": "${workspaceFolder}/dbg.js",
-      "runtimeArgs": ["-r", "flow-remove-types/register"],
+      "runtimeArgs": [
+        "-r",
+        "flow-remove-types/register"
+      ],
       "args": [
         "../Adafruit_nRF52_Arduino"
       ],

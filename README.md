@@ -26,8 +26,6 @@ doesn't seem worth the effort. Just use the Arduino IDE...
 
 ## TODO:
 
-* Add support for Arduino libraries: Maybe automatic discovery or something
-  similar? Currently, you'd just have to do it all yourself which sucks
 * Eliminate the silly workarounds currently necessary for some implicit oddities
 * There's the cmd.{os} default value override mechanism that I should take into
   account for value resolution, particularly as I'm one of those weird people

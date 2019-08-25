@@ -30,7 +30,7 @@ const {
 
 import type { ParsedFile, Condition, Definition } from './types.js';
 
-const main = async (root: string, ...libs: Array<string>) => {
+const main = async (root: string, ...libLocs: Array<string>) => {
   const board = pjoin(root, 'boards.txt');
   const platform = pjoin(root, 'platform.txt');
   const boardSyms = await parseFile(board);
@@ -53,7 +53,8 @@ const main = async (root: string, ...libs: Array<string>) => {
   const { defs: platDefined, rules } = buildPlatform(
     boardDefined,
     platSyms,
-    platform.substr(0, platform.lastIndexOf('/'))
+    platform.substr(0, platform.lastIndexOf('/')),
+    libLocs
   );
 
   // TODO: Make definitions dependent on their condition values, so that I can
