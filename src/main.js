@@ -14,13 +14,13 @@
 // Once that's done, then restructre the resulting makefile to be more
 // configurable
 
-const path = require('path');
+const { join: pjoin, resolve: presolve, dirname: pdirname } = require('path');
 
 const parseFile = require('./parser.js');
-const { definition: def, condition: cond } = require('./mkutil.js');
+const { definition: mkdef, condition: mkcond } = require('./mkutil.js');
 const buildBoard = require('./board.js');
 const buildPlatform = require('./platform.js');
-const buildProgrammer = require('./programmer.js');
+
 const {
   order,
   emitChecks,
@@ -30,22 +30,23 @@ const {
 
 import type { ParsedFile, Condition, Definition } from './types.js';
 
-const main = async (board: string, platform: string, prog: string) => {
+const main = async (root: string, ...libs: Array<string>) => {
+  const board = pjoin(root, 'boards.txt');
+  const platform = pjoin(root, 'platform.txt');
   const boardSyms = await parseFile(board);
   const platSyms = await parseFile(platform);
-  const progSyms = await parseFile(prog);
-  const isWin = cond('ifeq', '$(OS)', 'Windows_NT');
-  const notWin = cond('ifneq', '$(OS)', 'Windows_NT');
-  const isMac = cond('ifeq', '$(uname)', 'Darwin');
-  const notMac = cond('ifeq', '$(uname)', 'Darwin');
+  const isWin = mkcond('ifeq', '$(OS)', 'Windows_NT');
+  const notWin = mkcond('ifneq', '$(OS)', 'Windows_NT');
+  const isMac = mkcond('ifeq', '$(uname)', 'Darwin');
+  const notMac = mkcond('ifneq', '$(uname)', 'Darwin');
   const initial = [
-    def('RUNTIME_OS', 'windows', [], [isWin]),
-    def('uname', '$(shell uname -s)', [], [notWin]),
-    def('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
-    def('RUNTIME_OS', 'linux', ['uname'], [notWin, notMac]),
-    def('RUNTIME_PLATFORM_PATH', path.resolve(path.dirname(platform)), [], []),
-    def('RUNTIME_IDE_VERSION', '10808', [], []),
-    def('IDE_VERSION', '10808', [], [])
+    mkdef('RUNTIME_OS', 'windows', [], [isWin]),
+    mkdef('uname', '$(shell uname -s)', [], [notWin]),
+    mkdef('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
+    mkdef('RUNTIME_OS', 'linux', ['uname'], [notWin, notMac]),
+    mkdef('RUNTIME_PLATFORM_PATH', presolve(pdirname(platform)), [], []),
+    mkdef('RUNTIME_IDE_VERSION', '10808', [], []),
+    mkdef('IDE_VERSION', '10808', [], [])
   ];
   const boardDefined = buildBoard(boardSyms);
   // TODO: Don't have recipes & tools fully handled in the platform yet
@@ -54,10 +55,6 @@ const main = async (board: string, platform: string, prog: string) => {
     platSyms,
     platform.substr(0, platform.lastIndexOf('/'))
   );
-  // Not gonna deal with the programmer stuff yet, as (at least for Adafruit)
-  // it seems to be just for burning a new bootloader, not for programming an
-  // actual sketch...
-  // dumpProgrammer(boardDefined, platDefined, progSyms);
 
   // TODO: Make definitions dependent on their condition values, so that I can
   // put errors in place when mandatory symbols aren't defined before inclusion

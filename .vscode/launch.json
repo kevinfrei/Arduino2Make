@@ -11,9 +11,7 @@
       "program": "${workspaceFolder}/dbg.js",
       "runtimeArgs": ["-r", "flow-remove-types/register"],
       "args": [
-        "../Adafruit_nRF52_Arduino/boards.txt",
-        "../Adafruit_nRF52_Arduino/platform.txt",
-        "../Adafruit_nRF52_Arduino/programmers.txt"
+        "../Adafruit_nRF52_Arduino"
       ],
       // I apparently need to set this to get node debugging working :/
       "env": {
