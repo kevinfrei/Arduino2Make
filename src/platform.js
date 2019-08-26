@@ -184,9 +184,9 @@ const getFileList = (path: string) => {
   const cpp = endsWithNoExamples(allFiles, '.cpp');
   const s = endsWithNoExamples(allFiles, '.S');
   const paths = [...new Set([...c, ...cpp, ...s].map(getPath))];
-  const inc = [...new Set(endsWithNoExamples(allFiles, '.h'))].map(
-    fn => '-I' + getPath(fn)
-  );
+  const inc = [
+    ...new Set(endsWithNoExamples(allFiles, '.h').map(fn => '-I' + getPath(fn)))
+  ];
   return { c, cpp, s, paths, inc };
 };
 
@@ -295,14 +295,42 @@ const dumpPlatform = (
     }
     return a.name === 'tools';
   };
-  const toolDefs = mkutil.makeDefinitions(
+  let tmpToolDefs = mkutil.makeDefinitions(
     fakeTop,
     plain,
     platform,
     null,
     parentTool
   );
-  // TODO: Handle the macosx/windows suffixed tools
+  // Handle the macosx/windows suffixed tools
+  // FYI: My input tester stuff has precisely 1 of these tools, so
+  // what I'm doing down here may not work properly with something with more
+  const cmds = tmpToolDefs.filter(fn => fn.name.endsWith('_CMD'));
+  const osxTools = tmpToolDefs.filter(fn => fn.name.endsWith('_MACOSX'));
+  const winTools = tmpToolDefs.filter(fn => fn.name.endsWith('_WINDOWS'));
+  const toolDefs = tmpToolDefs.filter(
+    fn =>
+      !fn.name.endsWith('_CMD') &&
+      !fn.name.endsWith('_MACOSX') &&
+      !fn.name.endsWith('_WINDOWS')
+  );
+  const osxCnd = mkcnd('ifeq', '${RUNTIME_OS}', 'macosx');
+  for (let osxt of osxTools) {
+    const name = osxt.name.substr(0, osxt.name.lastIndexOf('_MACOSX'));
+    toolDefs.push(mkdef(name, osxt.value, osxt.dependsOn, [osxCnd]));
+  }
+  const winCnd = mkcnd('ifeq', '${RUNTIME_OS}', 'windows');
+  for (let wint of winTools) {
+    const name = wint.name.substr(0, wint.name.lastIndexOf('_WINDOWS'));
+    toolDefs.push(mkdef(name, wint.value, wint.dependsOn, [winCnd]));
+  }
+  toolDefs.push(
+    ...cmds.map((def: Definition) => {
+      const cnd = mkcnd('ifeq', `$\{${def.name}\}`, '');
+      return mkdef(def.name, def.value, def.dependsOn, [cnd]);
+    })
+  );
+
   // TODO: Also handle the {cmd} thing which clearly refers to
   // the locally scoped cmd (or cmd.windows/cmd.macosx thing)
   // as well as the tools.(name).OPERATION.pattern
