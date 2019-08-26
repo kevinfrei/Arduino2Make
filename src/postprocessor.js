@@ -91,12 +91,8 @@ const emitChecks = (checks: Array<string>) => {
   });
   console.log(`
 # Check for some source files
-ifndef USER_C_SRCS
-  ifndef USER_CPP_SRCS
-    ifndef USER_S_SRCS
-      $(error You must define USER_C_SRCS, USER_CPP_SRCS, or USER_S_SRCS)
-    endif
-  endif
+ifeq ($\{USER_C_SRCS}$\{USER_CPP_SRCS}$\{USER_S_SRCS},)
+  $(error You must define USER_C_SRCS, USER_CPP_SRCS, or USER_S_SRCS)
 endif
 `);
 };
