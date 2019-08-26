@@ -7,7 +7,6 @@ const { definition: def, condition: cond } = mkutil;
 import type {
   Variable,
   SymbolTable,
-  FlatTable,
   NamedTable,
   ParsedFile,
   Condition,

@@ -11,7 +11,6 @@ const mkcnd = mkutil.condition;
 import type {
   Variable,
   SymbolTable,
-  FlatTable,
   NamedTable,
   ParsedFile,
   FilterFunc,
@@ -35,9 +34,18 @@ const getNestedChild = (vrbl: Variable, children: Array<string>): ?Variable => {
 const cleanup = (val: string): string =>
   // there's a -DFOO="${VAR}" in the recipe text
   // This requires that you spit out '-DFOO="${VAR}"'
+
+  // This is also where I fix the fact that there's nowhere to include
+  // the *root* directory of the cores/<name> location...
+
+  // FYI: This code isn't actually completely correct: it will break if you
+  // sneeze at it (or have a quote string with a space :/ )
   val
     .split(' ')
     .map(v => {
+      if (v === '${INCLUDES}') {
+        return '${SYS_INCLUDES} ${USER_INCLUDES}';
+      }
       const first = v.indexOf('"');
       const last = v.lastIndexOf('"');
       if (first < 0 && last < 0) {
@@ -149,6 +157,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
   return result;
 };
 
+// Gets all the files under a given directory
 const enumerateFiles = (root: string): Array<string> =>
   fs.statSync(root).isDirectory()
     ? [].concat.apply(
@@ -158,17 +167,26 @@ const enumerateFiles = (root: string): Array<string> =>
     : [root];
 
 const getPath = (fn: string) => fn.substr(0, fn.lastIndexOf('/'));
+const endsWithNoExamples = (
+  paths: Array<string>,
+  suffix: string
+): Array<string> => {
+  return paths.filter(
+    fn => fn.endsWith(suffix) && fn.indexOf('/examples/') < 0
+  );
+};
+
+// Collect all .c, .cpp. .S files, and get the unique paths for VPATH and
+// for includes, as applicable
 const getFileList = (path: string) => {
   const allFiles: Array<string> = enumerateFiles(path);
-  const c = allFiles.filter(fn => fn.endsWith('.c'));
-  const cpp = allFiles.filter(fn => fn.endsWith('.cpp'));
-  const s = allFiles.filter(fn => fn.endsWith('.S'));
-  const paths = [...new Set(allFiles.map(getPath))];
-  const inc = [
-    ...new Set(
-      allFiles.filter(fn => fn.endsWith('.h')).map(fn => '-I' + getPath(fn))
-    )
-  ];
+  const c = endsWithNoExamples(allFiles, '.c');
+  const cpp = endsWithNoExamples(allFiles, '.cpp');
+  const s = endsWithNoExamples(allFiles, '.S');
+  const paths = [...new Set([...c, ...cpp, ...s].map(getPath))];
+  const inc = [...new Set(endsWithNoExamples(allFiles, '.h'))].map(
+    fn => '-I' + getPath(fn)
+  );
   return { c, cpp, s, paths, inc };
 };
 
@@ -204,10 +222,10 @@ endif
   */
   const defs = [];
   if (c.length) {
-    defs.push(mkSrcList('C_SYS_CORE_SRCS', c, [], [libCond]));
+    defs.push(mkSrcList('C_SYS_SRCS', c, [], [libCond]));
   }
   if (cpp.length) {
-    defs.push(mkSrcList('CPP_SYS_CORE_SRCS', cpp, [], [libCond]));
+    defs.push(mkSrcList('CPP_SYS_SRCS', cpp, [], [libCond]));
   }
   if (s.length) {
     defs.push(mkSrcList('S_SYS_SRCS', s, [], [libCond]));
@@ -320,6 +338,14 @@ const dumpPlatform = (
     if (s.length) {
       fileDefs.push(mkSrcList('S_SYS_SRCS', s, 'BUILD_CORE', cnd));
     }
+    fileDefs.push(
+      mkdef(
+        'SYS_INCLUDES',
+        `$\{SYS_INCLUDES\} -I${rootpath + '/cores/' + core}`,
+        ['BUILD_CORE'],
+        cnd
+      )
+    );
     // fileDefs.push(mkSrcList('SYS_CORE_INCLUDES', inc, 'BUILD_CORE', cnd));
 
     // I need to decide: VPATH or multiple rules!

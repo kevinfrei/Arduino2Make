@@ -6,7 +6,6 @@
 import type {
   Variable,
   SymbolTable,
-  FlatTable,
   NamedTable,
   ParsedFile,
   DependentValue,
