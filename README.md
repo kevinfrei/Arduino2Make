@@ -32,14 +32,13 @@ doesn't seem worth the effort. Just use the Arduino IDE...
 
 ## TODO:
 
-- There's the cmd.{os} default value override mechanism that I should take into
-  account for value resolution, particularly as I'm one of those weird people
-  that switch between Windows, macOS, and Linux on a semi-regular basis...
-  - Once that's done, enable a 'flash' target!
+- Enable a 'flash' target!
 - Add usage of the .d files. They're produced by default, may as well try to
   use them...
 - Clean up the input variable names. They're highly inconsistent.
 - Make the thing also spit out VSCode settings! This would be awesome (and not
 too difficult, either)
+- Get it working on Teensy & the AdaFruit AVR stuff
+  - I've never actually used Arduino hardware :D
 - And, finally, eventually, make some tests, probably. Jest seems reasonable.
   Seriously, I've found it pretty darned useful in a few other projects...
