@@ -2,7 +2,7 @@
 // @format
 
 const mkutil = require('./mkutil.js');
-const { definition: def, condition: cond } = mkutil;
+const { makeIfeq } = mkutil;
 
 import type {
   Variable,
@@ -24,7 +24,7 @@ const dumpBoard = (board: ParsedFile): Array<Definition> => {
       const children = item.children;
       menus = new Set([...menus, ...children.keys()]);
     } else {
-      const brd = cond('ifeq', '${INPUT_BOARD}', item.name);
+      const brd = makeIfeq('${INPUT_BOARD}', item.name);
       const notMenu = a => a.name !== 'menu';
       const defVars = mkutil.makeDefinitions(
         item,

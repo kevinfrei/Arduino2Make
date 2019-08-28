@@ -15,24 +15,55 @@ import type {
   Definition
 } from './types.js';
 
-const makeCondition = (
-  op: string,
-  variable: string,
-  value: string
-): Condition => ({
-  op,
+const makeIfeq = (variable: string, value: string): Condition => ({
+  op: 'eq',
   variable,
   value
 });
 
-const makeDefinition = (
+const makeIfneq = (variable: string, value: string): Condition => ({
+  op: 'neq',
+  variable,
+  value
+});
+
+const makeIfdef = (variable: string): Condition => ({
+  op: 'def',
+  variable
+});
+
+const makeIfndef = (variable: string): Condition => ({
+  op: 'ndef',
+  variable
+});
+
+const makeDeclDef = (
   name: string,
   value: string,
   dependsOn: Array<string>,
   condition: Array<Condition>
-): Definition => {
-  return { name, value, dependsOn, condition };
-};
+): Definition => ({ name, type: 'decl', value, dependsOn, condition });
+
+const makeSeqDef = (
+  name: string,
+  value: string,
+  dependsOn: Array<string>,
+  condition: Array<Condition>
+): Definition => ({ name, type: 'seq', value, dependsOn, condition });
+
+const makeAppend = (
+  name: string,
+  value: string,
+  dependsOn: Array<string>,
+  condition: Array<Condition>
+): Definition => ({ name, type: 'add', value, dependsOn, condition });
+
+const makeUnDecl = (
+  name: string,
+  value: string,
+  dependsOn: Array<string>,
+  condition: Array<Condition>
+): Definition => ({ name, type: '?decl', value, dependsOn, condition });
 
 // This takes a value, and returns the resolved value plus the list of
 // undefined names within the value
@@ -148,7 +179,7 @@ const makeDefinitions = (
       if (vrbl.value) {
         const varName = getMakeName(vrbl, top);
         const { value, unresolved: deps } = valueMaker(vrbl, parsedFile);
-        const def = makeDefinition(varName, value, [...deps], condition || []);
+        const def = makeDeclDef(varName, value, [...deps], condition || []);
         defined.push(def);
       }
     }
@@ -170,12 +201,12 @@ const makeMenuOptions = (
   for (let toDump of menu.children.values()) {
     const makeVarName = 'INPUT_' + toDump.name.toUpperCase();
     for (let item of toDump.children.values()) {
-      const cn = makeCondition('ifeq', '${' + makeVarName + '}', item.name);
+      const cn = makeIfeq('${' + makeVarName + '}', item.name);
       const subDef = makeDefinitions(item, getPlainValue, parsedFile, [
         ...initConds,
         cn
       ]);
-      subDef.forEach((def:Definition) => {
+      subDef.forEach((def: Definition) => {
         def.dependsOn.push(makeVarName);
       });
       defined = [...defined, ...subDef];
@@ -187,8 +218,14 @@ const makeMenuOptions = (
 module.exports = {
   getPlainValue,
   resolve: resolvedValue,
-  definition: makeDefinition,
-  condition: makeCondition,
+  makeAppend,
+  makeDeclDef,
+  makeSeqDef,
+  makeUnDecl,
+  makeIfdef,
+  makeIfndef,
+  makeIfeq,
+  makeIfneq,
   makeDefinitions,
   makeMenuOptions
 };

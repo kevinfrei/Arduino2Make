@@ -20,9 +20,13 @@ export type ValueMakerFunc = (
   file: ParsedFile
 ) => DependentValue;
 
-export type Condition = { op: string, variable: string, value: string };
+export type CondEq = { op: 'eq' | 'neq', variable: string, value: string };
+export type CondDef = { op: 'def' | 'ndef', variable: string };
+export type Condition = CondEq | CondDef;
+
 export type Definition = {
   name: string,
+  type: 'decl' | 'seq' | 'add' | '?decl',
   value: string,
   dependsOn: Array<string>,
   condition: Array<Condition>

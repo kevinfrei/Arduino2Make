@@ -5,8 +5,14 @@ const fs = require('fs');
 const path = require('path');
 
 const mkutil = require('./mkutil.js');
-const mkdef = mkutil.definition;
-const mkcnd = mkutil.condition;
+const mkdef = mkutil.makeDeclDef;
+const mkseq = mkutil.makeSeqDef;
+const mkundef = mkutil.makeUnDecl;
+const mkapp = mkutil.makeAppend;
+const mkeq = mkutil.makeIfeq;
+const mkne = mkutil.makeIfneq;
+const mkdf = mkutil.makeIfdef;
+const mknd = mkutil.makeIfndef;
 
 import type {
   Variable,
@@ -196,9 +202,9 @@ const mkSrcList = (
   depend: string | Array<string>,
   cnd: Array<Condition>
 ): Definition =>
-  mkdef(
+  mkapp(
     name,
-    `$\{${name}\} \\\n    ${files.join(' \\\n    ')}`,
+    files.join(' \\\n    '),
     typeof depend === 'string' ? [depend] : depend,
     cnd
   );
@@ -209,7 +215,7 @@ const getLibInfo = (
   const { c, cpp, s, paths, inc } = getFileList(root);
   const libName = root.substr(root.lastIndexOf('/') + 1);
   const libDefName = 'LIB_' + libName.toUpperCase();
-  const libCond = mkcnd('ifeq', `$\{${libDefName}\}`, '1');
+  const libCond = mkdf(libDefName);
   // I need to define a source list, include list
   // In addition, I need to define a variable that the user can include on
   // a lib list to be linked against
@@ -231,9 +237,7 @@ endif
     defs.push(mkSrcList('S_SYS_SRCS', s, [], [libCond]));
   }
   defs.push(mkSrcList('SYS_INCLUDES', inc, [], [libCond]));
-  defs.push(
-    mkdef('VPATH_MORE', '${VPATH_MORE}:' + paths.join(':'), [], [libCond])
-  );
+  defs.push(mkapp('VPATH_MORE', paths.join(':'), [], [libCond]));
   return { defs, rules: [] };
 };
 
@@ -314,20 +318,19 @@ const dumpPlatform = (
       !fn.name.endsWith('_MACOSX') &&
       !fn.name.endsWith('_WINDOWS')
   );
-  const osxCnd = mkcnd('ifeq', '${RUNTIME_OS}', 'macosx');
+  const osxCnd = mkeq('${RUNTIME_OS}', 'macosx');
   for (let osxt of osxTools) {
     const name = osxt.name.substr(0, osxt.name.lastIndexOf('_MACOSX'));
     toolDefs.push(mkdef(name, osxt.value, osxt.dependsOn, [osxCnd]));
   }
-  const winCnd = mkcnd('ifeq', '${RUNTIME_OS}', 'windows');
+  const winCnd = mkeq('${RUNTIME_OS}', 'windows');
   for (let wint of winTools) {
     const name = wint.name.substr(0, wint.name.lastIndexOf('_WINDOWS'));
     toolDefs.push(mkdef(name, wint.value, wint.dependsOn, [winCnd]));
   }
   toolDefs.push(
     ...cmds.map((def: Definition) => {
-      const cnd = mkcnd('ifeq', `$\{${def.name}\}`, '');
-      return mkdef(def.name, def.value, def.dependsOn, [cnd]);
+      return mkundef(def.name, def.value, def.dependsOn, []);
     })
   );
 
@@ -356,7 +359,7 @@ const dumpPlatform = (
   // Get the full file list & include path for each core & variant
   for (let core of cores) {
     const { c, cpp, s, paths } = getFileList(rootpath + '/cores/' + core);
-    const cnd = [mkcnd('ifeq', '${BUILD_CORE}', core)];
+    const cnd = [mkeq('${BUILD_CORE}', core)];
     if (c.length) {
       fileDefs.push(mkSrcList('C_SYS_SRCS', c, 'BUILD_CORE', cnd));
     }
@@ -367,9 +370,9 @@ const dumpPlatform = (
       fileDefs.push(mkSrcList('S_SYS_SRCS', s, 'BUILD_CORE', cnd));
     }
     fileDefs.push(
-      mkdef(
+      mkapp(
         'SYS_INCLUDES',
-        `$\{SYS_INCLUDES\} -I${rootpath + '/cores/' + core}`,
+        ` -I${rootpath + '/cores/' + core}`,
         ['BUILD_CORE'],
         cnd
       )
@@ -378,13 +381,13 @@ const dumpPlatform = (
 
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
-    fileDefs.push(mkdef('VPATH_CORE', paths.join(':'), ['BUILD_CORE'], cnd));
+    fileDefs.push(mkapp('VPATH_CORE', paths.join(':'), ['BUILD_CORE'], cnd));
   }
   for (let vrn of variants) {
     const { c, cpp, s, paths, inc } = getFileList(
       rootpath + '/variants/' + vrn
     );
-    const cnd = [mkcnd('ifeq', '${BUILD_VARIANT}', vrn)];
+    const cnd = [mkeq('${BUILD_VARIANT}', vrn)];
     if (c.length) {
       fileDefs.push(mkSrcList('C_SYS_SRCS', c, 'BUILD_VARIANT', cnd));
     }
@@ -397,7 +400,7 @@ const dumpPlatform = (
     fileDefs.push(mkSrcList('SYS_INCLUDES', inc, 'BUILD_VARIANT', cnd));
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
-    fileDefs.push(mkdef('VPATH_VAR', paths.join(':'), ['BUILD_VARIANT'], cnd));
+    fileDefs.push(mkapp('VPATH_CORE', paths.join(':'), ['BUILD_VARIANT'], cnd));
   }
 
   const { defs: libsDefs, rules: libRules } = addLibs([rootpath, ...libLocs]);
@@ -411,7 +414,7 @@ const dumpPlatform = (
   // Add the transformations for source files to obj's
   fileDefs.push(mkdef('ALL_SRC', '${SYS_SRC} ${USER_SRC}', [], []));
   fileDefs.push(
-    mkdef('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}', [], [])
+    mkseq('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}', [], [])
   );
   const mkObjList = (name: string, varname: string): Definition =>
     mkdef(
