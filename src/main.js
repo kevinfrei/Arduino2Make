@@ -17,7 +17,12 @@
 const { join: pjoin, resolve: presolve, dirname: pdirname } = require('path');
 
 const parseFile = require('./parser.js');
-const { definition: mkdef, condition: mkcond } = require('./mkutil.js');
+const {
+  makeDeclDef: mkdef,
+  makeIfeq,
+  makeIfneq,
+  makeUnDecl
+} = require('./mkutil.js');
 const buildBoard = require('./board.js');
 const buildPlatform = require('./platform.js');
 
@@ -35,15 +40,15 @@ const main = async (root: string, ...libLocs: Array<string>) => {
   const platform = pjoin(root, 'platform.txt');
   const boardSyms = await parseFile(board);
   const platSyms = await parseFile(platform);
-  const isWin = mkcond('ifeq', '$(OS)', 'Windows_NT');
-  const notWin = mkcond('ifneq', '$(OS)', 'Windows_NT');
-  const isMac = mkcond('ifeq', '$(uname)', 'Darwin');
-  const notMac = mkcond('ifneq', '$(uname)', 'Darwin');
+  const isWin = makeIfeq('$(OS)', 'Windows_NT');
+  const notWin = makeIfneq('$(OS)', 'Windows_NT');
+  const isMac = makeIfeq('$(uname)', 'Darwin');
+  const notMac = makeIfneq('$(uname)', 'Darwin');
   const initial = [
     mkdef('RUNTIME_OS', 'windows', [], [isWin]),
     mkdef('uname', '$(shell uname -s)', [], [notWin]),
     mkdef('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
-    mkdef('RUNTIME_OS', 'linux', ['uname'], [notWin, notMac]),
+    makeUnDecl('RUNTIME_OS', 'linux', [], []),
     mkdef('RUNTIME_PLATFORM_PATH', presolve(pdirname(platform)), [], []),
     mkdef('RUNTIME_IDE_VERSION', '10808', [], []),
     mkdef('IDE_VERSION', '10808', [], [])

@@ -97,10 +97,6 @@ endif
 `);
 };
 
-const itemEqual = (a: Condition, b: Condition): boolean => {
-  return a.op === b.op && a.value === b.value && a.variable === b.variable;
-};
-
 const getSpaces = (len: number): string => {
   let str = '';
   while (--len >= 0) str += '  ';
@@ -108,15 +104,18 @@ const getSpaces = (len: number): string => {
 };
 
 const openConditions = (conds: Array<Condition>, begin: number) => {
-  // TODO: Indent
   for (let i = begin; i < conds.length; i++) {
     const cond = conds[i];
-    console.log(`${getSpaces(i)}${cond.op} (${cond.variable}, ${cond.value})`);
+    const sp = getSpaces(i);
+    if (cond.op === 'neq' || cond.op === 'eq') {
+      console.log(`${sp}if${cond.op} (${cond.variable}, ${cond.value})`);
+    } else {
+      console.log(`${sp}if${cond.op} ${cond.variable}`);
+    }
   }
 };
 
 const closeConditions = (indent: number, count: number) => {
-  // TODO: Indent
   while (count--) {
     console.log(`${getSpaces(--indent)}endif`);
   }
@@ -144,9 +143,9 @@ const handleCondition = (
     return;
   }
   // Now we have "transitions" to optimize
-  const { op: pop, variable: pvar, value: pval } = prevCond[index];
-  const { op: nop, variable: nvar, value: nval } = newCond[index];
-  if (pvar !== nvar) {
+  const pCnd: Condition = prevCond[index];
+  const nCnd: Condition = newCond[index];
+  if (pCnd.variable !== nCnd.variable) {
     // If they're not operating on the same variable, no optimization
     // Close the previous uncommon conditions
     closeConditions(prevCond.length, prevCond.length - index);
@@ -154,14 +153,20 @@ const handleCondition = (
     openConditions(newCond, index);
   }
   // We're operating on the same variable name
-  else if (pval === nval) {
-    if (pop === nop) {
+  // This should be 'both are undefined, or both are the same string'
+  else if (
+    (pCnd.value && nCnd.value && pCnd.value === nCnd.value) ||
+    (pCnd.value === undefined && nCnd.value === undefined)
+  ) {
+    if (pCnd.op === nCnd.op) {
       // Same condition: no change necessary, just recurse!
       handleCondition(prevCond, newCond, index + 1);
     } else if (
       // different operations...
-      (pop === 'ifneq' && nop === 'ifeq') ||
-      (pop === 'ifeq' && nop === 'ifneq')
+      (pCnd.op === 'neq' && nCnd.op === 'eq') ||
+      (pCnd.op === 'eq' && nCnd.op === 'neq') ||
+      (pCnd.op === 'def' && nCnd.op === 'ndef') ||
+      (pCnd.op === 'ndef' && nCnd.op === 'def')
     ) {
       // Opposite conditions on the same value & variable,
       // First close out prevConds,
@@ -178,12 +183,14 @@ const handleCondition = (
       openConditions(newCond, index);
     }
   } // different values
-  else if (pop === 'ifeq' && nop === 'ifeq') {
+  else if (pCnd.op === 'eq' && nCnd.op === 'eq') {
     // Checking equality to the same variable, but with different value: else if
     // First close out prevConds,
     closeConditions(prevCond.length, prevCond.length - index - 1);
     // Spit out the else-if
-    console.log(`${getSpaces(index)}else ${nop} (${nvar}, ${nval})`);
+    console.log(
+      `${getSpaces(index)}else ifeq (${nCnd.variable}, ${nCnd.value})`
+    );
     // then open the newConds
     openConditions(newCond, index + 1);
   } else {
@@ -195,7 +202,12 @@ const handleCondition = (
     openConditions(newCond, index);
   }
 };
-
+const opMap: Map<string, string> = new Map([
+  ['decl', '='],
+  ['seq', ':='],
+  ['add', '+='],
+  ['?decl', '?=']
+]);
 const emitDefs = (defs: Array<Definition>) => {
   console.log('# And here are all the definitions');
   let prevCond: Array<Condition> = [];
@@ -203,8 +215,11 @@ const emitDefs = (defs: Array<Definition>) => {
   defs.forEach((def: Definition) => {
     const curCond = def.condition.length > 0 ? def.condition : [];
     /*depth =*/ handleCondition(prevCond, curCond, 0);
-    const indent = def.condition.map(a => '  ').join('');
-    console.log(`${indent}${def.name}:=${def.value}`);
+    const indent = getSpaces(def.condition.length);
+    const assign = opMap.get(def.type);
+    if (assign) {
+      console.log(`${indent}${def.name}${assign}${def.value}`);
+    }
     prevCond = curCond;
   });
   closeConditions(prevCond.length - 1, prevCond.length);

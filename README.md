@@ -38,5 +38,7 @@ doesn't seem worth the effort. Just use the Arduino IDE...
 - Clean up the input variable names. They're highly inconsistent.
 - Get it working on Teensy & the AdaFruit AVR stuff
   - I've never actually used Arduino hardware :D
+- Make the thing also spit out VSCode settings! This would be awesome (and not
+too difficult, either)
 - And, finally, eventually, make some tests, probably. Jest seems reasonable.
   Seriously, I've found it pretty darned useful in a few other projects...
