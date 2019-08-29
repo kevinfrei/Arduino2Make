@@ -16,6 +16,8 @@ Usage:
 
 Then from your Makefile:
 
+(Add makefile from FreiKey here...)
+
 I started this because building in the Arduino IDE is slow, for a variety of
 reasons that I could go into. Anyway, I write C++ to run on my devices, not
 `.ino` files, so I don't need half of what causes the speed problems, and the
@@ -28,20 +30,17 @@ Makefile over there. Feel free to check it out (Mentioned below)
 ## Currently:
 
 Compiling & linking all work, with libraries! (At least it appears to with the
-AdaFruit Feather nRF52840 Express). I need to get the final packaging step
-working, then add flashing. I suppose
+AdaFruit Feather nRF52840 Express). Flashing looks right, but I haven't tested
+it just yet.
 
-To see the almost functioning input, checkout my FreiKeys projects 'bt-3piece'
-branch, for the 'test-a2m.mak' makefile.
+To see the probably functioning input, checkout my FreiKeys project's
+'untested' branch, for the 'wire-master.mak' Makefile.
 
 I don't intend to deal with the bootloader stuff. That happens rarely enough it
 doesn't seem worth the effort. Just use the Arduino IDE...
 
 ## TODO:
 
-- Move more things out of the `include`ing file into the generated makefile
-- Add usage of the .d files. They're produced: may as well try to use them...
-- Add a 'clean' target (and maybe an 'allclean' target, too?)
 - Get it working on Teensy & the AdaFruit AVR stuff
   - I've never actually used Arduino hardware :D
 - Make the thing also spit out VSCode settings! This would be awesome (and not

@@ -226,7 +226,40 @@ const emitDefs = (defs: Array<Definition>) => {
 };
 
 const emitRules = (rules: Array<Recipe>) => {
-  console.log('# And now the build rules!');
+  console.log(`
+# And now the build rules!
+
+# First, the phony rules that don't product things
+.PHONY: $\{PROJ_NAME\} flash clean allclean
+
+# Now the default target
+all: $\{BUILD_DIR\} $\{PROJ_NAME\}
+
+# Some house keeping
+clean:
+\t-rm $\{USER_OBJS\}
+
+allclean:
+\t-rm -rf $\{BUILD_DIR\}
+
+# Make us rebuild user code if the makefile(s) change:
+# Needs to be above the deps thing, I think
+$\{USER_OBJS\} : $(MAKEFILE_LIST)
+
+#-include $(ALL_OBJS:.o=.d)
+
+# Next, the project name shortcut, cuz it's easier
+$\{PROJ_NAME\}: $\{BUILD_DIR\}/$\{PROJ_NAME\}.zip
+
+# Add a 'flash' target
+flash: $\{BUILD_DIR\}/$\{PROJ_NAME\}.flash
+
+# And finally, create the director
+# TODO: This no worky on Windows fer sure
+$\{BUILD_DIR\}:
+\ttest -d "$@" || mkdir "$@"
+
+# Now, on to the actual rules`);
   rules.forEach((rule: Recipe) => {
     console.log('');
     if (rule.dst === 'o') {
