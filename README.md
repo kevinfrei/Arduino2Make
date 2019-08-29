@@ -1,13 +1,20 @@
 # Arduino2Make
 
 This is a tool to input Arduino platform configuration files and produce a GNU
-Makefile that can be include'd by your little project.
+Makefile that can be include'd by your little project. It's only been tested on
+projects using the Adafruit Feather nRF52832 and Adafruit Feather nRF52840
+Express. I'll get it working with the Adafruit SAMD stuff, as I have a PyRuler
+I'm trying to beat into something useful (and writing something useful in
+Python seems like not something I wanna do...). I'll probably also try to get it working for the Teensy 3.2, as I have a couple of those, too.
 
 Usage:
 
-`yarn`
+`yarn` (Strip Flow types...)
 
 `./ar2mk.js folder/with/platform/board/txt/files other/folders with/libraries`
+`>` `include.mk`
+
+Then from your Makefile:
 
 I started this because building in the Arduino IDE is slow, for a variety of
 reasons that I could go into. Anyway, I write C++ to run on my devices, not
