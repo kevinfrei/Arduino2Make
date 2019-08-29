@@ -26,7 +26,10 @@ import type {
   Recipe
 } from './types.js';
 
-const getNestedChild = (vrbl: Variable, children: Array<string>): ?Variable => {
+const getNestedChild = (
+  vrbl: Variable,
+  ...children: Array<string>
+): ?Variable => {
   let v: ?Variable = vrbl;
   for (let child of children) {
     if (!v) {
@@ -69,8 +72,8 @@ const cleanup = (val: string): string =>
 // For reference, stuff like $@, $^, and $< are called 'automatic variables'
 // in the GNU Makefile documentation
 const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
-  const getRule = (location: Array<string>): ?DependentValue => {
-    const pattern: ?Variable = getNestedChild(recipes, location);
+  const getRule = (...location: Array<string>): ?DependentValue => {
+    const pattern: ?Variable = getNestedChild(recipes, ...location);
     if (pattern) {
       let res = mkutil.getPlainValue(pattern, plat);
       if (res.value.length > 0) {
@@ -84,7 +87,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     lhs: string,
     rhs: string
   ): ?DependentValue => {
-    const depVal = getRule(location);
+    const depVal = getRule(...location);
     if (!depVal || !depVal.unresolved.has(rhs) || !depVal.unresolved.has(lhs)) {
       return;
     }
@@ -129,7 +132,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     });
   }
   // linker (recipe.c.combine.patthern) *.o + sys.a => %.elf
-  const linkDepVal: ?DependentValue = getRule(['c', 'combine', 'pattern']);
+  const linkDepVal: ?DependentValue = getRule('c', 'combine', 'pattern');
   if (linkDepVal) {
     let { value: command, unresolved: deps } = linkDepVal;
     deps.delete('OBJECT_FILES');
@@ -141,7 +144,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     result.push({ src: 'o-a', dst: 'elf', command, dependsOn: [...deps] });
   }
   // hex (recipe.objcopy.hex.pattern) .elf => .hex
-  const hexDepVal: ?DependentValue = getRule(['objcopy', 'hex', 'pattern']);
+  const hexDepVal: ?DependentValue = getRule('objcopy', 'hex', 'pattern');
   if (hexDepVal) {
     let { value: command, unresolved: deps } = hexDepVal;
     command = command
@@ -150,7 +153,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     result.push({ src: 'elf', dst: 'hex', command, dependsOn: [...deps] });
   }
   // dfu zip packager (recipe.objcopy.zip.pattern) .hex => .zip
-  const zipDepVal: ?DependentValue = getRule(['objcopy', 'zip', 'pattern']);
+  const zipDepVal: ?DependentValue = getRule('objcopy', 'zip', 'pattern');
   if (zipDepVal) {
     let { value: command, unresolved: deps } = zipDepVal;
     command = command
@@ -158,6 +161,14 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
       .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.zip', '$@');
     result.push({ src: 'hex', dst: 'zip', command, dependsOn: [...deps] });
   }
+  // Finally, add a 'flash' target
+  result.push({
+    src: 'zip',
+    dst: 'flash',
+    command: '${UPLOAD_PATTERN} ${UPLOAD_EXTRA_FLAGS}',
+    dependsOn: []
+  });
+
   // Future: Add more recipe support in here?
   // size, and whatever the 'output.tmp_file/save_file stuff is used for...
   return result;
@@ -290,7 +301,6 @@ const dumpPlatform = (
   const plain = mkutil.getPlainValue;
   const defined = mkutil.makeDefinitions(fakeTop, plain, platform, null, skip);
 
-  const onlyTools = a => a.name === 'tools';
   const parentTool = (a: Variable): boolean => {
     for (; a.parent; a = a.parent) {
       if (a.name === 'tools') {
@@ -312,13 +322,8 @@ const dumpPlatform = (
   const cmds = tmpToolDefs.filter(fn => fn.name.endsWith('_CMD'));
   const osxTools = tmpToolDefs.filter(fn => fn.name.endsWith('_MACOSX'));
   const winTools = tmpToolDefs.filter(fn => fn.name.endsWith('_WINDOWS'));
-  const toolDefs = tmpToolDefs.filter(
-    fn =>
-      !fn.name.endsWith('_CMD') &&
-      !fn.name.endsWith('_MACOSX') &&
-      !fn.name.endsWith('_WINDOWS')
-  );
   const osxCnd = mkeq('${RUNTIME_OS}', 'macosx');
+  const toolDefs: Array<Definition> = [];
   for (let osxt of osxTools) {
     const name = osxt.name.substr(0, osxt.name.lastIndexOf('_MACOSX'));
     toolDefs.push(mkdef(name, osxt.value, osxt.dependsOn, [osxCnd]));
@@ -334,11 +339,49 @@ const dumpPlatform = (
     })
   );
 
+  // This stuff shoud turn into rules, not definitions, I think
+  // It looks like the board selects the tool & protocol
+  // The tool ought to be the name of the thing
+  // The protocol seems to imply that Arduino groks a variety of flash tools :/
+
   // TODO: Also handle the {cmd} thing which clearly refers to
   // the locally scoped cmd (or cmd.windows/cmd.macosx thing)
   // as well as the tools.(name).OPERATION.pattern
   // and tools.(name).OPERATION.params.VARNAME
+  const weirdToolDefs = tmpToolDefs.filter(
+    fn =>
+      !fn.name.endsWith('_CMD') &&
+      !fn.name.endsWith('_MACOSX') &&
+      !fn.name.endsWith('_WINDOWS')
+  );
 
+  const toolsSyms = platform.scopedTable.get('tools');
+  if (toolsSyms) {
+    for (let [key, value] of toolsSyms.children) {
+      const patt = getNestedChild(value, 'upload', 'pattern');
+      const params = getNestedChild(value, 'upload', 'params');
+      if (!patt) continue;
+      // TODO: Add support for UPLOAD_WAIT_FOR_UPLOAD_PORT
+      // TODO: Add support for UPLOAD_USE_1200BPS_TOUCH
+      const chup = mkeq('${UPLOAD_USE_1200BPS_TOUCH}', "true");
+      const uef = mkdef('UPLOAD_EXTRA_FLAGS', '--touch 12000', [], [chup]);
+      toolDefs.push(uef);
+      const ucnd = mkeq('${UPLOAD_TOOL}', key);
+      const patdval = mkutil.getPlainValue(patt, platform);
+      const flashTool = patdval.value.replace(
+        '${CMD}',
+        '${TOOLS_' + key.toUpperCase() + '_CMD}'
+      );
+      patdval.unresolved.delete('CMD');
+      const tldef = mkdef(
+        'UPLOAD_PATTERN',
+        flashTool,
+        [...patdval.unresolved, uef.name],
+        [ucnd]
+      );
+      toolDefs.push(tldef);
+    }
+  }
   // Build up all the various make rules from the recipes in the platform file
   const recipeSyms = platform.scopedTable.get('recipe');
   const rules: Array<Recipe> = recipeSyms

@@ -32,17 +32,13 @@ doesn't seem worth the effort. Just use the Arduino IDE...
 
 ## TODO:
 
-- Enable a 'flash' target!
-- Add usage of the .d files. They're produced by default, may as well try to
-  use them...
-- Clean up the input variable names. They're highly inconsistent.
+- Move more things out of the `include`ing file into the generated makefile
+- Add usage of the .d files. They're produced: may as well try to use them...
+- Add a 'clean' target (and maybe an 'allclean' target, too?)
 - Get it working on Teensy & the AdaFruit AVR stuff
   - I've never actually used Arduino hardware :D
 - Make the thing also spit out VSCode settings! This would be awesome (and not
-too difficult, either)
-- Get it working on Teensy & the AdaFruit AVR stuff
-  - I've never actually used Arduino hardware :D
-- Make the thing also spit out VSCode settings! This would be awesome (and not
-too difficult, either)
+particularly difficult, at this point, either)
+  - Bonus points: Make it an actual target, so the Makefile will update it!
 - And, finally, eventually, make some tests, probably. Jest seems reasonable.
   Seriously, I've found it pretty darned useful in a few other projects...
