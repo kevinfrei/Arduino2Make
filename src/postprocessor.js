@@ -233,14 +233,14 @@ const emitRules = (rules: Array<Recipe>) => {
 .PHONY: $\{PROJ_NAME\} flash clean allclean
 
 # Now the default target
-all: $\{BUILD_DIR\} $\{PROJ_NAME\}
+all: $\{BUILD_PATH\} $\{PROJ_NAME\}
 
 # Some house keeping
 clean:
 \t-rm $\{USER_OBJS\}
 
 allclean:
-\t-rm -rf $\{BUILD_DIR\}
+\t-rm -rf $\{BUILD_PATH\}
 
 # Make us rebuild user code if the makefile(s) change:
 # Needs to be above the deps thing, I think
@@ -249,14 +249,14 @@ $\{USER_OBJS\} : $(MAKEFILE_LIST)
 #-include $(ALL_OBJS:.o=.d)
 
 # Next, the project name shortcut, cuz it's easier
-$\{PROJ_NAME\}: $\{BUILD_DIR\}/$\{PROJ_NAME\}.zip
+$\{PROJ_NAME\}: $\{BUILD_PATH\}/$\{PROJ_NAME\}.zip
 
 # Add a 'flash' target
-flash: $\{BUILD_DIR\}/$\{PROJ_NAME\}.flash
+flash: $\{BUILD_PATH\}/$\{PROJ_NAME\}.flash
 
 # And finally, create the director
 # TODO: This no worky on Windows fer sure
-$\{BUILD_DIR\}:
+$\{BUILD_PATH\}:
 \ttest -d "$@" || mkdir "$@"
 
 # Now, on to the actual rules`);

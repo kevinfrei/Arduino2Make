@@ -364,7 +364,7 @@ const dumpPlatform = (
       // TODO: Add support for UPLOAD_WAIT_FOR_UPLOAD_PORT
       // TODO: Add support for UPLOAD_USE_1200BPS_TOUCH
       const chup = mkeq('${UPLOAD_USE_1200BPS_TOUCH}', "true");
-      const uef = mkdef('UPLOAD_EXTRA_FLAGS', '--touch 12000', [], [chup]);
+      const uef = mkdef('UPLOAD_EXTRA_FLAGS', '--touch 1200', [], [chup]);
       toolDefs.push(uef);
       const ucnd = mkeq('${UPLOAD_TOOL}', key);
       const patdval = mkutil.getPlainValue(patt, platform);

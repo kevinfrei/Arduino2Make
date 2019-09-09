@@ -199,7 +199,7 @@ const makeMenuOptions = (
     return defined;
   }
   for (let toDump of menu.children.values()) {
-    const makeVarName = 'INPUT_' + toDump.name.toUpperCase();
+    const makeVarName = 'IN_' + toDump.name.toUpperCase();
     for (let item of toDump.children.values()) {
       const cn = makeIfeq('${' + makeVarName + '}', item.name);
       const subDef = makeDefinitions(item, getPlainValue, parsedFile, [
