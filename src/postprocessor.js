@@ -246,7 +246,8 @@ allclean:
 # Needs to be above the deps thing, I think
 $\{USER_OBJS\} : $(MAKEFILE_LIST)
 
-#-include $(ALL_OBJS:.o=.d)
+# Let's start using the generated .d files...
+-include $(ALL_OBJS:.o=.d)
 
 # Next, the project name shortcut, cuz it's easier
 $\{PROJ_NAME\}: $\{BUILD_PATH\}/$\{PROJ_NAME\}.zip
