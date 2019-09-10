@@ -176,7 +176,7 @@ const makeDefinitions = (
     const vrbl: Variable = toDef.pop();
     if (!filter || filter(vrbl)) {
       toDef.push(...vrbl.children.values());
-      if (vrbl.value) {
+      if (vrbl.value !== undefined) {
         const varName = getMakeName(vrbl, top);
         const { value, unresolved: deps } = valueMaker(vrbl, parsedFile);
         const def = makeDeclDef(varName, value, [...deps], condition || []);

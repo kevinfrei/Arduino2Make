@@ -14,7 +14,7 @@
         "flow-remove-types/register"
       ],
       "args": [
-        "../Adafruit_nRF52_Arduino"
+        "/Applications/Arduino.app/Contents/Java/hardware/teensy/avr"
       ],
       // I apparently need to set this to get node debugging working :/
       "env": {
