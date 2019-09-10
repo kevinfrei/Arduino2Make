@@ -103,14 +103,18 @@ const resolveValue = (
   return { value: res, unresolved };
 };
 
+const makifyName = (nm: string): string => {
+  return nm.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+};
+
 // Upper-cases with underscores
 const getMakeName = (vrbl: Variable, top: Variable) => {
-  let name = vrbl.name.toUpperCase();
+  let name = vrbl.name;
   while (vrbl.parent && vrbl.parent !== top) {
     vrbl = vrbl.parent;
-    name = vrbl.name.toUpperCase().replace(/[^A-Z0-9]/g, '_') + '_' + name;
+    name = vrbl.name + '_' + name;
   }
-  return name;
+  return makifyName(name);
 };
 
 // TODO: This should handle any escaping necessary
@@ -123,9 +127,6 @@ const resolvedValue = (vrbl: Variable, parsedFile: ParsedFile): string => {
   }
 };
 
-const makifyName = (nm: string): string => {
-  return nm.toUpperCase().replace(/[^A-Z0-9]/g, '_');
-};
 
 const unresolvedValue = (value: string): DependentValue => {
   let res = '';
