@@ -17,6 +17,7 @@ import type {
 
 const optionalDefs: Array<string> = [
   'INCLUDES',
+  'BUILD_FLAGS_C',
   'COMPILER_S_EXTRA_FLAGS',
   'COMPILER_C_EXTRA_FLAGS',
   'COMPILER_CPP_EXTRA_FLAGS',
@@ -226,6 +227,11 @@ const emitDefs = (defs: Array<Definition>) => {
 };
 
 const emitRules = (rules: Array<Recipe>) => {
+  // Check to see what our flash target depends on
+  // TODO: Not sure what to do if we have multiple flash targets :/
+  const flashRules = rules.filter((r: Recipe) => r.dst === 'flash');
+  const targetSuffix: string =
+    flashRules.length > 0 ? flashRules.pop().src : 'unk';
   console.log(`
 # And now the build rules!
 
@@ -249,8 +255,8 @@ $\{USER_OBJS\} : $(MAKEFILE_LIST)
 # Let's start using the generated .d files...
 -include $(ALL_OBJS:.o=.d)
 
-# Next, the project name shortcut, cuz it's easier
-$\{PROJ_NAME\}: $\{BUILD_PATH\}/$\{PROJ_NAME\}.zip
+# Next, the project name shortcut, because it's easier
+$\{PROJ_NAME\}: $\{BUILD_PATH\}/$\{PROJ_NAME\}.${targetSuffix}
 
 # Add a 'flash' target
 flash: $\{BUILD_PATH\}/$\{PROJ_NAME\}.flash
@@ -265,13 +271,23 @@ $\{BUILD_PATH\}:
     console.log('');
     if (rule.dst === 'o') {
       console.log(`$\{BUILD_PATH\}/%.${rule.src}.o : %.${rule.src}`);
+      let cmd = rule.command;
+      let sfx = rule.src.toUpperCase();
+      const flg = `$\{COMPILER_${sfx}_EXTRA_FLAGS\} `;
+      if (cmd.indexOf(flg) < 0) {
+        let loc = cmd.indexOf('"$<"');
+        cmd = cmd.substr(0, loc) + flg + cmd.substr(loc);
+      }
+      console.log('\t' + cmd);
     } else if (rule.dst === 'a') {
       console.log('${BUILD_PATH}/system.a : ${SYS_OBJS}');
+      console.log(`\t${rule.command}`);
     } else if (rule.dst === 'elf') {
       console.log(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf : ' +
           '${BUILD_PATH}/system.a ${USER_OBJS}'
       );
+      console.log(`\t${rule.command}`);
     } else {
       console.log(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
@@ -279,8 +295,8 @@ $\{BUILD_PATH\}:
           ' : ${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
           rule.src
       );
+      console.log(`\t${rule.command}`);
     }
-    console.log(`\t${rule.command}`);
   });
 };
 

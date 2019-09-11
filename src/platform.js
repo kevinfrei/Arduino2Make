@@ -160,15 +160,24 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
       .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex', '$<')
       .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.zip', '$@');
     result.push({ src: 'hex', dst: 'zip', command, dependsOn: [...deps] });
+    // Finally, add a 'flash' target
+    result.push({
+      src: 'zip',
+      dst: 'flash',
+      command: '${UPLOAD_PATTERN} ${UPLOAD_EXTRA_FLAGS}',
+      dependsOn: []
+    });
+  } else if (hexDepVal) {
+    // If we don't have a zip target, I guess create a hex target?
+    result.push({
+      src: 'hex',
+      dst: 'flash',
+      command: '${UPLOAD_PATTERN} ${UPLOAD_EXTRA_FLAGS}',
+      dependsOn: []
+    });
+  } else {
+    // TODO: What do we do without a zip or a hex target?
   }
-  // Finally, add a 'flash' target
-  result.push({
-    src: 'zip',
-    dst: 'flash',
-    command: '${UPLOAD_PATTERN} ${UPLOAD_EXTRA_FLAGS}',
-    dependsOn: []
-  });
-
   // Future: Add more recipe support in here?
   // size, and whatever the 'output.tmp_file/save_file stuff is used for...
   return result;
@@ -363,7 +372,7 @@ const dumpPlatform = (
       if (!patt) continue;
       // TODO: Add support for UPLOAD_WAIT_FOR_UPLOAD_PORT
       // TODO: Add support for UPLOAD_USE_1200BPS_TOUCH
-      const chup = mkeq('${UPLOAD_USE_1200BPS_TOUCH}', "true");
+      const chup = mkeq('${UPLOAD_USE_1200BPS_TOUCH}', 'true');
       const uef = mkdef('UPLOAD_EXTRA_FLAGS', '--touch 1200', [], [chup]);
       toolDefs.push(uef);
       const ucnd = mkeq('${UPLOAD_TOOL}', key);
@@ -375,7 +384,7 @@ const dumpPlatform = (
       patdval.unresolved.delete('CMD');
       const tldef = mkdef(
         'UPLOAD_PATTERN',
-        flashTool,
+        flashTool.replace("${BUILD_PATH}", "$(abspath ${BUILD_PATH})"),
         [...patdval.unresolved, uef.name],
         [ucnd]
       );
