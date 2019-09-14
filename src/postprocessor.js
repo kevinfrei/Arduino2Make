@@ -226,6 +226,14 @@ const emitDefs = (defs: Array<Definition>) => {
   closeConditions(prevCond.length - 1, prevCond.length);
 };
 
+// This is currently more art than science :/
+const slashify = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\\\\\"')
+    .replace(/'/g, '');
+};
+
 const emitRules = (rules: Array<Recipe>) => {
   // Check to see what our flash target depends on
   // TODO: Not sure what to do if we have multiple flash targets :/
@@ -267,6 +275,7 @@ $\{BUILD_PATH\}:
 \ttest -d "$@" || mkdir "$@"
 
 # Now, on to the actual rules`);
+  const jsonFiles: Array<string> = [];
   rules.forEach((rule: Recipe) => {
     console.log('');
     if (rule.dst === 'o') {
@@ -278,7 +287,22 @@ $\{BUILD_PATH\}:
         let loc = cmd.indexOf('"$<"');
         cmd = cmd.substr(0, loc) + flg + cmd.substr(loc);
       }
-      console.log('\t' + cmd);
+      console.log('\t' + cmd + '\n');
+      // Also, let's spit out a X_compile_commands target
+      const jsonFile = `$\{BUILD_PATH\}/${rule.src.toLowerCase()}_compile_commands.json`;
+      jsonFiles.push(jsonFile);
+      console.log(`${jsonFile}: $(USER_${sfx}_SRCS) $(${sfx}_SYS_SRCS)`);
+      console.log('\techo > $@');
+      console.log('\tfor i in $^ ; do \\');
+      console.log(
+        '\techo "{ \\"directory\\": \\"${PWD}\\",\\"file\\":\\"$$i\\",' +
+          '\\"command\\":" >> $@ ; \\'
+      );
+      cmd = cmd.replace('"$<"', '"$$$$i"');
+      cmd = cmd.replace('"$@"', '"$$$$i.o"');
+      cmd = slashify(cmd);
+      console.log('\techo "\\"' + cmd + '\\"}," >> $@ ;\\');
+      console.log('\tdone');
     } else if (rule.dst === 'a') {
       console.log('${BUILD_PATH}/system.a : ${SYS_OBJS}');
       console.log(`\t${rule.command}`);
@@ -298,6 +322,13 @@ $\{BUILD_PATH\}:
       console.log(`\t${rule.command}`);
     }
   });
+  console.log('\n${BUILD_PATH}/compile_commands.json: ' + jsonFiles.join(' '));
+  console.log('\techo "[" > $@.tmp');
+  console.log('\tcat $^ >> $@.tmp');
+  console.log('\techo "]" >> $@.tmp');
+  console.log("\tsed -e ':a' -e 'N' -e '$$!ba' -e 's/},\\n]/}]/g' $@.tmp > $@");
+//  console.log('\trm $@.tmp\n');
+  console.log('\ncompile_commands: ${BUILD_PATH}/compile_commands.json');
 };
 
 module.exports = {
