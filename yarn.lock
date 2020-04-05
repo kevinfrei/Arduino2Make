@@ -2,22 +2,22 @@
 # yarn lockfile v1
 
 
-flow-bin@^0.118.0:
-  version "0.118.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.118.0.tgz#fb706364a58c682d67a2ca7df39396467dc397d1"
-  integrity sha512-jlbUu0XkbpXeXhan5xyTqVK1jmEKNxE8hpzznI3TThHTr76GiFwK0iRzhDo4KNy+S9h/KxHaqVhTP86vA6wHCg==
+flow-bin@^0.122.0:
+  version "0.122.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.122.0.tgz#c723a2b33b1a70bd10204704ae1dc776d5d89d79"
+  integrity sha512-my8N5jgl/A+UVby9E7NDppHdhLgRbWgKbmFZSx2MSYMRh3d9YGnM2MM+wexpUpl0ftY1IM6ZcUwaAhrypLyvlA==
 
-flow-parser@^0.118.0:
-  version "0.118.0"
-  resolved "https://registry.yarnpkg.com/flow-parser/-/flow-parser-0.118.0.tgz#81671a7649789dccd932aa24f9e4727dc80afa00"
-  integrity sha512-PM3aKA5K3e5kK2hJPsSVdQD4/SVZUQni9qfB0+JHBCjqoAS5mSe3SlhLR9TlH3WDQccL0H2b6zpP8LjOzx9Wtg==
+flow-parser@^0.122.0:
+  version "0.122.0"
+  resolved "https://registry.yarnpkg.com/flow-parser/-/flow-parser-0.122.0.tgz#f8258ba4200b2bec66c18ce00a323e3330e42b1a"
+  integrity sha512-rb4pLIb7JAWn4dnO+fB9YLTUOM0SvY1ZN2yeu2NOyL7f2JeXBp9Nevqf+h4OluQcdI+9CnGa/if/HUy1YOX0dA==
 
-flow-remove-types@^2.118.0:
-  version "2.118.0"
-  resolved "https://registry.yarnpkg.com/flow-remove-types/-/flow-remove-types-2.118.0.tgz#e2b77957aef21445eb9f8671f968f081315a9c3c"
-  integrity sha512-HrrN9WFCB0Ausk5EvCqQC3RQqgjOsDny+ByxBRYXBqgJrt1Ropxj4JTXBeHcPoeBuN/l8l2Uh0ve7L9NwWXslg==
+flow-remove-types@^2.122.0:
+  version "2.122.0"
+  resolved "https://registry.yarnpkg.com/flow-remove-types/-/flow-remove-types-2.122.0.tgz#abf2a51c8b80a09010eb1ac0c7d0646abeb208d1"
+  integrity sha512-48cyUF9nyqwlQGRnncNWJNFSIN+sMpeHhqtATwnUZE3bDG8QXH2YS8mL68Xzxs9BVRzcUI+r9ib7d9E/rqUpuQ==
   dependencies:
-    flow-parser "^0.118.0"
+    flow-parser "^0.122.0"
     pirates "^3.0.2"
     vlq "^0.2.1"
 
