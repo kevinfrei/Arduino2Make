@@ -269,10 +269,10 @@ $\{PROJ_NAME\}: $\{BUILD_PATH\}/$\{PROJ_NAME\}.${targetSuffix}
 # Add a 'flash' target
 flash: $\{BUILD_PATH\}/$\{PROJ_NAME\}.flash
 
-# And finally, create the director
+# And finally, create the directory
 # TODO: This no worky on Windows fer sure
 $\{BUILD_PATH\}:
-\ttest -d "$@" || mkdir "$@"
+\ttest -d "$@" || mkdir -p "$@"
 
 # Now, on to the actual rules`);
   const jsonFiles: Array<string> = [];

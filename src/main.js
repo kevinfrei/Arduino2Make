@@ -50,8 +50,8 @@ const main = async (root: string, ...libLocs: Array<string>) => {
     mkdef('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
     makeUnDecl('RUNTIME_OS', 'linux', [], []),
     mkdef('RUNTIME_PLATFORM_PATH', presolve(pdirname(platform)), [], []),
-    mkdef('RUNTIME_IDE_VERSION', '10808', [], []),
-    mkdef('IDE_VERSION', '10808', [], [])
+    mkdef('RUNTIME_IDE_VERSION', '10812', [], []),
+    mkdef('IDE_VERSION', '10812', [], [])
   ];
   const boardDefined = buildBoard(boardSyms);
   // TODO: Don't have recipes & tools fully handled in the platform yet
