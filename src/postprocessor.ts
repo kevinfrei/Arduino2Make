@@ -12,8 +12,8 @@ import type {
   DependentValue,
   Condition,
   Definition,
-  Recipe
-} from './types.js';
+  Recipe,
+} from './types';
 
 const optionalDefs: Array<string> = [
   'INCLUDES',
@@ -24,27 +24,31 @@ const optionalDefs: Array<string> = [
   'COMPILER_C_ELF_EXTRA_FLAGS',
   'COMPILER_ELF2HEX_EXTRA_FLAGS',
   'COMPILER_AR_EXTRA_FLAGS',
-  'UPLOAD_VERBOSE'
+  'UPLOAD_VERBOSE',
 ];
 
-const order = (
+export function order(
   defs: Array<Definition>,
   rules: Array<Recipe>
-): { checks: Array<string>, defs: Array<Definition> } => {
+): { checks: Array<string>; defs: Array<Definition> } {
   // Don't know if I'll need the rules or not
 
   // First, let's identify all the mandatory user-defined symbols
-  const allDefs = new Set(defs.map(d => d.name));
+  const allDefs = new Set(defs.map((d) => d.name));
+  const tmp: Array<string> = [];
   const allDeps = new Set(
-    [].concat(...defs.map(d => d.dependsOn), ...rules.map(rec => rec.dependsOn))
+    tmp.concat(
+      ...defs.map((d) => d.dependsOn),
+      ...rules.map((rec) => rec.dependsOn)
+    )
   );
   // Remove allDefs from allDeps
   const checks: Set<string> = new Set(
-    [...allDeps].filter(x => !allDefs.has(x))
+    [...allDeps].filter((x) => !allDefs.has(x))
   );
   const done: Set<string> = new Set(checks);
   // Clear out known optional values
-  optionalDefs.forEach(a => checks.delete(a));
+  optionalDefs.forEach((a) => checks.delete(a));
 
   // Now checks has the list of all undefined symbols
   // These should have checks emitted in the makefile to validate that the user
@@ -81,9 +85,9 @@ const order = (
   }
 
   return { checks: [...checks.keys()], defs: ordered };
-};
+}
 
-const emitChecks = (checks: Array<string>) => {
+export function emitChecks(checks: Array<string>) {
   console.log('# First, add some errors for undefined values');
   checks.forEach((val: string) => {
     console.log(`ifndef ${val}`);
@@ -96,7 +100,7 @@ ifeq ($\{USER_C_SRCS}$\{USER_CPP_SRCS}$\{USER_S_SRCS},)
   $(error You must define USER_C_SRCS, USER_CPP_SRCS, or USER_S_SRCS)
 endif
 `);
-};
+}
 
 const getSpaces = (len: number): string => {
   let str = '';
@@ -207,9 +211,9 @@ const opMap: Map<string, string> = new Map([
   ['decl', '='],
   ['seq', ':='],
   ['add', '+='],
-  ['?decl', '?=']
+  ['?decl', '?='],
 ]);
-const emitDefs = (defs: Array<Definition>) => {
+export function emitDefs(defs: Array<Definition>) {
   console.log('# And here are all the definitions');
   let prevCond: Array<Condition> = [];
   //  let depth = '';
@@ -224,22 +228,19 @@ const emitDefs = (defs: Array<Definition>) => {
     prevCond = curCond;
   });
   closeConditions(prevCond.length - 1, prevCond.length);
-};
+}
 
 // This is currently more art than science :/
 const slashify = (str: string): string => {
-  return str
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\\\\\"')
-    .replace(/'/g, '');
+  return str.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"').replace(/'/g, '');
 };
 
-const emitRules = (rules: Array<Recipe>) => {
+export function emitRules(rules: Array<Recipe>) {
   // Check to see what our flash target depends on
   // TODO: Not sure what to do if we have multiple flash targets :/
   const flashRules = rules.filter((r: Recipe) => r.dst === 'flash');
-  const targetSuffix: string =
-    flashRules.length > 0 ? flashRules.pop().src : 'unk';
+  let tmp = flashRules.pop();
+  const targetSuffix: string = tmp ? tmp.src : 'unk';
   console.log(`
 # And now the build rules!
 
@@ -327,13 +328,6 @@ $\{BUILD_PATH\}:
   console.log('\tcat $^ >> $@.tmp');
   console.log('\techo "]" >> $@.tmp');
   console.log("\tsed -e ':a' -e 'N' -e '$$!ba' -e 's/},\\n]/}]/g' $@.tmp > $@");
-//  console.log('\trm $@.tmp\n');
+  //  console.log('\trm $@.tmp\n');
   console.log('\ncompile_commands: ${BUILD_PATH}/compile_commands.json');
-};
-
-module.exports = {
-  order,
-  emitChecks,
-  emitDefs,
-  emitRules
-};
+}

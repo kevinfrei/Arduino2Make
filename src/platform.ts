@@ -1,18 +1,21 @@
 // @flow
 // @format
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
-const mkutil = require('./mkutil.js');
-const mkdef = mkutil.makeDeclDef;
-const mkseq = mkutil.makeSeqDef;
-const mkundef = mkutil.makeUnDecl;
-const mkapp = mkutil.makeAppend;
-const mkeq = mkutil.makeIfeq;
-const mkne = mkutil.makeIfneq;
-const mkdf = mkutil.makeIfdef;
-const mknd = mkutil.makeIfndef;
+import {
+  getPlainValue,
+  makeDefinitions,
+  makeDeclDef as mkdef,
+  makeSeqDef as mkseq,
+  makeUnDecl as mkundef,
+  makeAppend as mkapp,
+  makeIfeq as mkeq,
+  makeIfneq as mkne,
+  makeIfdef as mkdf,
+  makeIfndef as mknd,
+} from './mkutil';
 
 import type {
   Variable,
@@ -23,14 +26,14 @@ import type {
   DependentValue,
   Definition,
   Condition,
-  Recipe
+  Recipe,
 } from './types.js';
 
 const getNestedChild = (
   vrbl: Variable,
   ...children: Array<string>
-): ?Variable => {
-  let v: ?Variable = vrbl;
+): Variable | undefined => {
+  let v: Variable | undefined = vrbl;
   for (let child of children) {
     if (!v) {
       return;
@@ -51,7 +54,7 @@ const cleanup = (val: string): string =>
   // sneeze at it (or have a quote string with a space :/ )
   val
     .split(' ')
-    .map(v => {
+    .map((v) => {
       if (v === '${INCLUDES}') {
         return '${SYS_INCLUDES} ${USER_INCLUDES}';
       }
@@ -72,10 +75,10 @@ const cleanup = (val: string): string =>
 // For reference, stuff like $@, $^, and $< are called 'automatic variables'
 // in the GNU Makefile documentation
 const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
-  const getRule = (...location: Array<string>): ?DependentValue => {
-    const pattern: ?Variable = getNestedChild(recipes, ...location);
+  const getRule = (...location: Array<string>): DependentValue | undefined => {
+    const pattern: Variable | undefined = getNestedChild(recipes, ...location);
     if (pattern) {
-      let res = mkutil.getPlainValue(pattern, plat);
+      let res = getPlainValue(pattern, plat);
       if (res.value.length > 0) {
         return res;
       }
@@ -86,7 +89,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     location: Array<string>,
     lhs: string,
     rhs: string
-  ): ?DependentValue => {
+  ): DependentValue | undefined => {
     const depVal = getRule(...location);
     if (!depVal || !depVal.unresolved.has(rhs) || !depVal.unresolved.has(lhs)) {
       return;
@@ -105,7 +108,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
 
   // First, let's just get the .o producers
   for (let src of ['S', 'c', 'cpp']) {
-    const depVal: ?DependentValue = makeRule(
+    const depVal: DependentValue | undefined = makeRule(
       [src, 'o', 'pattern'],
       'OBJECT_FILE',
       'SOURCE_FILE'
@@ -117,7 +120,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
   }
 
   // Create archives (recipe.ar.pattern) sys*.o's => sys.a
-  const arcDepVal: ?DependentValue = makeRule(
+  const arcDepVal: DependentValue | undefined = makeRule(
     ['ar', 'pattern'],
     'ARCHIVE_FILE_PATH',
     'OBJECT_FILE'
@@ -128,11 +131,15 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
       src: 'o',
       dst: 'a',
       command: arcDepVal.value.replace('"$<"', '$^'),
-      dependsOn
+      dependsOn,
     });
   }
   // linker (recipe.c.combine.patthern) *.o + sys.a => %.elf
-  const linkDepVal: ?DependentValue = getRule('c', 'combine', 'pattern');
+  const linkDepVal: DependentValue | undefined = getRule(
+    'c',
+    'combine',
+    'pattern'
+  );
   if (linkDepVal) {
     let { value: command, unresolved: deps } = linkDepVal;
     deps.delete('OBJECT_FILES');
@@ -144,7 +151,11 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     result.push({ src: 'o-a', dst: 'elf', command, dependsOn: [...deps] });
   }
   // hex (recipe.objcopy.hex.pattern) .elf => .hex
-  const hexDepVal: ?DependentValue = getRule('objcopy', 'hex', 'pattern');
+  const hexDepVal: DependentValue | undefined = getRule(
+    'objcopy',
+    'hex',
+    'pattern'
+  );
   if (hexDepVal) {
     let { value: command, unresolved: deps } = hexDepVal;
     command = command
@@ -153,7 +164,11 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     result.push({ src: 'elf', dst: 'hex', command, dependsOn: [...deps] });
   }
   // dfu zip packager (recipe.objcopy.zip.pattern) .hex => .zip
-  const zipDepVal: ?DependentValue = getRule('objcopy', 'zip', 'pattern');
+  const zipDepVal: DependentValue | undefined = getRule(
+    'objcopy',
+    'zip',
+    'pattern'
+  );
   if (zipDepVal) {
     let { value: command, unresolved: deps } = zipDepVal;
     command = command
@@ -165,7 +180,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
       src: 'zip',
       dst: 'flash',
       command: '${UPLOAD_PATTERN} ${UPLOAD_EXTRA_FLAGS}',
-      dependsOn: []
+      dependsOn: [],
     });
   } else if (hexDepVal) {
     // If we don't have a zip target, I guess create a hex target?
@@ -173,7 +188,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
       src: 'hex',
       dst: 'flash',
       command: '${UPLOAD_PATTERN} ${UPLOAD_EXTRA_FLAGS}',
-      dependsOn: []
+      dependsOn: [],
     });
   } else {
     // TODO: What do we do without a zip or a hex target?
@@ -184,13 +199,18 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
 };
 
 // Gets all the files under a given directory
-const enumerateFiles = (root: string): Array<string> =>
-  fs.statSync(root).isDirectory()
-    ? [].concat.apply(
-        [],
-        fs.readdirSync(root).map(f => enumerateFiles(path.join(root, f)))
-      )
-    : [root];
+function enumerateFiles(root: string): Array<string> {
+  if (fs.statSync(root).isDirectory()) {
+    const dirs = fs.readdirSync(root);
+    const tmp: Array<string> = [];
+    return tmp.concat.apply(
+      tmp,
+      dirs.map((f: string) => enumerateFiles(path.join(root, f)))
+    );
+  } else {
+    return [root];
+  }
+}
 
 const getPath = (fn: string) => fn.substr(0, fn.lastIndexOf('/'));
 const endsWithNoExamples = (
@@ -198,7 +218,7 @@ const endsWithNoExamples = (
   suffix: string
 ): Array<string> => {
   return paths.filter(
-    fn => fn.endsWith(suffix) && fn.indexOf('/examples/') < 0
+    (fn) => fn.endsWith(suffix) && fn.indexOf('/examples/') < 0
   );
 };
 
@@ -211,7 +231,9 @@ const getFileList = (path: string) => {
   const s = endsWithNoExamples(allFiles, '.S');
   const paths = [...new Set([...c, ...cpp, ...s].map(getPath))];
   const inc = [
-    ...new Set(endsWithNoExamples(allFiles, '.h').map(fn => '-I' + getPath(fn)))
+    ...new Set(
+      endsWithNoExamples(allFiles, '.h').map((fn) => '-I' + getPath(fn))
+    ),
   ];
   return { c, cpp, s, paths, inc };
 };
@@ -231,7 +253,7 @@ const mkSrcList = (
 
 const getLibInfo = (
   root: string
-): { defs: Array<Definition>, rules: Array<Recipe> } => {
+): { defs: Array<Definition>; rules: Array<Recipe> } => {
   const { c, cpp, s, paths, inc } = getFileList(root);
   const libName = root.substr(root.lastIndexOf('/') + 1);
   const libDefName = 'LIB_' + libName.toUpperCase();
@@ -264,12 +286,12 @@ endif
 // Given a set of locations, get all the defs & rules for libraries under them
 const addLibs = (
   locs: Array<string>
-): { defs: Array<Definition>, rules: Array<Recipe> } => {
+): { defs: Array<Definition>; rules: Array<Recipe> } => {
   const defs: Array<Definition> = [];
   const rules: Array<Recipe> = [];
   for (let loc of locs) {
     // First, find any 'library.properties' files
-    const libRoots = enumerateFiles(loc).filter(fn =>
+    const libRoots = enumerateFiles(loc).filter((fn) =>
       fn.endsWith('/library.properties')
     );
     for (let libRoot of libRoots) {
@@ -285,30 +307,30 @@ const addLibs = (
 // This is the 'meat' of the whole thing, as recipes generate very different
 // Makefile code.
 // It also returns the set of probably defined values generated from this code
-const dumpPlatform = (
+export default function buildPlatform(
   boardDefs: Array<Definition>,
   platform: ParsedFile,
   rootpath: string,
   libLocs: Array<string>
-): { defs: Array<Definition>, rules: Array<Recipe> } => {
+): { defs: Array<Definition>; rules: Array<Recipe> } {
   let defs: Array<Definition> = [
     mkdef(
       'BUILD_CORE_PATH',
       '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}',
       ['RUNTIME_PLATFORM_PATH', 'BUILD_CORE'],
       []
-    )
+    ),
   ];
 
   // Now spit out all the variables
   const fakeTop = {
     name: 'fake',
     children: platform.scopedTable,
-    parent: null
+    parent: null,
   };
-  const skip = a => a.name !== 'recipe' && a.name !== 'tools';
-  const plain = mkutil.getPlainValue;
-  const defined = mkutil.makeDefinitions(fakeTop, plain, platform, null, skip);
+  const skip: FilterFunc = (a) => a.name !== 'recipe' && a.name !== 'tools';
+  const plain = getPlainValue;
+  const defined = makeDefinitions(fakeTop, plain, platform, null, skip);
 
   const parentTool = (a: Variable): boolean => {
     for (; a.parent; a = a.parent) {
@@ -318,19 +340,13 @@ const dumpPlatform = (
     }
     return a.name === 'tools';
   };
-  let tmpToolDefs = mkutil.makeDefinitions(
-    fakeTop,
-    plain,
-    platform,
-    null,
-    parentTool
-  );
+  let tmpToolDefs = makeDefinitions(fakeTop, plain, platform, null, parentTool);
   // Handle the macosx/windows suffixed tools
   // FYI: My input tester stuff has precisely 1 of these tools, so
   // what I'm doing down here may not work properly with something with more
-  const cmds = tmpToolDefs.filter(fn => fn.name.endsWith('_CMD'));
-  const osxTools = tmpToolDefs.filter(fn => fn.name.endsWith('_MACOSX'));
-  const winTools = tmpToolDefs.filter(fn => fn.name.endsWith('_WINDOWS'));
+  const cmds = tmpToolDefs.filter((fn) => fn.name.endsWith('_CMD'));
+  const osxTools = tmpToolDefs.filter((fn) => fn.name.endsWith('_MACOSX'));
+  const winTools = tmpToolDefs.filter((fn) => fn.name.endsWith('_WINDOWS'));
   const osxCnd = mkeq('${RUNTIME_OS}', 'macosx');
   const toolDefs: Array<Definition> = [];
   for (let osxt of osxTools) {
@@ -358,7 +374,7 @@ const dumpPlatform = (
   // as well as the tools.(name).OPERATION.pattern
   // and tools.(name).OPERATION.params.VARNAME
   const weirdToolDefs = tmpToolDefs.filter(
-    fn =>
+    (fn) =>
       !fn.name.endsWith('_CMD') &&
       !fn.name.endsWith('_MACOSX') &&
       !fn.name.endsWith('_WINDOWS')
@@ -376,7 +392,7 @@ const dumpPlatform = (
       const uef = mkdef('UPLOAD_EXTRA_FLAGS', '--touch 1200', [], [chup]);
       toolDefs.push(uef);
       const ucnd = mkeq('${UPLOAD_TOOL}', key);
-      const patdval = mkutil.getPlainValue(patt, platform);
+      const patdval = getPlainValue(patt, platform);
       const flashTool = patdval.value.replace(
         '${CMD}',
         '${TOOLS_' + key.toUpperCase() + '_CMD}'
@@ -384,7 +400,7 @@ const dumpPlatform = (
       patdval.unresolved.delete('CMD');
       const tldef = mkdef(
         'UPLOAD_PATTERN',
-        flashTool.replace("${BUILD_PATH}", "$(abspath ${BUILD_PATH})"),
+        flashTool.replace('${BUILD_PATH}', '$(abspath ${BUILD_PATH})'),
         [...patdval.unresolved, uef.name],
         [ucnd]
       );
@@ -400,11 +416,13 @@ const dumpPlatform = (
   // TODO: Get the file list together (just more definitions, I think)
   // For each build.core, create a file list
   const cores: Set<string> = new Set(
-    boardDefs.filter(def => def.name === 'BUILD_CORE').map(def => def.value)
+    boardDefs.filter((def) => def.name === 'BUILD_CORE').map((def) => def.value)
   );
 
   const variants: Set<string> = new Set(
-    boardDefs.filter(def => def.name === 'BUILD_VARIANT').map(def => def.value)
+    boardDefs
+      .filter((def) => def.name === 'BUILD_VARIANT')
+      .map((def) => def.value)
   );
 
   let fileDefs: Array<Definition> = [];
@@ -486,6 +504,4 @@ const dumpPlatform = (
   // $(addprefix ${M_OUT}/, $(patsubst %.cpp, %.cpp.o, $(notdir ${TUSB_SRCS})))
 
   return { defs: [...defs, ...defined, ...toolDefs, ...fileDefs], rules };
-};
-
-module.exports = dumpPlatform;
+}

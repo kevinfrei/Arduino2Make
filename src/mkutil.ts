@@ -12,53 +12,53 @@ import type {
   FilterFunc,
   ValueMakerFunc,
   Condition,
-  Definition
-} from './types.js';
+  Definition,
+} from './types';
 
-const makeIfeq = (variable: string, value: string): Condition => ({
+export const makeIfeq = (variable: string, value: string): Condition => ({
   op: 'eq',
   variable,
-  value
+  value,
 });
 
-const makeIfneq = (variable: string, value: string): Condition => ({
+export const makeIfneq = (variable: string, value: string): Condition => ({
   op: 'neq',
   variable,
-  value
+  value,
 });
 
-const makeIfdef = (variable: string): Condition => ({
+export const makeIfdef = (variable: string): Condition => ({
   op: 'def',
-  variable
+  variable,
 });
 
-const makeIfndef = (variable: string): Condition => ({
+export const makeIfndef = (variable: string): Condition => ({
   op: 'ndef',
-  variable
+  variable,
 });
 
-const makeDeclDef = (
+export const makeDeclDef = (
   name: string,
   value: string,
   dependsOn: Array<string>,
   condition: Array<Condition>
 ): Definition => ({ name, type: 'decl', value, dependsOn, condition });
 
-const makeSeqDef = (
+export const makeSeqDef = (
   name: string,
   value: string,
   dependsOn: Array<string>,
   condition: Array<Condition>
 ): Definition => ({ name, type: 'seq', value, dependsOn, condition });
 
-const makeAppend = (
+export const makeAppend = (
   name: string,
   value: string,
   dependsOn: Array<string>,
   condition: Array<Condition>
 ): Definition => ({ name, type: 'add', value, dependsOn, condition });
 
-const makeUnDecl = (
+export const makeUnDecl = (
   name: string,
   value: string,
   dependsOn: Array<string>,
@@ -118,15 +118,14 @@ const getMakeName = (vrbl: Variable, top: Variable) => {
 };
 
 // TODO: This should handle any escaping necessary
-const resolvedValue = (vrbl: Variable, parsedFile: ParsedFile): string => {
+export function resolvedValue(vrbl: Variable, parsedFile: ParsedFile): string {
   if (vrbl.value) {
     const res = resolveValue(vrbl.value, parsedFile);
     return res.value;
   } else {
     return '';
   }
-};
-
+}
 
 const unresolvedValue = (value: string): DependentValue => {
   let res = '';
@@ -153,7 +152,7 @@ const unresolvedValue = (value: string): DependentValue => {
   return { value: res, unresolved };
 };
 
-const getPlainValue: ValueMakerFunc = (
+export const getPlainValue: ValueMakerFunc = (
   vrbl: Variable,
   parsedFile: ParsedFile
 ): DependentValue => {
@@ -164,17 +163,19 @@ const getPlainValue: ValueMakerFunc = (
   }
 };
 
-const makeDefinitions = (
+export function makeDefinitions(
   top: Variable,
   valueMaker: ValueMakerFunc,
   parsedFile: ParsedFile,
-  condition: ?Array<Condition>,
+  condition: Array<Condition> | undefined | null,
   filter?: FilterFunc
-): Array<Definition> => {
+): Array<Definition> {
   let defined: Array<Definition> = [];
   let toDef: Array<Variable> = [...top.children.values()];
   while (toDef.length > 0) {
-    const vrbl: Variable = toDef.pop();
+    const foo = toDef.pop();
+    if (!foo) continue; // Typescript is dumber than Flow here...
+    const vrbl: Variable = foo;
     if (!filter || filter(vrbl)) {
       toDef.push(...vrbl.children.values());
       if (vrbl.value) {
@@ -186,14 +187,14 @@ const makeDefinitions = (
     }
   }
   return defined;
-};
+}
 
-const makeMenuOptions = (
+export function makeMenuOptions(
   top: Variable,
   parsedFile: ParsedFile,
   menus: Set<string>,
   initConds: Array<Condition>
-): Array<Definition> => {
+): Array<Definition> {
   let defined: Array<Definition> = [];
   const menu = top.children.get('menu');
   if (!menu) {
@@ -205,7 +206,7 @@ const makeMenuOptions = (
       const cn = makeIfeq('${' + makeVarName + '}', item.name);
       const subDef = makeDefinitions(item, getPlainValue, parsedFile, [
         ...initConds,
-        cn
+        cn,
       ]);
       subDef.forEach((def: Definition) => {
         def.dependsOn.push(makeVarName);
@@ -214,19 +215,4 @@ const makeMenuOptions = (
     }
   }
   return defined;
-};
-
-module.exports = {
-  getPlainValue,
-  resolve: resolvedValue,
-  makeAppend,
-  makeDeclDef,
-  makeSeqDef,
-  makeUnDecl,
-  makeIfdef,
-  makeIfndef,
-  makeIfeq,
-  makeIfneq,
-  makeDefinitions,
-  makeMenuOptions
-};
+}

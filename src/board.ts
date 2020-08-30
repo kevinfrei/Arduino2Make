@@ -1,24 +1,30 @@
 // @flow
 // @format
 
-const mkutil = require('./mkutil.js');
-const { makeIfeq, makeDeclDef: mkdef } = mkutil;
+import {
+  makeIfeq,
+  makeDeclDef as mkdef,
+  makeDefinitions,
+  getPlainValue,
+  makeMenuOptions,
+} from './mkutil';
 
 import type {
   Variable,
   SymbolTable,
   NamedTable,
+  FilterFunc,
   ParsedFile,
   Condition,
-  Definition
+  Definition,
 } from './types.js';
 
 // This spits out the board configuration data in Makefile format
 // It returns the set of *probably* defined variables, for use later
-const dumpBoard = (board: ParsedFile): Array<Definition> => {
+export default function buildBoard(board: ParsedFile): Array<Definition> {
   let menus: Set<string> = new Set();
   let defined: Array<Definition> = [
-    mkdef('BUILD_PROJECT_NAME', '${PROJ_NAME}', ['PROJ_NAME'], [])
+    mkdef('BUILD_PROJECT_NAME', '${PROJ_NAME}', ['PROJ_NAME'], []),
   ];
   for (let item of board.scopedTable.values()) {
     if (item.name === 'menu') {
@@ -27,10 +33,10 @@ const dumpBoard = (board: ParsedFile): Array<Definition> => {
       menus = new Set([...menus, ...children.keys()]);
     } else {
       const brd = makeIfeq('${BOARD_NAME}', item.name);
-      const notMenu = a => a.name !== 'menu';
-      const defVars = mkutil.makeDefinitions(
+      const notMenu: FilterFunc = (a) => a.name !== 'menu';
+      const defVars = makeDefinitions(
         item,
-        mkutil.getPlainValue,
+        getPlainValue,
         board,
         [brd],
         notMenu
@@ -38,11 +44,9 @@ const dumpBoard = (board: ParsedFile): Array<Definition> => {
       defVars.forEach((def: Definition) => {
         def.dependsOn.push('BOARD_NAME');
       });
-      const defMore = mkutil.makeMenuOptions(item, board, menus, [brd]);
+      const defMore = makeMenuOptions(item, board, menus, [brd]);
       defined = [...defined, ...defVars, ...defMore];
     }
   }
   return defined;
-};
-
-module.exports = dumpBoard;
+}

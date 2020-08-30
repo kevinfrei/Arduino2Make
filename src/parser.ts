@@ -3,16 +3,16 @@
 
 // Parsing stuff goes here
 
-const fs = require('fs');
-const rl = require('readline');
+import fs from 'fs';
+import rl from 'readline';
 
 import type {
   Variable,
   SymbolTable,
   FlatTable,
   NamedTable,
-  ParsedFile
-} from './types.js';
+  ParsedFile,
+} from './types';
 
 const makeFullName = (v: Variable): string => {
   let res = v.name;
@@ -29,7 +29,7 @@ const makeVariable = (
   table: SymbolTable
 ): Variable => {
   const pieces: Array<string> = fullName.split('.');
-  let ns: ?Variable;
+  let ns: Variable | null = null;
   for (let i = 0; i < pieces.length - 1; i++) {
     const nm: string = pieces[i];
     let data = table.get(nm);
@@ -60,7 +60,7 @@ const isVariable = (
   line: string,
   table: SymbolTable,
   flatsyms: FlatTable
-): ?Variable => {
+): Variable | void => {
   const t = line.trim();
   const eq = t.indexOf('=');
   if (eq < 1) {
@@ -73,7 +73,7 @@ const isVariable = (
 };
 
 // This does what it says it does...
-const parseFile = async (filepath: string): Promise<ParsedFile> => {
+export default async function parseFile(filepath: string): Promise<ParsedFile> {
   const scopedTable: SymbolTable = new Map();
   const flatSymbols: FlatTable = new Map();
 
@@ -90,6 +90,6 @@ const parseFile = async (filepath: string): Promise<ParsedFile> => {
     }
   }
   return { scopedTable, flatSymbols };
-};
+}
 
 module.exports = parseFile;

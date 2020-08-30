@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// @flow
 // @format
 
 // Call main with boards.txt platform.txt programmers.txt

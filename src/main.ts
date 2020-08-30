@@ -1,4 +1,3 @@
-// @flow
 // @format
 
 // Overall structure:
@@ -14,28 +13,20 @@
 // Once that's done, then restructre the resulting makefile to be more
 // configurable
 
-const { join: pjoin, resolve: presolve, dirname: pdirname } = require('path');
+import { join as pjoin, resolve as presolve, dirname as pdirname } from 'path';
 
-const parseFile = require('./parser.js');
-const {
-  makeDeclDef: mkdef,
-  makeIfeq,
-  makeIfneq,
-  makeUnDecl
-} = require('./mkutil.js');
-const buildBoard = require('./board.js');
-const buildPlatform = require('./platform.js');
+import parseFile from './parser.js';
+import { makeDeclDef as mkdef, makeIfeq, makeIfneq, makeUnDecl } from './mkutil.js';
+import buildBoard from './board.js';
+import buildPlatform from './platform';
+import { order, emitChecks, emitDefs, emitRules } from './postprocessor';
 
-const {
-  order,
-  emitChecks,
-  emitDefs,
-  emitRules
-} = require('./postprocessor.js');
+import type { ParsedFile, Condition, Definition } from './types';
 
-import type { ParsedFile, Condition, Definition } from './types.js';
-
-const main = async (root: string, ...libLocs: Array<string>) => {
+export default async function main(
+  root: string,
+  ...libLocs: Array<string>
+): Promise<void> {
   const board = pjoin(root, 'boards.txt');
   const platform = pjoin(root, 'platform.txt');
   const boardSyms = await parseFile(board);
@@ -51,7 +42,7 @@ const main = async (root: string, ...libLocs: Array<string>) => {
     makeUnDecl('RUNTIME_OS', 'linux', [], []),
     mkdef('RUNTIME_PLATFORM_PATH', presolve(pdirname(platform)), [], []),
     mkdef('RUNTIME_IDE_VERSION', '10812', [], []),
-    mkdef('IDE_VERSION', '10812', [], [])
+    mkdef('IDE_VERSION', '10812', [], []),
   ];
   const boardDefined = buildBoard(boardSyms);
   // TODO: Don't have recipes & tools fully handled in the platform yet
@@ -71,6 +62,4 @@ const main = async (root: string, ...libLocs: Array<string>) => {
   emitChecks(checks);
   emitDefs(defs);
   emitRules(rules);
-};
-
-module.exports = main;
+}
