@@ -1,6 +1,3 @@
-// @flow
-// @format
-
 // Utilities for doing Makefile stuff
 
 import type {

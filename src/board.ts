@@ -1,6 +1,3 @@
-// @flow
-// @format
-
 import {
   makeIfeq,
   makeDeclDef as mkdef,

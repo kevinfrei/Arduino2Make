@@ -1,6 +1,3 @@
-// @flow
-// @format
-
 // Parsing stuff goes here
 
 import fs from 'fs';

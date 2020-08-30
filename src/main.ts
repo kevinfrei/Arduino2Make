@@ -1,5 +1,3 @@
-// @format
-
 // Overall structure:
 // Walk the platform.txt file, documented here:
 // https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
