@@ -1,6 +1,6 @@
 {
   "name": "arduino2make",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Arduino platform and library to Makefile conversion tool",
   "main": "ar2mak.js",
   "repository": "https://github.com/kevinfrei/Arduino2Make.git",
