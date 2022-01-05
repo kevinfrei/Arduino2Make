@@ -11,20 +11,17 @@
 // Once that's done, then restructre the resulting makefile to be more
 // configurable
 
-import { join as pjoin, resolve as presolve, dirname as pdirname } from 'path';
-
-import parseFile from './parser.js';
+import { dirname as pdirname, join as pjoin, resolve as presolve } from 'path';
+import buildBoard from './board.js';
 import {
   makeDeclDef as mkdef,
   makeIfeq,
   makeIfneq,
   makeUnDecl,
 } from './mkutil.js';
-import buildBoard from './board.js';
-import buildPlatform from './platform';
-import { order, emitChecks, emitDefs, emitRules } from './postprocessor';
-
-import type { ParsedFile, Condition, Definition } from './types';
+import parseFile from './parser.js';
+import buildPlatform from './platform.js';
+import { emitChecks, emitDefs, emitRules, order } from './postprocessor.js';
 
 export default async function main(
   root: string,

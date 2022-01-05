@@ -1,29 +1,23 @@
 import fs from 'fs';
 import path from 'path';
-
 import {
   getPlainValue,
-  makeDefinitions,
+  makeAppend as mkapp,
   makeDeclDef as mkdef,
+  makeDefinitions,
+  makeIfdef as mkdf,
+  makeIfeq as mkeq,
   makeSeqDef as mkseq,
   makeUnDecl as mkundef,
-  makeAppend as mkapp,
-  makeIfeq as mkeq,
-  makeIfneq as mkne,
-  makeIfdef as mkdf,
-  makeIfndef as mknd,
-} from './mkutil';
-
+} from './mkutil.js';
 import type {
-  Variable,
-  SymbolTable,
-  NamedTable,
-  ParsedFile,
-  FilterFunc,
-  DependentValue,
-  Definition,
   Condition,
+  Definition,
+  DependentValue,
+  FilterFunc,
+  ParsedFile,
   Recipe,
+  Variable,
 } from './types.js';
 
 const getNestedChild = (

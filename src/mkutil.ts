@@ -1,16 +1,14 @@
 // Utilities for doing Makefile stuff
 
 import type {
-  Variable,
-  SymbolTable,
-  NamedTable,
-  ParsedFile,
-  DependentValue,
-  FilterFunc,
-  ValueMakerFunc,
   Condition,
   Definition,
-} from './types';
+  DependentValue,
+  FilterFunc,
+  ParsedFile,
+  ValueMakerFunc,
+  Variable,
+} from './types.js';
 
 export const makeIfeq = (variable: string, value: string): Condition => ({
   op: 'eq',

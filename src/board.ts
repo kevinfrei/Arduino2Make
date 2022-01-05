@@ -4,8 +4,7 @@ import {
   makeDefinitions,
   getPlainValue,
   makeMenuOptions,
-} from './mkutil';
-
+} from './mkutil.js';
 import type {
   Variable,
   SymbolTable,

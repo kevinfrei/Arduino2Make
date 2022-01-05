@@ -2,6 +2,7 @@
   "name": "arduino2make",
   "version": "0.2.0",
   "description": "Arduino platform and library to Makefile conversion tool",
+  "type": "module",
   "module": "./lib/main.js",
   "repository": "https://github.com/kevinfrei/Arduino2Make.git",
   "author": "Kevin Frei <kevinfrei@hotmail.com>",

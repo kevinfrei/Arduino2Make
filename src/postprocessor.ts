@@ -1,16 +1,6 @@
 // Utilities for doing Makefile stuff
 
-import type {
-  Variable,
-  SymbolTable,
-  FlatTable,
-  NamedTable,
-  ParsedFile,
-  DependentValue,
-  Condition,
-  Definition,
-  Recipe,
-} from './types';
+import type { Condition, Definition, Recipe } from './types.js';
 
 const optionalDefs: Array<string> = [
   'INCLUDES',

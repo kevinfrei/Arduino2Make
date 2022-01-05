@@ -2,14 +2,7 @@
 
 import fs from 'fs';
 import rl from 'readline';
-
-import type {
-  Variable,
-  SymbolTable,
-  FlatTable,
-  NamedTable,
-  ParsedFile,
-} from './types';
+import type { FlatTable, ParsedFile, SymbolTable, Variable } from './types.js';
 
 const makeFullName = (v: Variable): string => {
   let res = v.name;
@@ -88,5 +81,3 @@ export default async function parseFile(filepath: string): Promise<ParsedFile> {
   }
   return { scopedTable, flatSymbols };
 }
-
-module.exports = parseFile;
