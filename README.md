@@ -86,7 +86,7 @@ doesn't seem worth the effort. Just use the Arduino IDE...
 - Get it working on the AdaFruit AVR stuff
   - I've never actually used Arduino-branded hardware :/
 - Make the thing also spit out VSCode settings! This would be awesome (and not
-particularly difficult, at this point, either)
+  particularly difficult, at this point, either)
   - Bonus points: Make it an actual target, so the Makefile will update it!
 - And, finally, eventually, make some tests, probably. Jest seems reasonable.
   Seriously, I've found it pretty darned useful in a few other projects...

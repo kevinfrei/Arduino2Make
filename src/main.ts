@@ -14,7 +14,12 @@
 import { join as pjoin, resolve as presolve, dirname as pdirname } from 'path';
 
 import parseFile from './parser.js';
-import { makeDeclDef as mkdef, makeIfeq, makeIfneq, makeUnDecl } from './mkutil.js';
+import {
+  makeDeclDef as mkdef,
+  makeIfeq,
+  makeIfneq,
+  makeUnDecl,
+} from './mkutil.js';
 import buildBoard from './board.js';
 import buildPlatform from './platform';
 import { order, emitChecks, emitDefs, emitRules } from './postprocessor';
@@ -48,14 +53,14 @@ export default async function main(
     boardDefined,
     platSyms,
     platform.substr(0, platform.lastIndexOf('/')),
-    libLocs
+    libLocs,
   );
 
   // TODO: Make definitions dependent on their condition values, so that I can
   // put errors in place when mandatory symbols aren't defined before inclusion
   const { checks, defs } = order(
     [...initial, ...boardDefined, ...platDefined],
-    rules
+    rules,
   );
   emitChecks(checks);
   emitDefs(defs);

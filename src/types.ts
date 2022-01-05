@@ -14,7 +14,7 @@ export type DependentValue = { value: string; unresolved: Set<string> };
 export type FilterFunc = (str: Variable) => boolean;
 export type ValueMakerFunc = (
   vrbl: Variable,
-  file: ParsedFile
+  file: ParsedFile,
 ) => DependentValue;
 
 export interface CondEq {

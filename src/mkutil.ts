@@ -38,35 +38,35 @@ export const makeDeclDef = (
   name: string,
   value: string,
   dependsOn: Array<string>,
-  condition: Array<Condition>
+  condition: Array<Condition>,
 ): Definition => ({ name, type: 'decl', value, dependsOn, condition });
 
 export const makeSeqDef = (
   name: string,
   value: string,
   dependsOn: Array<string>,
-  condition: Array<Condition>
+  condition: Array<Condition>,
 ): Definition => ({ name, type: 'seq', value, dependsOn, condition });
 
 export const makeAppend = (
   name: string,
   value: string,
   dependsOn: Array<string>,
-  condition: Array<Condition>
+  condition: Array<Condition>,
 ): Definition => ({ name, type: 'add', value, dependsOn, condition });
 
 export const makeUnDecl = (
   name: string,
   value: string,
   dependsOn: Array<string>,
-  condition: Array<Condition>
+  condition: Array<Condition>,
 ): Definition => ({ name, type: '?decl', value, dependsOn, condition });
 
 // This takes a value, and returns the resolved value plus the list of
 // undefined names within the value
 const resolveValue = (
   value: string,
-  parsedFile: ParsedFile
+  parsedFile: ParsedFile,
 ): DependentValue => {
   let res = '';
   let loc = 0;
@@ -151,7 +151,7 @@ const unresolvedValue = (value: string): DependentValue => {
 
 export const getPlainValue: ValueMakerFunc = (
   vrbl: Variable,
-  parsedFile: ParsedFile
+  parsedFile: ParsedFile,
 ): DependentValue => {
   if (vrbl.value) {
     return unresolvedValue(vrbl.value);
@@ -165,7 +165,7 @@ export function makeDefinitions(
   valueMaker: ValueMakerFunc,
   parsedFile: ParsedFile,
   condition: Array<Condition> | undefined | null,
-  filter?: FilterFunc
+  filter?: FilterFunc,
 ): Array<Definition> {
   let defined: Array<Definition> = [];
   let toDef: Array<Variable> = [...top.children.values()];
@@ -190,7 +190,7 @@ export function makeMenuOptions(
   top: Variable,
   parsedFile: ParsedFile,
   menus: Set<string>,
-  initConds: Array<Condition>
+  initConds: Array<Condition>,
 ): Array<Definition> {
   let defined: Array<Definition> = [];
   const menu = top.children.get('menu');

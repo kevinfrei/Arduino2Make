@@ -6,5 +6,5 @@
 const main = require('./src/main.js');
 
 main(...process.argv.slice(2))
-  .then(a => console.log('# end'))
-  .catch(a => console.log(`# error: ${a}`));
+  .then((a) => console.log('# end'))
+  .catch((a) => console.log(`# error: ${a}`));

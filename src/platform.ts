@@ -85,7 +85,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
   const makeRule = (
     location: Array<string>,
     lhs: string,
-    rhs: string
+    rhs: string,
   ): DependentValue | undefined => {
     const depVal = getRule(...location);
     if (!depVal || !depVal.unresolved.has(rhs) || !depVal.unresolved.has(lhs)) {
@@ -108,7 +108,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     const depVal: DependentValue | undefined = makeRule(
       [src, 'o', 'pattern'],
       'OBJECT_FILE',
-      'SOURCE_FILE'
+      'SOURCE_FILE',
     );
     if (!depVal) continue;
     const dependsOn = [...depVal.unresolved];
@@ -120,7 +120,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
   const arcDepVal: DependentValue | undefined = makeRule(
     ['ar', 'pattern'],
     'ARCHIVE_FILE_PATH',
-    'OBJECT_FILE'
+    'OBJECT_FILE',
   );
   if (arcDepVal) {
     const dependsOn = [...arcDepVal.unresolved];
@@ -135,7 +135,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
   const linkDepVal: DependentValue | undefined = getRule(
     'c',
     'combine',
-    'pattern'
+    'pattern',
   );
   if (linkDepVal) {
     let { value: command, unresolved: deps } = linkDepVal;
@@ -151,7 +151,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
   const hexDepVal: DependentValue | undefined = getRule(
     'objcopy',
     'hex',
-    'pattern'
+    'pattern',
   );
   if (hexDepVal) {
     let { value: command, unresolved: deps } = hexDepVal;
@@ -164,7 +164,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
   const zipDepVal: DependentValue | undefined = getRule(
     'objcopy',
     'zip',
-    'pattern'
+    'pattern',
   );
   if (zipDepVal) {
     let { value: command, unresolved: deps } = zipDepVal;
@@ -202,7 +202,7 @@ function enumerateFiles(root: string): Array<string> {
     const tmp: Array<string> = [];
     return tmp.concat.apply(
       tmp,
-      dirs.map((f: string) => enumerateFiles(path.join(root, f)))
+      dirs.map((f: string) => enumerateFiles(path.join(root, f))),
     );
   } else {
     return [root];
@@ -212,10 +212,10 @@ function enumerateFiles(root: string): Array<string> {
 const getPath = (fn: string) => fn.substr(0, fn.lastIndexOf('/'));
 const endsWithNoExamples = (
   paths: Array<string>,
-  suffix: string
+  suffix: string,
 ): Array<string> => {
   return paths.filter(
-    (fn) => fn.endsWith(suffix) && fn.indexOf('/examples/') < 0
+    (fn) => fn.endsWith(suffix) && fn.indexOf('/examples/') < 0,
   );
 };
 
@@ -229,7 +229,7 @@ const getFileList = (path: string) => {
   const paths = [...new Set([...c, ...cpp, ...s].map(getPath))];
   const inc = [
     ...new Set(
-      endsWithNoExamples(allFiles, '.h').map((fn) => '-I' + getPath(fn))
+      endsWithNoExamples(allFiles, '.h').map((fn) => '-I' + getPath(fn)),
     ),
   ];
   return { c, cpp, s, paths, inc };
@@ -239,17 +239,17 @@ const mkSrcList = (
   name: string,
   files: Array<string>,
   depend: string | Array<string>,
-  cnd: Array<Condition>
+  cnd: Array<Condition>,
 ): Definition =>
   mkapp(
     name,
     files.join(' \\\n    '),
     typeof depend === 'string' ? [depend] : depend,
-    cnd
+    cnd,
   );
 
 const getLibInfo = (
-  root: string
+  root: string,
 ): { defs: Array<Definition>; rules: Array<Recipe> } => {
   const { c, cpp, s, paths, inc } = getFileList(root);
   const libName = root.substr(root.lastIndexOf('/') + 1);
@@ -282,14 +282,14 @@ endif
 
 // Given a set of locations, get all the defs & rules for libraries under them
 const addLibs = (
-  locs: Array<string>
+  locs: Array<string>,
 ): { defs: Array<Definition>; rules: Array<Recipe> } => {
   const defs: Array<Definition> = [];
   const rules: Array<Recipe> = [];
   for (let loc of locs) {
     // First, find any 'library.properties' files
     const libRoots = enumerateFiles(loc).filter((fn) =>
-      fn.endsWith('/library.properties')
+      fn.endsWith('/library.properties'),
     );
     for (let libRoot of libRoots) {
       const libData = getLibInfo(getPath(libRoot));
@@ -308,14 +308,14 @@ export default function buildPlatform(
   boardDefs: Array<Definition>,
   platform: ParsedFile,
   rootpath: string,
-  libLocs: Array<string>
+  libLocs: Array<string>,
 ): { defs: Array<Definition>; rules: Array<Recipe> } {
   let defs: Array<Definition> = [
     mkdef(
       'BUILD_CORE_PATH',
       '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}',
       ['RUNTIME_PLATFORM_PATH', 'BUILD_CORE'],
-      []
+      [],
     ),
   ];
 
@@ -358,7 +358,7 @@ export default function buildPlatform(
   toolDefs.push(
     ...cmds.map((def: Definition) => {
       return mkundef(def.name, def.value, def.dependsOn, []);
-    })
+    }),
   );
 
   // This stuff shoud turn into rules, not definitions, I think
@@ -374,7 +374,7 @@ export default function buildPlatform(
     (fn) =>
       !fn.name.endsWith('_CMD') &&
       !fn.name.endsWith('_MACOSX') &&
-      !fn.name.endsWith('_WINDOWS')
+      !fn.name.endsWith('_WINDOWS'),
   );
 
   const toolsSyms = platform.scopedTable.get('tools');
@@ -392,14 +392,14 @@ export default function buildPlatform(
       const patdval = getPlainValue(patt, platform);
       const flashTool = patdval.value.replace(
         '${CMD}',
-        '${TOOLS_' + key.toUpperCase() + '_CMD}'
+        '${TOOLS_' + key.toUpperCase() + '_CMD}',
       );
       patdval.unresolved.delete('CMD');
       const tldef = mkdef(
         'UPLOAD_PATTERN',
         flashTool.replace('${BUILD_PATH}', '$(abspath ${BUILD_PATH})'),
         [...patdval.unresolved, uef.name],
-        [ucnd]
+        [ucnd],
       );
       toolDefs.push(tldef);
     }
@@ -413,13 +413,15 @@ export default function buildPlatform(
   // TODO: Get the file list together (just more definitions, I think)
   // For each build.core, create a file list
   const cores: Set<string> = new Set(
-    boardDefs.filter((def) => def.name === 'BUILD_CORE').map((def) => def.value)
+    boardDefs
+      .filter((def) => def.name === 'BUILD_CORE')
+      .map((def) => def.value),
   );
 
   const variants: Set<string> = new Set(
     boardDefs
       .filter((def) => def.name === 'BUILD_VARIANT')
-      .map((def) => def.value)
+      .map((def) => def.value),
   );
 
   let fileDefs: Array<Definition> = [];
@@ -441,8 +443,8 @@ export default function buildPlatform(
         'SYS_INCLUDES',
         ` -I${rootpath + '/cores/' + core}`,
         ['BUILD_CORE'],
-        cnd
-      )
+        cnd,
+      ),
     );
     // fileDefs.push(mkSrcList('SYS_CORE_INCLUDES', inc, 'BUILD_CORE', cnd));
 
@@ -452,7 +454,7 @@ export default function buildPlatform(
   }
   for (let vrn of variants) {
     const { c, cpp, s, paths, inc } = getFileList(
-      rootpath + '/variants/' + vrn
+      rootpath + '/variants/' + vrn,
     );
     const cnd = [mkeq('${BUILD_VARIANT}', vrn)];
     if (c.length) {
@@ -481,7 +483,7 @@ export default function buildPlatform(
   // Add the transformations for source files to obj's
   fileDefs.push(mkdef('ALL_SRC', '${SYS_SRC} ${USER_SRC}', [], []));
   fileDefs.push(
-    mkseq('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}', [], [])
+    mkseq('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}', [], []),
   );
   const mkObjList = (name: string, varname: string): Definition =>
     mkdef(
@@ -492,7 +494,7 @@ export default function buildPlatform(
       $(patsubst %.cpp, %.cpp.o, \\
         $(patsubst %.S, %.S.o, $(notdir $\{${varname}\})))))`,
       [],
-      []
+      [],
     );
   fileDefs.push(mkObjList('SYS_OBJS', 'SYS_SRC'));
   fileDefs.push(mkObjList('USER_OBJS', 'USER_SRC'));

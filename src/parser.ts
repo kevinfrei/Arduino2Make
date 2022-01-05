@@ -23,7 +23,7 @@ const makeFullName = (v: Variable): string => {
 const makeVariable = (
   fullName: string,
   value: string,
-  table: SymbolTable
+  table: SymbolTable,
 ): Variable => {
   const pieces: Array<string> = fullName.split('.');
   let ns: Variable | null = null;
@@ -56,7 +56,7 @@ const isComment = (line: string): boolean => {
 const isVariable = (
   line: string,
   table: SymbolTable,
-  flatsyms: FlatTable
+  flatsyms: FlatTable,
 ): Variable | void => {
   const t = line.trim();
   const eq = t.indexOf('=');

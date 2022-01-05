@@ -26,7 +26,7 @@ const optionalDefs: Array<string> = [
 
 export function order(
   defs: Array<Definition>,
-  rules: Array<Recipe>
+  rules: Array<Recipe>,
 ): { checks: Array<string>; defs: Array<Definition> } {
   // Don't know if I'll need the rules or not
 
@@ -36,12 +36,12 @@ export function order(
   const allDeps = new Set(
     tmp.concat(
       ...defs.map((d) => d.dependsOn),
-      ...rules.map((rec) => rec.dependsOn)
-    )
+      ...rules.map((rec) => rec.dependsOn),
+    ),
   );
   // Remove allDefs from allDeps
   const checks: Set<string> = new Set(
-    [...allDeps].filter((x) => !allDefs.has(x))
+    [...allDeps].filter((x) => !allDefs.has(x)),
   );
   const done: Set<string> = new Set(checks);
   // Clear out known optional values
@@ -127,7 +127,7 @@ const closeConditions = (indent: number, count: number) => {
 const handleCondition = (
   prevCond: Array<Condition>,
   newCond: Array<Condition>,
-  index: number
+  index: number,
 ) => {
   // Recursion termination conditions:
   if (index === prevCond.length && index === newCond.length) {
@@ -191,7 +191,7 @@ const handleCondition = (
     closeConditions(prevCond.length, prevCond.length - index - 1);
     // Spit out the else-if
     console.log(
-      `${getSpaces(index)}else ifeq (${nCnd.variable}, ${nCnd.value})`
+      `${getSpaces(index)}else ifeq (${nCnd.variable}, ${nCnd.value})`,
     );
     // then open the newConds
     openConditions(newCond, index + 1);
@@ -294,7 +294,7 @@ $\{BUILD_PATH\}:
       console.log('\tfor i in $^ ; do \\');
       console.log(
         '\techo "{ \\"directory\\": \\"${PWD}\\",\\"file\\":\\"$$i\\",' +
-          '\\"command\\":" >> $@ ; \\'
+          '\\"command\\":" >> $@ ; \\',
       );
       cmd = cmd.replace('"$<"', '"$$$$i"');
       cmd = cmd.replace('"$@"', '"$$$$i.o"');
@@ -307,7 +307,7 @@ $\{BUILD_PATH\}:
     } else if (rule.dst === 'elf') {
       console.log(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf : ' +
-          '${BUILD_PATH}/system.a ${USER_OBJS}'
+          '${BUILD_PATH}/system.a ${USER_OBJS}',
       );
       console.log(`\t${rule.command}`);
     } else {
@@ -315,7 +315,7 @@ $\{BUILD_PATH\}:
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
           rule.dst +
           ' : ${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
-          rule.src
+          rule.src,
       );
       console.log(`\t${rule.command}`);
     }

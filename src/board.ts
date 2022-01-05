@@ -36,7 +36,7 @@ export default function buildBoard(board: ParsedFile): Array<Definition> {
         getPlainValue,
         board,
         [brd],
-        notMenu
+        notMenu,
       );
       defVars.forEach((def: Definition) => {
         def.dependsOn.push('BOARD_NAME');
