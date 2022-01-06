@@ -1,8 +1,9 @@
+/* eslint-disable no-console */
 // Utilities for doing Makefile stuff
 
 import type { Condition, Definition, Recipe } from './types.js';
 
-const optionalDefs: Array<string> = [
+const optionalDefs: string[] = [
   'INCLUDES',
   'BUILD_FLAGS_C',
   'COMPILER_S_EXTRA_FLAGS',
@@ -15,14 +16,14 @@ const optionalDefs: Array<string> = [
 ];
 
 export function order(
-  defs: Array<Definition>,
-  rules: Array<Recipe>,
-): { checks: Array<string>; defs: Array<Definition> } {
+  defs: Definition[],
+  rules: Recipe[],
+): { checks: string[]; defs: Definition[] } {
   // Don't know if I'll need the rules or not
 
   // First, let's identify all the mandatory user-defined symbols
   const allDefs = new Set(defs.map((d) => d.name));
-  const tmp: Array<string> = [];
+  const tmp: string[] = [];
   const allDeps = new Set(
     tmp.concat(
       ...defs.map((d) => d.dependsOn),
@@ -41,15 +42,15 @@ export function order(
   // These should have checks emitted in the makefile to validate that the user
   // has defined them already (or have defaults assigned if that's unimportant)
 
-  const allDefined = (def: Definition): boolean => {
-    for (let d of def.dependsOn) {
+  function allDefined(def: Definition): boolean {
+    for (const d of def.dependsOn) {
       if (!done.has(d)) {
         return false;
       }
     }
     return true;
-  };
-  const ordered: Array<Definition> = [];
+  }
+  const ordered: Definition[] = [];
   const stillPending: Map<string, number> = new Map();
   defs.forEach((d: Definition) => {
     let val = stillPending.get(d.name);
@@ -74,7 +75,7 @@ export function order(
   return { checks: [...checks.keys()], defs: ordered };
 }
 
-export function emitChecks(checks: Array<string>) {
+export function emitChecks(checks: string[]) {
   console.log('# First, add some errors for undefined values');
   checks.forEach((val: string) => {
     console.log(`ifndef ${val}`);
@@ -89,36 +90,36 @@ endif
 `);
 }
 
-const getSpaces = (len: number): string => {
+function getSpaces(len: number): string {
   let str = '';
   while (--len >= 0) str += '  ';
   return str;
-};
+}
 
-const openConditions = (conds: Array<Condition>, begin: number) => {
+function openConditions(conds: Condition[], begin: number) {
   for (let i = begin; i < conds.length; i++) {
     const cond = conds[i];
     const sp = getSpaces(i);
     if (cond.op === 'neq' || cond.op === 'eq') {
-      console.log(`${sp}if${cond.op} (${cond.variable}, ${cond.value})`);
+      console.log(`${sp}if${cond.op} (${cond.variable}, ${cond.value || ''})`);
     } else {
       console.log(`${sp}if${cond.op} ${cond.variable}`);
     }
   }
-};
+}
 
-const closeConditions = (indent: number, count: number) => {
+function closeConditions(indent: number, count: number) {
   while (count--) {
     console.log(`${getSpaces(--indent)}endif`);
   }
-};
+}
 
 // Recursive, so I can convince myself that it works
-const handleCondition = (
-  prevCond: Array<Condition>,
-  newCond: Array<Condition>,
+function handleCondition(
+  prevCond: Condition[],
+  newCond: Condition[],
   index: number,
-) => {
+) {
   // Recursion termination conditions:
   if (index === prevCond.length && index === newCond.length) {
     // Both are done
@@ -181,7 +182,7 @@ const handleCondition = (
     closeConditions(prevCond.length, prevCond.length - index - 1);
     // Spit out the else-if
     console.log(
-      `${getSpaces(index)}else ifeq (${nCnd.variable}, ${nCnd.value})`,
+      `${getSpaces(index)}else ifeq (${nCnd.variable}, ${nCnd.value || ''})`,
     );
     // then open the newConds
     openConditions(newCond, index + 1);
@@ -193,20 +194,22 @@ const handleCondition = (
     // open the new uncommon conditions
     openConditions(newCond, index);
   }
-};
+}
+
 const opMap: Map<string, string> = new Map([
   ['decl', '='],
   ['seq', ':='],
   ['add', '+='],
   ['?decl', '?='],
 ]);
-export function emitDefs(defs: Array<Definition>) {
+
+export function emitDefs(defs: Definition[]) {
   console.log('# And here are all the definitions');
-  let prevCond: Array<Condition> = [];
+  let prevCond: Condition[] = [];
   //  let depth = '';
   defs.forEach((def: Definition) => {
     const curCond = def.condition.length > 0 ? def.condition : [];
-    /*depth =*/ handleCondition(prevCond, curCond, 0);
+    /* depth = */ handleCondition(prevCond, curCond, 0);
     const indent = getSpaces(def.condition.length);
     const assign = opMap.get(def.type);
     if (assign) {
@@ -218,15 +221,15 @@ export function emitDefs(defs: Array<Definition>) {
 }
 
 // This is currently more art than science :/
-const slashify = (str: string): string => {
+function slashify(str: string): string {
   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"').replace(/'/g, '');
-};
+}
 
-export function emitRules(rules: Array<Recipe>) {
+export function emitRules(rules: Recipe[]) {
   // Check to see what our flash target depends on
   // TODO: Not sure what to do if we have multiple flash targets :/
   const flashRules = rules.filter((r: Recipe) => r.dst === 'flash');
-  let tmp = flashRules.pop();
+  const tmp = flashRules.pop();
   const targetSuffix: string = tmp ? tmp.src : 'unk';
   console.log(`
 # And now the build rules!
@@ -263,16 +266,16 @@ $\{BUILD_PATH\}:
 \ttest -d "$@" || mkdir -p "$@"
 
 # Now, on to the actual rules`);
-  const jsonFiles: Array<string> = [];
+  const jsonFiles: string[] = [];
   rules.forEach((rule: Recipe) => {
     console.log('');
     if (rule.dst === 'o') {
       console.log(`$\{BUILD_PATH\}/%.${rule.src}.o : %.${rule.src}`);
       let cmd = rule.command;
-      let sfx = rule.src.toUpperCase();
+      const sfx = rule.src.toUpperCase();
       const flg = `$\{COMPILER_${sfx}_EXTRA_FLAGS\} `;
       if (cmd.indexOf(flg) < 0) {
-        let loc = cmd.indexOf('"$<"');
+        const loc = cmd.indexOf('"$<"');
         cmd = cmd.substring(0, loc) + flg + cmd.substring(loc);
       }
       console.log('\t' + cmd + '\n');

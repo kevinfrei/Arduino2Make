@@ -1,9 +1,12 @@
-// Parsing stuff goes here
-
 import * as fs from 'fs';
 import * as rl from 'readline';
 import type { FlatTable, ParsedFile, SymbolTable, Variable } from './types.js';
 
+/* eslint-disable no-console */
+
+// Parsing stuff goes here
+
+/*
 const makeFullName = (v: Variable): string => {
   let res = v.name;
   while (v.parent) {
@@ -12,17 +15,18 @@ const makeFullName = (v: Variable): string => {
   }
   return res;
 };
+*/
 
-const makeVariable = (
+function makeVariable(
   fullName: string,
   value: string,
   table: SymbolTable,
-): Variable => {
-  const pieces: Array<string> = fullName.split('.');
+): Variable {
+  const pieces: string[] = fullName.split('.');
   let ns: Variable | null = null;
   for (let i = 0; i < pieces.length - 1; i++) {
     const nm: string = pieces[i];
-    let data = table.get(nm);
+    const data = table.get(nm);
     if (data) {
       ns = data;
       table = data.children;
@@ -40,7 +44,7 @@ const makeVariable = (
   const res = { name: locName, parent: ns, value, children: new Map() };
   table.set(locName, res);
   return res;
-};
+}
 
 const isComment = (line: string): boolean => {
   return line.trim().startsWith('#');
@@ -63,7 +67,7 @@ const isVariable = (
 };
 
 // This does what it says it does...
-export default async function parseFile(filepath: string): Promise<ParsedFile> {
+export async function parseFile(filepath: string): Promise<ParsedFile> {
   const scopedTable: SymbolTable = new Map();
   const flatSymbols: FlatTable = new Map();
 

@@ -20,21 +20,21 @@ import type {
   Variable,
 } from './types.js';
 
-const getNestedChild = (
+function getNestedChild(
   vrbl: Variable,
-  ...children: Array<string>
-): Variable | undefined => {
+  ...children: string[]
+): Variable | undefined {
   let v: Variable | undefined = vrbl;
-  for (let child of children) {
+  for (const child of children) {
     if (!v) {
       return;
     }
     v = v.children.get(child);
   }
   return v;
-};
+}
 
-const cleanup = (val: string): string =>
+function cleanup(val: string): string {
   // there's a -DFOO="${VAR}" in the recipe text
   // This requires that you spit out '-DFOO="${VAR}"'
 
@@ -43,7 +43,7 @@ const cleanup = (val: string): string =>
 
   // FYI: This code isn't actually completely correct: it will break if you
   // sneeze at it (or have a quote string with a space :/ )
-  val
+  return val
     .split(' ')
     .map((v) => {
       if (v === '${INCLUDES}') {
@@ -62,43 +62,44 @@ const cleanup = (val: string): string =>
       return `'${v}'`;
     })
     .join(' ');
+}
 
 // For reference, stuff like $@, $^, and $< are called 'automatic variables'
 // in the GNU Makefile documentation
-const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
-  const getRule = (...location: Array<string>): DependentValue | undefined => {
+function makeRecipes(recipes: Variable, plat: ParsedFile): Recipe[] {
+  function getRule(...location: string[]): DependentValue | undefined {
     const pattern: Variable | undefined = getNestedChild(recipes, ...location);
     if (pattern) {
-      let res = getPlainValue(pattern, plat);
+      const res = getPlainValue(pattern, plat);
       if (res.value.length > 0) {
         return res;
       }
     }
-  };
+  }
 
-  const makeRule = (
-    location: Array<string>,
+  function makeRule(
+    location: string[],
     lhs: string,
     rhs: string,
-  ): DependentValue | undefined => {
+  ): DependentValue | undefined {
     const depVal = getRule(...location);
     if (!depVal || !depVal.unresolved.has(rhs) || !depVal.unresolved.has(lhs)) {
       return;
     }
-    let value = depVal.value
+    const value = depVal.value
       .replace('${' + rhs + '}', '$<')
       .replace('${' + lhs + '}', '$@');
     depVal.unresolved.delete(lhs);
     depVal.unresolved.delete(rhs);
     return { value, unresolved: depVal.unresolved };
-  };
-  let result: Array<Recipe> = [];
+  }
+  const result: Recipe[] = [];
   // Produces a bunch of things like this:
   // (outdir)%.S.o: %.S
   //  ${tool} -c ${flags} -o $@ $<
 
   // First, let's just get the .o producers
-  for (let src of ['S', 'c', 'cpp']) {
+  for (const src of ['S', 'c', 'cpp']) {
     const depVal: DependentValue | undefined = makeRule(
       [src, 'o', 'pattern'],
       'OBJECT_FILE',
@@ -106,7 +107,7 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     );
     if (!depVal) continue;
     const dependsOn = [...depVal.unresolved];
-    let cleanedVal = cleanup(depVal.value);
+    const cleanedVal = cleanup(depVal.value);
     result.push({ src, dst: 'o', command: cleanedVal, dependsOn });
   }
 
@@ -132,10 +133,10 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     'pattern',
   );
   if (linkDepVal) {
-    let { value: command, unresolved: deps } = linkDepVal;
+    const { value, unresolved: deps } = linkDepVal;
     deps.delete('OBJECT_FILES');
     deps.delete('ARCHIVE_FILE');
-    command = command
+    const command = value
       .replace('${OBJECT_FILES}', '${USER_OBJS}')
       .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf', '$@')
       .replace('${ARCHIVE_FILE}', 'system.a');
@@ -148,8 +149,8 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     'pattern',
   );
   if (hexDepVal) {
-    let { value: command, unresolved: deps } = hexDepVal;
-    command = command
+    const { value, unresolved: deps } = hexDepVal;
+    const command = value
       .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf', '$<')
       .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex', '$@');
     result.push({ src: 'elf', dst: 'hex', command, dependsOn: [...deps] });
@@ -161,8 +162,8 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
     'pattern',
   );
   if (zipDepVal) {
-    let { value: command, unresolved: deps } = zipDepVal;
-    command = command
+    const { value, unresolved: deps } = zipDepVal;
+    const command = value
       .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex', '$<')
       .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.zip', '$@');
     result.push({ src: 'hex', dst: 'zip', command, dependsOn: [...deps] });
@@ -187,16 +188,14 @@ const makeRecipes = (recipes: Variable, plat: ParsedFile): Array<Recipe> => {
   // Future: Add more recipe support in here?
   // size, and whatever the 'output.tmp_file/save_file stuff is used for...
   return result;
-};
+}
 
 // Gets all the files under a given directory
-function enumerateFiles(root: string): Array<string> {
+function enumerateFiles(root: string): string[] {
   if (fs.statSync(root).isDirectory()) {
-    const dirs = fs.readdirSync(root);
-    const tmp: Array<string> = [];
-    return tmp.concat.apply(
-      tmp,
-      dirs.map((f: string) => enumerateFiles(path.join(root, f))),
+    const dirs: string[] = fs.readdirSync(root);
+    return ([] as string[]).concat(
+      ...dirs.map((f) => enumerateFiles(path.join(root, f))),
     );
   } else {
     return [root];
@@ -204,19 +203,16 @@ function enumerateFiles(root: string): Array<string> {
 }
 
 const getPath = (fn: string) => fn.substring(0, fn.lastIndexOf('/'));
-const endsWithNoExamples = (
-  paths: Array<string>,
-  suffix: string,
-): Array<string> => {
+function endsWithNoExamples(paths: string[], suffix: string): string[] {
   return paths.filter(
     (fn) => fn.endsWith(suffix) && fn.indexOf('/examples/') < 0,
   );
-};
+}
 
 // Collect all .c, .cpp. .S files, and get the unique paths for VPATH and
 // for includes, as applicable
-const getFileList = (path: string) => {
-  const allFiles: Array<string> = enumerateFiles(path);
+function getFileList(filePath: string) {
+  const allFiles: string[] = enumerateFiles(filePath);
   const c = endsWithNoExamples(allFiles, '.c');
   const cpp = endsWithNoExamples(allFiles, '.cpp');
   const s = endsWithNoExamples(allFiles, '.S');
@@ -227,24 +223,26 @@ const getFileList = (path: string) => {
     ),
   ];
   return { c, cpp, s, paths, inc };
-};
+}
 
-const mkSrcList = (
+function mkSrcList(
   name: string,
-  files: Array<string>,
-  depend: string | Array<string>,
-  cnd: Array<Condition>,
-): Definition =>
-  mkapp(
+  files: string[],
+  depend: string | string[],
+  cnd: Condition[],
+): Definition {
+  return mkapp(
     name,
     files.join(' \\\n    '),
     typeof depend === 'string' ? [depend] : depend,
     cnd,
   );
+}
 
-const getLibInfo = (
-  root: string,
-): { defs: Array<Definition>; rules: Array<Recipe> } => {
+function getLibInfo(root: string): {
+  defs: Definition[];
+  rules: Recipe[];
+} {
   const { c, cpp, s, paths, inc } = getFileList(root);
   const libName = root.substring(root.lastIndexOf('/') + 1);
   const libDefName = 'LIB_' + libName.toUpperCase();
@@ -272,39 +270,40 @@ endif
   defs.push(mkSrcList('SYS_INCLUDES', inc, [], [libCond]));
   defs.push(mkapp('VPATH_MORE', paths.join(':'), [], [libCond]));
   return { defs, rules: [] };
-};
+}
 
 // Given a set of locations, get all the defs & rules for libraries under them
-const addLibs = (
-  locs: Array<string>,
-): { defs: Array<Definition>; rules: Array<Recipe> } => {
-  const defs: Array<Definition> = [];
-  const rules: Array<Recipe> = [];
-  for (let loc of locs) {
+function addLibs(locs: string[]): {
+  defs: Definition[];
+  rules: Recipe[];
+} {
+  const defs: Definition[] = [];
+  const rules: Recipe[] = [];
+  for (const loc of locs) {
     // First, find any 'library.properties' files
     const libRoots = enumerateFiles(loc).filter((fn) =>
       fn.endsWith('/library.properties'),
     );
-    for (let libRoot of libRoots) {
+    for (const libRoot of libRoots) {
       const libData = getLibInfo(getPath(libRoot));
       defs.push(...libData.defs);
       rules.push(...libData.rules);
     }
   }
   return { defs, rules };
-};
+}
 
 // This generates the rules & whatnot for the platform data
 // This is the 'meat' of the whole thing, as recipes generate very different
 // Makefile code.
 // It also returns the set of probably defined values generated from this code
-export default function buildPlatform(
-  boardDefs: Array<Definition>,
+export function buildPlatform(
+  boardDefs: Definition[],
   platform: ParsedFile,
   rootpath: string,
-  libLocs: Array<string>,
-): { defs: Array<Definition>; rules: Array<Recipe> } {
-  let defs: Array<Definition> = [
+  libLocs: string[],
+): { defs: Definition[]; rules: Recipe[] } {
+  const defs: Definition[] = [
     mkdef(
       'BUILD_CORE_PATH',
       '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}',
@@ -323,15 +322,21 @@ export default function buildPlatform(
   const plain = getPlainValue;
   const defined = makeDefinitions(fakeTop, plain, platform, null, skip);
 
-  const parentTool = (a: Variable): boolean => {
+  function parentTool(a: Variable): boolean {
     for (; a.parent; a = a.parent) {
       if (a.name === 'tools') {
         return true;
       }
     }
     return a.name === 'tools';
-  };
-  let tmpToolDefs = makeDefinitions(fakeTop, plain, platform, null, parentTool);
+  }
+  const tmpToolDefs = makeDefinitions(
+    fakeTop,
+    plain,
+    platform,
+    null,
+    parentTool,
+  );
   // Handle the macosx/windows suffixed tools
   // FYI: My input tester stuff has precisely 1 of these tools, so
   // what I'm doing down here may not work properly with something with more
@@ -339,13 +344,13 @@ export default function buildPlatform(
   const osxTools = tmpToolDefs.filter((fn) => fn.name.endsWith('_MACOSX'));
   const winTools = tmpToolDefs.filter((fn) => fn.name.endsWith('_WINDOWS'));
   const osxCnd = mkeq('${RUNTIME_OS}', 'macosx');
-  const toolDefs: Array<Definition> = [];
-  for (let osxt of osxTools) {
+  const toolDefs: Definition[] = [];
+  for (const osxt of osxTools) {
     const name = osxt.name.substring(0, osxt.name.lastIndexOf('_MACOSX'));
     toolDefs.push(mkdef(name, osxt.value, osxt.dependsOn, [osxCnd]));
   }
   const winCnd = mkeq('${RUNTIME_OS}', 'windows');
-  for (let wint of winTools) {
+  for (const wint of winTools) {
     const name = wint.name.substring(0, wint.name.lastIndexOf('_WINDOWS'));
     toolDefs.push(mkdef(name, wint.value, wint.dependsOn, [winCnd]));
   }
@@ -355,7 +360,7 @@ export default function buildPlatform(
     }),
   );
 
-  // This stuff shoud turn into rules, not definitions, I think
+  // This stuff should turn into rules, not definitions, I think
   // It looks like the board selects the tool & protocol
   // The tool ought to be the name of the thing
   // The protocol seems to imply that Arduino groks a variety of flash tools :/
@@ -364,18 +369,19 @@ export default function buildPlatform(
   // the locally scoped cmd (or cmd.windows/cmd.macosx thing)
   // as well as the tools.(name).OPERATION.pattern
   // and tools.(name).OPERATION.params.VARNAME
+  /*
   const weirdToolDefs = tmpToolDefs.filter(
     (fn) =>
       !fn.name.endsWith('_CMD') &&
       !fn.name.endsWith('_MACOSX') &&
       !fn.name.endsWith('_WINDOWS'),
   );
-
+  */
   const toolsSyms = platform.scopedTable.get('tools');
   if (toolsSyms) {
-    for (let [key, value] of toolsSyms.children) {
+    for (const [key, value] of toolsSyms.children) {
       const patt = getNestedChild(value, 'upload', 'pattern');
-      const params = getNestedChild(value, 'upload', 'params');
+      // const params = getNestedChild(value, 'upload', 'params');
       if (!patt) continue;
       // TODO: Add support for UPLOAD_WAIT_FOR_UPLOAD_PORT
       // TODO: Add support for UPLOAD_USE_1200BPS_TOUCH
@@ -400,9 +406,7 @@ export default function buildPlatform(
   }
   // Build up all the various make rules from the recipes in the platform file
   const recipeSyms = platform.scopedTable.get('recipe');
-  const rules: Array<Recipe> = recipeSyms
-    ? makeRecipes(recipeSyms, platform)
-    : [];
+  const rules: Recipe[] = recipeSyms ? makeRecipes(recipeSyms, platform) : [];
 
   // TODO: Get the file list together (just more definitions, I think)
   // For each build.core, create a file list
@@ -418,9 +422,9 @@ export default function buildPlatform(
       .map((def) => def.value),
   );
 
-  let fileDefs: Array<Definition> = [];
+  const fileDefs: Definition[] = [];
   // Get the full file list & include path for each core & variant
-  for (let core of cores) {
+  for (const core of cores) {
     const { c, cpp, s, paths } = getFileList(rootpath + '/cores/' + core);
     const cnd = [mkeq('${BUILD_CORE}', core)];
     if (c.length) {
@@ -446,7 +450,7 @@ export default function buildPlatform(
     // VPATH is easier, so for now let's do that
     fileDefs.push(mkapp('VPATH_CORE', paths.join(':'), ['BUILD_CORE'], cnd));
   }
-  for (let vrn of variants) {
+  for (const vrn of variants) {
     const { c, cpp, s, paths, inc } = getFileList(
       rootpath + '/variants/' + vrn,
     );
@@ -493,7 +497,7 @@ export default function buildPlatform(
   fileDefs.push(mkObjList('SYS_OBJS', 'SYS_SRC'));
   fileDefs.push(mkObjList('USER_OBJS', 'USER_SRC'));
   fileDefs.push(mkdef('ALL_OBJS', '${USER_OBJS} ${SYS_OBJS}', [], []));
-  //ALL_OBJS = \
+  // ALL_OBJS = \
   // $(addprefix ${M_OUT}/, $(patsubst %.cpp, %.cpp.o, $(notdir ${TUSB_SRCS})))
 
   return { defs: [...defs, ...defined, ...toolDefs, ...fileDefs], rules };

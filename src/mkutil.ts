@@ -10,66 +10,79 @@ import type {
   Variable,
 } from './types.js';
 
-export const makeIfeq = (variable: string, value: string): Condition => ({
-  op: 'eq',
-  variable,
-  value,
-});
+export function makeIfeq(variable: string, value: string): Condition {
+  return {
+    op: 'eq',
+    variable,
+    value,
+  };
+}
 
-export const makeIfneq = (variable: string, value: string): Condition => ({
-  op: 'neq',
-  variable,
-  value,
-});
+export function makeIfneq(variable: string, value: string): Condition {
+  return {
+    op: 'neq',
+    variable,
+    value,
+  };
+}
 
-export const makeIfdef = (variable: string): Condition => ({
-  op: 'def',
-  variable,
-});
+export function makeIfdef(variable: string): Condition {
+  return {
+    op: 'def',
+    variable,
+  };
+}
 
-export const makeIfndef = (variable: string): Condition => ({
-  op: 'ndef',
-  variable,
-});
+export function makeIfndef(variable: string): Condition {
+  return {
+    op: 'ndef',
+    variable,
+  };
+}
 
-export const makeDeclDef = (
+export function makeDeclDef(
   name: string,
   value: string,
-  dependsOn: Array<string>,
-  condition: Array<Condition>,
-): Definition => ({ name, type: 'decl', value, dependsOn, condition });
+  dependsOn: string[],
+  condition: Condition[],
+): Definition {
+  return { name, type: 'decl', value, dependsOn, condition };
+}
 
-export const makeSeqDef = (
+export function makeSeqDef(
   name: string,
   value: string,
-  dependsOn: Array<string>,
-  condition: Array<Condition>,
-): Definition => ({ name, type: 'seq', value, dependsOn, condition });
+  dependsOn: string[],
+  condition: Condition[],
+): Definition {
+  return { name, type: 'seq', value, dependsOn, condition };
+}
 
-export const makeAppend = (
+export function makeAppend(
   name: string,
   value: string,
-  dependsOn: Array<string>,
-  condition: Array<Condition>,
-): Definition => ({ name, type: 'add', value, dependsOn, condition });
+  dependsOn: string[],
+  condition: Condition[],
+): Definition {
+  return { name, type: 'add', value, dependsOn, condition };
+}
 
-export const makeUnDecl = (
+export function makeUnDecl(
   name: string,
   value: string,
-  dependsOn: Array<string>,
-  condition: Array<Condition>,
-): Definition => ({ name, type: '?decl', value, dependsOn, condition });
+  dependsOn: string[],
+  condition: Condition[],
+): Definition {
+  return { name, type: '?decl', value, dependsOn, condition };
+}
 
 // This takes a value, and returns the resolved value plus the list of
 // undefined names within the value
-const resolveValue = (
-  value: string,
-  parsedFile: ParsedFile,
-): DependentValue => {
+function resolveValue(value: string, parsedFile: ParsedFile): DependentValue {
   let res = '';
   let loc = 0;
   let unresolved: Set<string> = new Set();
-  let flatSymbols = parsedFile.flatSymbols;
+  const flatSymbols = parsedFile.flatSymbols;
   do {
     const newloc = value.indexOf('{', loc);
     if (newloc >= 0) {
@@ -96,21 +109,21 @@ const resolveValue = (
     }
   } while (loc >= 0);
   return { value: res, unresolved };
-};
+}
 
-const makifyName = (nm: string): string => {
+function makifyName(nm: string): string {
   return nm.toUpperCase().replace(/[^A-Z0-9]/g, '_');
-};
+}
 
 // Upper-cases with underscores
-const getMakeName = (vrbl: Variable, top: Variable) => {
+function getMakeName(vrbl: Variable, top: Variable) {
   let name = vrbl.name;
   while (vrbl.parent && vrbl.parent !== top) {
     vrbl = vrbl.parent;
     name = vrbl.name + '_' + name;
   }
   return makifyName(name);
-};
+}
 
 // TODO: This should handle any escaping necessary
 export function resolvedValue(vrbl: Variable, parsedFile: ParsedFile): string {
@@ -122,9 +135,9 @@ export function resolvedValue(vrbl: Variable, parsedFile: ParsedFile): string {
   }
 }
 
-const unresolvedValue = (value: string): DependentValue => {
+function unresolvedValue(value: string): DependentValue {
   let res = '';
-  let unresolved: Set<string> = new Set();
+  const unresolved: Set<string> = new Set();
   let loc = 0;
   do {
     const newloc = value.indexOf('{', loc);
@@ -145,28 +158,28 @@ const unresolvedValue = (value: string): DependentValue => {
     }
   } while (loc >= 0);
   return { value: res, unresolved };
-};
+}
 
-export const getPlainValue: ValueMakerFunc = (
+export function getPlainValue(
   vrbl: Variable,
-  parsedFile: ParsedFile,
-): DependentValue => {
+  _parsedFile: ParsedFile,
+): DependentValue {
   if (vrbl.value) {
     return unresolvedValue(vrbl.value);
   } else {
     return { value: '', unresolved: new Set() };
   }
-};
+}
 
 export function makeDefinitions(
   top: Variable,
   valueMaker: ValueMakerFunc,
   parsedFile: ParsedFile,
-  condition: Array<Condition> | undefined | null,
+  condition: Condition[] | undefined | null,
   filter?: FilterFunc,
-): Array<Definition> {
-  let defined: Array<Definition> = [];
-  let toDef: Array<Variable> = [...top.children.values()];
+): Definition[] {
+  const defined: Definition[] = [];
+  const toDef: Variable[] = [...top.children.values()];
   while (toDef.length > 0) {
     const foo = toDef.pop();
     if (!foo) continue; // Typescript is dumber than Flow here...
@@ -187,17 +200,17 @@ export function makeDefinitions(
 export function makeMenuOptions(
   top: Variable,
   parsedFile: ParsedFile,
-  menus: Set<string>,
-  initConds: Array<Condition>,
-): Array<Definition> {
-  let defined: Array<Definition> = [];
+  _menus: Set<string>,
+  initConds: Condition[],
+): Definition[] {
+  let defined: Definition[] = [];
   const menu = top.children.get('menu');
   if (!menu) {
     return defined;
   }
-  for (let toDump of menu.children.values()) {
+  for (const toDump of menu.children.values()) {
     const makeVarName = 'IN_' + toDump.name.toUpperCase();
-    for (let item of toDump.children.values()) {
+    for (const item of toDump.children.values()) {
       const cn = makeIfeq('${' + makeVarName + '}', item.name);
       const subDef = makeDefinitions(item, getPlainValue, parsedFile, [
         ...initConds,

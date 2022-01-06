@@ -1,0 +1,5 @@
+lib/*
+node_modules
+src/**/*.d.ts
+ar2mak.js
+dbg.js

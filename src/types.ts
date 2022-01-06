@@ -36,13 +36,13 @@ export type Definition = {
   name: string;
   type: 'decl' | 'seq' | 'add' | '?decl';
   value: string;
-  dependsOn: Array<string>;
-  condition: Array<Condition>;
+  dependsOn: string[];
+  condition: Condition[];
 };
 
 export type Recipe = {
   src: string;
   dst: string;
   command: string;
-  dependsOn: Array<string>;
+  dependsOn: string[];
 };

@@ -1,3 +1,15 @@
+import path from 'path';
+import { buildBoard } from './board.js';
+import {
+  makeDeclDef as mkdef,
+  makeIfeq,
+  makeIfneq,
+  makeUnDecl,
+} from './mkutil.js';
+import { parseFile } from './parser.js';
+import { buildPlatform } from './platform.js';
+import { emitChecks, emitDefs, emitRules, order } from './postprocessor.js';
+
 // Overall structure:
 // Walk the platform.txt file, documented here:
 // https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
@@ -11,24 +23,12 @@
 // Once that's done, then restructre the resulting makefile to be more
 // configurable
 
-import { dirname as pdirname, join as pjoin, resolve as presolve } from 'path';
-import buildBoard from './board.js';
-import {
-  makeDeclDef as mkdef,
-  makeIfeq,
-  makeIfneq,
-  makeUnDecl,
-} from './mkutil.js';
-import parseFile from './parser.js';
-import buildPlatform from './platform.js';
-import { emitChecks, emitDefs, emitRules, order } from './postprocessor.js';
-
 export default async function main(
   root: string,
-  ...libLocs: Array<string>
+  ...libLocs: string[]
 ): Promise<void> {
-  const board = pjoin(root, 'boards.txt');
-  const platform = pjoin(root, 'platform.txt');
+  const board = path.join(root, 'boards.txt');
+  const platform = path.join(root, 'platform.txt');
   const boardSyms = await parseFile(board);
   const platSyms = await parseFile(platform);
   const isWin = makeIfeq('$(OS)', 'Windows_NT');
@@ -40,7 +40,12 @@ export default async function main(
     mkdef('uname', '$(shell uname -s)', [], [notWin]),
     mkdef('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
     makeUnDecl('RUNTIME_OS', 'linux', [], []),
-    mkdef('RUNTIME_PLATFORM_PATH', presolve(pdirname(platform)), [], []),
+    mkdef(
+      'RUNTIME_PLATFORM_PATH',
+      path.resolve(path.dirname(platform)),
+      [],
+      [],
+    ),
     mkdef('RUNTIME_IDE_VERSION', '10812', [], []),
     mkdef('IDE_VERSION', '10812', [], []),
   ];
