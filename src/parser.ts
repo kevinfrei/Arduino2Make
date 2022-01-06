@@ -1,7 +1,7 @@
 // Parsing stuff goes here
 
-import fs from 'fs';
-import rl from 'readline';
+import * as fs from 'fs';
+import * as rl from 'readline';
 import type { FlatTable, ParsedFile, SymbolTable, Variable } from './types.js';
 
 const makeFullName = (v: Variable): string => {
