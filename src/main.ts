@@ -34,7 +34,7 @@ export default async function main(
   const isWin = makeIfeq('$(OS)', 'Windows_NT');
   const notWin = makeIfneq('$(OS)', 'Windows_NT');
   const isMac = makeIfeq('$(uname)', 'Darwin');
-  const notMac = makeIfneq('$(uname)', 'Darwin');
+  // const notMac = makeIfneq('$(uname)', 'Darwin');
   const initial = [
     mkdef('RUNTIME_OS', 'windows', [], [isWin]),
     mkdef('uname', '$(shell uname -s)', [], [notWin]),
@@ -49,7 +49,7 @@ export default async function main(
   const { defs: platDefined, rules } = buildPlatform(
     boardDefined,
     platSyms,
-    platform.substr(0, platform.lastIndexOf('/')),
+    platform.substring(0, platform.lastIndexOf('/')),
     libLocs,
   );
 

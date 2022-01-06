@@ -56,8 +56,8 @@ const isVariable = (
   if (eq < 1) {
     return;
   }
-  const fullName = t.substr(0, eq);
-  const value = t.substr(eq + 1);
+  const fullName = t.substring(0, eq);
+  const value = t.substring(eq + 1);
   flatsyms.set(fullName, value);
   return makeVariable(fullName, value, table);
 };

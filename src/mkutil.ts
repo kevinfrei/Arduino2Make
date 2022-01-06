@@ -91,7 +91,7 @@ const resolveValue = (
       }
       loc = close + 1;
     } else {
-      res = res + value.substr(loc);
+      res = res + value.substring(loc);
       loc = -1;
     }
   } while (loc >= 0);
@@ -140,7 +140,7 @@ const unresolvedValue = (value: string): DependentValue => {
       res = res + '${' + symName + '}';
       loc = close + 1;
     } else {
-      res = res + value.substr(loc);
+      res = res + value.substring(loc);
       loc = -1;
     }
   } while (loc >= 0);

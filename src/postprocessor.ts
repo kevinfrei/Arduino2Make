@@ -273,7 +273,7 @@ $\{BUILD_PATH\}:
       const flg = `$\{COMPILER_${sfx}_EXTRA_FLAGS\} `;
       if (cmd.indexOf(flg) < 0) {
         let loc = cmd.indexOf('"$<"');
-        cmd = cmd.substr(0, loc) + flg + cmd.substr(loc);
+        cmd = cmd.substring(0, loc) + flg + cmd.substring(loc);
       }
       console.log('\t' + cmd + '\n');
       // Also, let's spit out a X_compile_commands target

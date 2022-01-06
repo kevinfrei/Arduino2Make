@@ -203,7 +203,7 @@ function enumerateFiles(root: string): Array<string> {
   }
 }
 
-const getPath = (fn: string) => fn.substr(0, fn.lastIndexOf('/'));
+const getPath = (fn: string) => fn.substring(0, fn.lastIndexOf('/'));
 const endsWithNoExamples = (
   paths: Array<string>,
   suffix: string,
@@ -246,7 +246,7 @@ const getLibInfo = (
   root: string,
 ): { defs: Array<Definition>; rules: Array<Recipe> } => {
   const { c, cpp, s, paths, inc } = getFileList(root);
-  const libName = root.substr(root.lastIndexOf('/') + 1);
+  const libName = root.substring(root.lastIndexOf('/') + 1);
   const libDefName = 'LIB_' + libName.toUpperCase();
   const libCond = mkdf(libDefName);
   // I need to define a source list, include list
@@ -341,12 +341,12 @@ export default function buildPlatform(
   const osxCnd = mkeq('${RUNTIME_OS}', 'macosx');
   const toolDefs: Array<Definition> = [];
   for (let osxt of osxTools) {
-    const name = osxt.name.substr(0, osxt.name.lastIndexOf('_MACOSX'));
+    const name = osxt.name.substring(0, osxt.name.lastIndexOf('_MACOSX'));
     toolDefs.push(mkdef(name, osxt.value, osxt.dependsOn, [osxCnd]));
   }
   const winCnd = mkeq('${RUNTIME_OS}', 'windows');
   for (let wint of winTools) {
-    const name = wint.name.substr(0, wint.name.lastIndexOf('_WINDOWS'));
+    const name = wint.name.substring(0, wint.name.lastIndexOf('_WINDOWS'));
     toolDefs.push(mkdef(name, wint.value, wint.dependsOn, [winCnd]));
   }
   toolDefs.push(
