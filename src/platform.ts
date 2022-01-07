@@ -49,19 +49,23 @@ function cleanup(val: string): string {
       if (v === '${INCLUDES}') {
         return '${SYS_INCLUDES} ${USER_INCLUDES}';
       }
-      const first = v.indexOf('"');
-      const last = v.lastIndexOf('"');
-      if (first < 0 && last < 0) {
+      const firstDQ = v.indexOf('"');
+      const lastDQ = v.lastIndexOf('"');
+      if (firstDQ < 0 && lastDQ < 0) {
         return v;
       }
-      if (first === 0 && last === v.length - 1) {
-        if (v.indexOf('"', 1) === last) {
+      if (firstDQ === 0 && lastDQ === v.length - 1) {
+        if (v.indexOf('"', 1) === lastDQ) {
           return v;
         }
       }
-      return v.indexOf("'") === 0 && v.lastIndexOf("'") === v.length - 1
-        ? `'${v}'`
-        : v;
+      const firstSQ = v.indexOf("'");
+      const lastSQ = v.lastIndexOf("'");
+      return firstSQ === 0 &&
+        lastSQ === v.length - 1 &&
+        v.indexOf("'", 1) === lastSQ
+        ? v
+        : `'${v}'`;
     })
     .join(' ');
 }
