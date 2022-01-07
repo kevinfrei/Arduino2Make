@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { Filter } from './main.js';
 import {
   getPlainValue,
   makeAppend as mkapp,
@@ -237,9 +238,10 @@ function mkSrcList(
   depend: string | string[],
   cnd: Condition[],
 ): Definition {
+  const filteredFiles = Filter(name, files);
   return mkapp(
     name,
-    files.join(' \\\n    '),
+    filteredFiles.join(' \\\n    '),
     typeof depend === 'string' ? [depend] : depend,
     cnd,
   );

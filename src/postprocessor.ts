@@ -204,7 +204,7 @@ const opMap: Map<string, string> = new Map([
   ['?decl', '?='],
 ]);
 
-export function emitDefs(defs: Definition[], xforms: Transform[]) {
+export function emitDefs(defs: Definition[]) {
   console.log('# And here are all the definitions');
   let prevCond: Condition[] = [];
   //  let depth = '';
@@ -214,7 +214,7 @@ export function emitDefs(defs: Definition[], xforms: Transform[]) {
     const indent = getSpaces(def.condition.length);
     const assign = opMap.get(def.type);
     if (assign) {
-      const { name, value } = Transform(def.name, def.value, xforms);
+      const { name, value } = Transform(def.name, def.value);
       console.log(`${indent}${name}${assign}${value}`);
     }
     prevCond = curCond;

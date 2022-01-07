@@ -12,38 +12,51 @@ import { parseFile } from './parser.js';
 import { buildPlatform } from './platform.js';
 import { emitChecks, emitDefs, emitRules, order } from './postprocessor.js';
 
-export type Transform = [string, string, string];
+// Var def to match, substr to find, string to replace substr with
+type Transform = [string, string, string];
+// Var def to match, substring to filter out
+type Filter = [string, string];
+
 // This should grow with time, I think
 type Config = {
-  transforms: { defs: Transform[] };
+  transforms: Transform[];
+  filters: Filter[];
 };
 
-function isConfig(val: unknown): val is Config {
+function isConfig(val: unknown): val is Partial<Config> {
   if (!Type.isObjectNonNull(val)) {
     return false;
   }
-  if (!Type.has(val, 'transforms')) {
+  if (!Type.has(val, 'transforms') && !Type.has(val, 'filters')) {
     return false;
   }
-  if (!Type.isObjectNonNull(val.transforms)) {
-    return false;
-  }
-  if (!Type.has(val.transforms, 'defs')) {
-    return false;
-  }
-  return Type.isArrayOf(
-    val.transforms.defs,
-    (obj): obj is [string, string, string] =>
+  if (
+    Type.has(val, 'transforms') &&
+    !Type.isArrayOf(val.transforms, (obj): obj is Transform =>
       Type.is3TupleOf(obj, Type.isString, Type.isString, Type.isString),
-  );
+    )
+  ) {
+    return false;
+  }
+  if (
+    Type.has(val, 'filters') &&
+    !Type.isArrayOf(val.filters, (obj): obj is Filter =>
+      Type.is2TupleOf(obj, Type.isString, Type.isString),
+    )
+  ) {
+    return false;
+  }
+  return true;
 }
 
-async function readConfig(configs: string[]): Promise<Config | undefined> {
+async function readConfig(
+  configs: string[],
+): Promise<Partial<Config> | undefined> {
   if (configs.length > 1) {
     return;
   }
   if (configs.length === 0) {
-    return { transforms: { defs: [] } };
+    return {};
   }
   try {
     const cfg = await fs.readFile(configs[0].substring(9), 'utf-8');
@@ -71,13 +84,11 @@ async function readConfig(configs: string[]): Promise<Config | undefined> {
 // Get the basics of compiling & linking this stuff to a single .a file done
 // Once that's done, then restructre the resulting makefile to be more
 // configurable
-
+let config: Partial<Config> | undefined;
 export default async function main(...args: string[]): Promise<void> {
   const normalArgs = args.filter((val) => !val.startsWith('--config:'));
-  const config = await readConfig(
-    args.filter((val) => val.startsWith('--config:')),
-  );
-  if (normalArgs.length === 0 || !config) {
+  config = await readConfig(args.filter((val) => val.startsWith('--config:')));
+  if (normalArgs.length === 0 || config === undefined) {
     console.error(
       'Usage: {--config:file.json} rootDir {lib1Dir lib2Dir lib3Dir}',
     );
@@ -126,20 +137,34 @@ export default async function main(...args: string[]): Promise<void> {
     rules,
   );
   emitChecks(checks);
-  emitDefs(defs, config.transforms.defs);
+  emitDefs(defs);
   emitRules(rules);
 }
 
 export function Transform(
   name: string,
   value: string,
-  xforms: Transform[],
 ): { name: string; value: string } {
-  for (const [match, search, replace] of xforms) {
+  if (!config || !Type.hasType(config, 'transforms', Type.isArray)) {
+    return { name, value };
+  }
+  for (const [match, search, replace] of config.transforms) {
     // For now just do a simple "indexOf" for matching, I guess
     if (name.indexOf(match) >= 0) {
       value = value.replace(search, replace);
     }
   }
   return { name, value };
+}
+
+export function Filter(name: string, files: string[]): string[] {
+  if (!config || !Type.hasType(config, 'filters', Type.isArray)) {
+    return files;
+  }
+  for (const [defname, match] of config.filters) {
+    if (name === defname) {
+      files = files.filter((val) => val.indexOf(match) < 0);
+    }
+  }
+  return files;
 }
