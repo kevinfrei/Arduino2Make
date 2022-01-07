@@ -15,6 +15,9 @@
     "lint": "eslint src --fix --ext ts",
     "chk": "yarn run lint"
   },
+  "dependencies": {
+    "@freik/core-utils": "^0.34.0"
+  },
   "devDependencies": {
     "@types/node": "^17.0.8",
     "@typescript-eslint/eslint-plugin": "^5.9.0",

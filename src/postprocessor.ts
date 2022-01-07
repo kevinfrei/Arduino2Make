@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 // Utilities for doing Makefile stuff
 
+import { Transform } from './main.js';
 import type { Condition, Definition, Recipe } from './types.js';
 
 const optionalDefs: string[] = [
@@ -203,7 +204,7 @@ const opMap: Map<string, string> = new Map([
   ['?decl', '?='],
 ]);
 
-export function emitDefs(defs: Definition[]) {
+export function emitDefs(defs: Definition[], xforms: Transform[]) {
   console.log('# And here are all the definitions');
   let prevCond: Condition[] = [];
   //  let depth = '';
@@ -213,7 +214,8 @@ export function emitDefs(defs: Definition[]) {
     const indent = getSpaces(def.condition.length);
     const assign = opMap.get(def.type);
     if (assign) {
-      console.log(`${indent}${def.name}${assign}${def.value}`);
+      const { name, value } = Transform(def.name, def.value, xforms);
+      console.log(`${indent}${name}${assign}${value}`);
     }
     prevCond = curCond;
   });

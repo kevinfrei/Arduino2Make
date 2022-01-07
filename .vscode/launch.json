@@ -12,6 +12,7 @@
       "program": "${workspaceFolder}/dbg.js",
       "runtimeArgs": [],
       "args": [
+        "--config:adafruit-make-config.json",
         "libs/Adafruit",
         "libs/BusIO",
         "libs/GFX",
