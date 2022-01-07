@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as rl from 'readline';
 import type { FlatTable, ParsedFile, SymbolTable, Variable } from './types.js';
-
 /* eslint-disable no-console */
 
 // Parsing stuff goes here

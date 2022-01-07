@@ -59,7 +59,9 @@ function cleanup(val: string): string {
           return v;
         }
       }
-      return `'${v}'`;
+      return v.indexOf("'") === 0 && v.lastIndexOf("'") === v.length - 1
+        ? `'${v}'`
+        : v;
     })
     .join(' ');
 }
@@ -211,8 +213,8 @@ function endsWithNoExamples(paths: string[], suffix: string): string[] {
 
 // Collect all .c, .cpp. .S files, and get the unique paths for VPATH and
 // for includes, as applicable
-function getFileList(filePath: string) {
-  const allFiles: string[] = enumerateFiles(filePath);
+function getFileList(filePath: string, allFiles?: string[]) {
+  allFiles = allFiles || enumerateFiles(filePath);
   const c = endsWithNoExamples(allFiles, '.c');
   const cpp = endsWithNoExamples(allFiles, '.cpp');
   const s = endsWithNoExamples(allFiles, '.S');
@@ -239,11 +241,14 @@ function mkSrcList(
   );
 }
 
-function getLibInfo(root: string): {
+function getLibInfo(
+  root: string,
+  libFiles: string[],
+): {
   defs: Definition[];
   rules: Recipe[];
 } {
-  const { c, cpp, s, paths, inc } = getFileList(root);
+  const { c, cpp, s, paths, inc } = getFileList(root, libFiles);
   const libName = root.substring(root.lastIndexOf('/') + 1);
   const libDefName = 'LIB_' + libName.toUpperCase();
   const libCond = mkdf(libDefName);
@@ -257,7 +262,7 @@ SYS_VAR_INCLUDES := ${SYS_VAR_INCLUDES} -I../libLocation/.../Wire/
 VPATH:=${VPATH}:../libLocation/.../Wire/
 endif
   */
-  const defs = [];
+  const defs: Definition[] = [];
   if (c.length) {
     defs.push(mkSrcList('C_SYS_SRCS', c, [], [libCond]));
   }
@@ -269,6 +274,32 @@ endif
   }
   defs.push(mkSrcList('SYS_INCLUDES', inc, [], [libCond]));
   defs.push(mkapp('VPATH_MORE', paths.join(':'), [], [libCond]));
+  // This is only sort of work for the Adafruit nRFCrypto library
+  const fileContents = fs
+    .readFileSync(path.join(root, 'library.properties'))
+    .toString();
+  const ldFlagsPos = fileContents.indexOf('\nldflags');
+  if (ldFlagsPos >= 0) {
+    const endOfLd = fileContents.indexOf('\n', ldFlagsPos + 1);
+    const flgVal =
+      endOfLd > 0
+        ? fileContents.substring(ldFlagsPos + 9, endOfLd)
+        : fileContents.substring(ldFlagsPos + 9);
+    defs.push(mkapp('COMPILER_LIBRARIES_LDFLAGS', flgVal, [], [libCond]));
+    // Probably not right, but this works for nRFCrypto
+    libFiles
+      .filter((f) => f.endsWith('.a'))
+      .forEach((val) =>
+        defs.push(
+          mkapp(
+            'COMPILER_LIBRARIES_LDFLAGS',
+            '-L' + val.substring(0, val.lastIndexOf('/')),
+            [],
+            [libCond],
+          ),
+        ),
+      );
+  }
   return { defs, rules: [] };
 }
 
@@ -281,11 +312,14 @@ function addLibs(locs: string[]): {
   const rules: Recipe[] = [];
   for (const loc of locs) {
     // First, find any 'library.properties' files
-    const libRoots = enumerateFiles(loc).filter((fn) =>
+    const allFiles = enumerateFiles(loc);
+    const libRoots = allFiles.filter((fn) =>
       fn.endsWith('/library.properties'),
     );
     for (const libRoot of libRoots) {
-      const libData = getLibInfo(getPath(libRoot));
+      const libPath = getPath(libRoot);
+      const libFiles = allFiles.filter((f) => f.startsWith(libPath));
+      const libData = getLibInfo(libPath, libFiles);
       defs.push(...libData.defs);
       rules.push(...libData.rules);
     }

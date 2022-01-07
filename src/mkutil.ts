@@ -1,5 +1,3 @@
-// Utilities for doing Makefile stuff
-
 import type {
   Condition,
   Definition,
@@ -9,6 +7,8 @@ import type {
   ValueMakerFunc,
   Variable,
 } from './types.js';
+
+// Utilities for doing Makefile stuff
 
 export function makeIfeq(variable: string, value: string): Condition {
   return {

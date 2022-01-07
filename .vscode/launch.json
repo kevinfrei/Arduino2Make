@@ -8,14 +8,19 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
+      "preLaunchTask": "npm: build",
       "program": "${workspaceFolder}/dbg.js",
-      "runtimeArgs": [
-        "-r",
-        "flow-remove-types/register"
-      ],
+      "runtimeArgs": [],
       "args": [
-        "/Applications/Arduino.app/Contents/Java/hardware/teensy/avr"
+        "libs/Adafruit",
+        "libs/BusIO",
+        "libs/GFX",
+        "libs/NeoPixel",
+        "libs/SSD1306",
+        "libs/TinyUSB",
+        "libs/nRFCrypto"
       ],
+      "cwd": "${workspaceFolder}/../FreiKey/src",
       // I apparently need to set this to get node debugging working :/
       "env": {
         "PATH": "/usr/local/bin"

@@ -46,12 +46,12 @@ export default async function main(
       [],
       [],
     ),
-    mkdef('RUNTIME_IDE_VERSION', '10812', [], []),
-    mkdef('IDE_VERSION', '10812', [], []),
+    mkdef('RUNTIME_IDE_VERSION', '10816', [], []),
+    mkdef('IDE_VERSION', '10816', [], []),
   ];
   const boardDefined = buildBoard(boardSyms);
   // TODO: Don't have recipes & tools fully handled in the platform yet
-  const { defs: platDefined, rules } = buildPlatform(
+  const { defs: platDefs, rules } = buildPlatform(
     boardDefined,
     platSyms,
     platform.substring(0, platform.lastIndexOf('/')),
@@ -61,7 +61,7 @@ export default async function main(
   // TODO: Make definitions dependent on their condition values, so that I can
   // put errors in place when mandatory symbols aren't defined before inclusion
   const { checks, defs } = order(
-    [...initial, ...boardDefined, ...platDefined],
+    [...initial, ...boardDefined, ...platDefs],
     rules,
   );
   emitChecks(checks);
