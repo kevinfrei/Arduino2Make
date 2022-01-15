@@ -209,10 +209,13 @@ function enumerateFiles(root: string): string[] {
   }
 }
 
-const getPath = (fn: string) => fn.substring(0, fn.lastIndexOf('/'));
+const getPath = (n: string) => path.dirname(n);
 function endsWithNoExamples(paths: string[], suffix: string): string[] {
   return paths.filter(
-    (fn) => fn.endsWith(suffix) && fn.indexOf('/examples/') < 0,
+    (fn) =>
+      fn.endsWith(suffix) &&
+      fn.indexOf('/examples/') < 0 &&
+      fn.indexOf('\\examples\\') < 0,
   );
 }
 
@@ -255,7 +258,7 @@ function getLibInfo(
   rules: Recipe[];
 } {
   const { c, cpp, s, paths, inc } = getFileList(root, libFiles);
-  const libName = root.substring(root.lastIndexOf('/') + 1);
+  const libName = path.basename(root);
   const libDefName = 'LIB_' + libName.toUpperCase();
   const libCond = mkdf(libDefName);
   // I need to define a source list, include list
@@ -299,7 +302,7 @@ endif
         defs.push(
           mkapp(
             'COMPILER_LIBRARIES_LDFLAGS',
-            '-L' + val.substring(0, val.lastIndexOf('/')),
+            '-L' + path.dirname(val),
             [],
             [libCond],
           ),
@@ -319,8 +322,8 @@ function addLibs(locs: string[]): {
   for (const loc of locs) {
     // First, find any 'library.properties' files
     const allFiles = enumerateFiles(loc);
-    const libRoots = allFiles.filter((fn) =>
-      fn.endsWith('/library.properties'),
+    const libRoots = allFiles.filter(
+      (fn) => path.basename(fn) === 'library.properties',
     );
     for (const libRoot of libRoots) {
       const libPath = getPath(libRoot);
@@ -465,7 +468,9 @@ export function buildPlatform(
   const fileDefs: Definition[] = [];
   // Get the full file list & include path for each core & variant
   for (const core of cores) {
-    const { c, cpp, s, paths } = getFileList(rootpath + '/cores/' + core);
+    const { c, cpp, s, paths } = getFileList(
+      path.join(rootpath, 'cores', core),
+    );
     const cnd = [mkeq('${BUILD_CORE}', core)];
     if (c.length) {
       fileDefs.push(mkSrcList('C_SYS_SRCS', c, 'BUILD_CORE', cnd));
@@ -479,7 +484,7 @@ export function buildPlatform(
     fileDefs.push(
       mkapp(
         'SYS_INCLUDES',
-        ` -I${rootpath + '/cores/' + core}`,
+        ` -I${path.join(rootpath, 'cores', core)}`,
         ['BUILD_CORE'],
         cnd,
       ),
@@ -492,7 +497,7 @@ export function buildPlatform(
   }
   for (const vrn of variants) {
     const { c, cpp, s, paths, inc } = getFileList(
-      rootpath + '/variants/' + vrn,
+      path.join(rootpath, 'variants', vrn),
     );
     const cnd = [mkeq('${BUILD_VARIANT}', vrn)];
     if (c.length) {

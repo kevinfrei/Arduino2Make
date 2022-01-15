@@ -7,25 +7,15 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Teensy",
       "preLaunchTask": "npm: build",
-      "program": "${workspaceFolder}/dbg.js",
-      "runtimeArgs": [],
-      "args": [
-        "--config:adafruit-make-config.json",
-        "libs/Adafruit",
-        "libs/BusIO",
-        "libs/GFX",
-        "libs/NeoPixel",
-        "libs/SSD1306",
-        "libs/TinyUSB",
-        "libs/nRFCrypto"
+      "runtimeArgs": [
+        "--inspect-brk",
+        "${workspaceFolder}/dbg.js",
+        "c:\\Program Files (x86)\\Arduino\\hardware\\teensy\\avr"
       ],
-      "cwd": "${workspaceFolder}/../FreiKey/src",
-      // I apparently need to set this to get node debugging working :/
-      "env": {
-        "PATH": "/usr/local/bin"
-      }
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ]
 }

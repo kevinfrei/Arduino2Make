@@ -126,7 +126,7 @@ export default async function main(...args: string[]): Promise<void> {
   const { defs: platDefs, rules } = buildPlatform(
     boardDefined,
     platSyms,
-    platform.substring(0, platform.lastIndexOf('/')),
+    path.dirname(platform),
     libLocs,
   );
 
