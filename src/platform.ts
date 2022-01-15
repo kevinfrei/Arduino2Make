@@ -10,6 +10,8 @@ import {
   makeIfeq as mkeq,
   makeSeqDef as mkseq,
   makeUnDecl as mkundef,
+  spacey,
+  trimq,
 } from './mkutil.js';
 import type {
   Condition,
@@ -211,12 +213,14 @@ function enumerateFiles(root: string): string[] {
 
 const getPath = (n: string) => path.dirname(n);
 function endsWithNoExamples(paths: string[], suffix: string): string[] {
-  return paths.filter(
-    (fn) =>
-      fn.endsWith(suffix) &&
-      fn.indexOf('/examples/') < 0 &&
-      fn.indexOf('\\examples\\') < 0,
-  );
+  return paths
+    .filter(
+      (fn) =>
+        fn.endsWith(suffix) &&
+        fn.indexOf('/examples/') < 0 &&
+        fn.indexOf('\\examples\\') < 0,
+    )
+    .map((fn) => spacey(fn).replaceAll('\\', '/'));
 }
 
 // Collect all .c, .cpp. .S files, and get the unique paths for VPATH and
@@ -229,7 +233,9 @@ function getFileList(filePath: string, allFiles?: string[]) {
   const paths = [...new Set([...c, ...cpp, ...s].map(getPath))];
   const inc = [
     ...new Set(
-      endsWithNoExamples(allFiles, '.h').map((fn) => '-I' + getPath(fn)),
+      endsWithNoExamples(allFiles, '.h').map((fn) =>
+        spacey('-I' + trimq(getPath(fn))),
+      ),
     ),
   ];
   return { c, cpp, s, paths, inc };
@@ -484,7 +490,7 @@ export function buildPlatform(
     fileDefs.push(
       mkapp(
         'SYS_INCLUDES',
-        ` -I${path.join(rootpath, 'cores', core)}`,
+        ' ' + spacey(`-I${path.join(rootpath, 'cores', core)}`),
         ['BUILD_CORE'],
         cnd,
       ),

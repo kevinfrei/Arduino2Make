@@ -263,9 +263,12 @@ $\{PROJ_NAME\}: $\{BUILD_PATH\}/$\{PROJ_NAME\}.${targetSuffix}
 flash: $\{BUILD_PATH\}/$\{PROJ_NAME\}.flash
 
 # And finally, create the directory
-# TODO: This no worky on Windows fer sure
 $\{BUILD_PATH\}:
+ifeq ($(OS),Windows_NT)
+\t-mkdir "$@"
+else
 \ttest -d "$@" || mkdir -p "$@"
+endif
 
 # Now, on to the actual rules`);
   const jsonFiles: string[] = [];

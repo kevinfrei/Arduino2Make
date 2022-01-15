@@ -224,3 +224,14 @@ export function makeMenuOptions(
   }
   return defined;
 }
+
+export function spacey(inv: string): string {
+  return inv.indexOf(' ') < 0 ? inv : `"${inv}"`;
+}
+
+export function trimq(inv: string): string {
+  if (inv.length < 2 || inv[0] !== '"' || inv[inv.length - 1] !== '"') {
+    return inv;
+  }
+  return inv.substring(1, inv.length - 1);
+}
