@@ -204,14 +204,14 @@ function enumerateFiles(root: string): string[] {
   if (fs.statSync(root).isDirectory()) {
     const dirs: string[] = fs.readdirSync(root);
     return ([] as string[]).concat(
-      ...dirs.map((f) => enumerateFiles(path.join(root, f))),
+      ...dirs.map((f) => enumerateFiles(path.join(trimq(root), f))),
     );
   } else {
     return [root];
   }
 }
 
-const getPath = (n: string) => path.dirname(n);
+const getPath = (n: string) => path.dirname(trimq(n));
 function endsWithNoExamples(paths: string[], suffix: string): string[] {
   return paths
     .filter(
@@ -234,7 +234,7 @@ function getFileList(filePath: string, allFiles?: string[]) {
   const inc = [
     ...new Set(
       endsWithNoExamples(allFiles, '.h').map((fn) =>
-        spacey('-I' + trimq(getPath(fn))),
+        spacey('-I' + getPath(fn)),
       ),
     ),
   ];
@@ -288,10 +288,10 @@ endif
     defs.push(mkSrcList('S_SYS_SRCS', s, [], [libCond]));
   }
   defs.push(mkSrcList('SYS_INCLUDES', inc, [], [libCond]));
-  defs.push(mkapp('VPATH_MORE', paths.join(':'), [], [libCond]));
+  defs.push(mkapp('VPATH_MORE', paths.map(spacey).join(' '), [], [libCond]));
   // This is only sort of work for the Adafruit nRFCrypto library
   const fileContents = fs
-    .readFileSync(path.join(root, 'library.properties'))
+    .readFileSync(path.join(trimq(root), 'library.properties'))
     .toString();
   const ldFlagsPos = fileContents.indexOf('\nldflags');
   if (ldFlagsPos >= 0) {
@@ -475,7 +475,7 @@ export function buildPlatform(
   // Get the full file list & include path for each core & variant
   for (const core of cores) {
     const { c, cpp, s, paths } = getFileList(
-      path.join(rootpath, 'cores', core),
+      path.join(trimq(rootpath), 'cores', core),
     );
     const cnd = [mkeq('${BUILD_CORE}', core)];
     if (c.length) {
@@ -490,7 +490,7 @@ export function buildPlatform(
     fileDefs.push(
       mkapp(
         'SYS_INCLUDES',
-        ' ' + spacey(`-I${path.join(rootpath, 'cores', core)}`),
+        ' ' + spacey(`-I${path.join(trimq(rootpath), 'cores', core)}`),
         ['BUILD_CORE'],
         cnd,
       ),
@@ -499,11 +499,13 @@ export function buildPlatform(
 
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
-    fileDefs.push(mkapp('VPATH_CORE', paths.join(':'), ['BUILD_CORE'], cnd));
+    fileDefs.push(
+      mkapp('VPATH_CORE', paths.map(spacey).join(' '), ['BUILD_CORE'], cnd),
+    );
   }
   for (const vrn of variants) {
     const { c, cpp, s, paths, inc } = getFileList(
-      path.join(rootpath, 'variants', vrn),
+      path.join(trimq(rootpath), 'variants', vrn),
     );
     const cnd = [mkeq('${BUILD_VARIANT}', vrn)];
     if (c.length) {
@@ -518,7 +520,9 @@ export function buildPlatform(
     fileDefs.push(mkSrcList('SYS_INCLUDES', inc, 'BUILD_VARIANT', cnd));
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
-    fileDefs.push(mkapp('VPATH_CORE', paths.join(':'), ['BUILD_VARIANT'], cnd));
+    fileDefs.push(
+      mkapp('VPATH_CORE', paths.map(spacey).join(' '), ['BUILD_VARIANT'], cnd),
+    );
   }
 
   const { defs: libsDefs, rules: libRules } = addLibs([rootpath, ...libLocs]);

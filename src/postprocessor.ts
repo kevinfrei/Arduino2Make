@@ -288,6 +288,20 @@ endif
       const jsonFile = `$\{BUILD_PATH\}/${rule.src.toLowerCase()}_compile_commands.json`;
       jsonFiles.push(jsonFile);
       console.log(`${jsonFile}: $(USER_${sfx}_SRCS) $(${sfx}_SYS_SRCS)`);
+      console.log('ifeq ($(OS),Windows_NT)');
+      // Windows Specific for loop and echo here
+      console.log('\techo > $@');
+      console.log('\tfor %I in ($^)  do (');
+      console.log(
+        '\techo { "directory": "${PWD}","file":"%~I", "command": >> $@',
+      );
+      cmd = cmd.replace('"$<"', '"%~I"');
+      cmd = cmd.replace('"$@"', '"%~I.o"');
+      cmd = slashify(cmd);
+      console.log('\techo ' + cmd + '}, >> $@ ');
+      console.log('\t)');
+      console.log('else');
+      // *nix Shell for loop/echo here
       console.log('\techo > $@');
       console.log('\tfor i in $^ ; do \\');
       console.log(
@@ -299,6 +313,7 @@ endif
       cmd = slashify(cmd);
       console.log('\techo "\\"' + cmd + '\\"}," >> $@ ;\\');
       console.log('\tdone');
+      console.log('endif');
     } else if (rule.dst === 'a') {
       console.log('${BUILD_PATH}/system.a : ${SYS_OBJS}');
       console.log(`\t${rule.command}`);

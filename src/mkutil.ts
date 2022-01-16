@@ -226,7 +226,11 @@ export function makeMenuOptions(
 }
 
 export function spacey(inv: string): string {
-  return inv.indexOf(' ') < 0 ? inv : `"${inv}"`;
+  if (inv.indexOf(' ') < 0) {
+    return inv;
+  } else {
+    return `"${inv}"`;
+  }
 }
 
 export function trimq(inv: string): string {
