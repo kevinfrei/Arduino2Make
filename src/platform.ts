@@ -490,7 +490,12 @@ export function buildPlatform(
     fileDefs.push(
       mkapp(
         'SYS_INCLUDES',
-        ' ' + spacey(`-I${path.join(trimq(rootpath), 'cores', core)}`),
+        ' ' +
+          spacey(
+            `-I${path
+              .join(trimq(rootpath), 'cores', core)
+              .replaceAll('\\', '/')}`,
+          ),
         ['BUILD_CORE'],
         cnd,
       ),

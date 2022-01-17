@@ -236,7 +236,7 @@ export function emitRules(rules: Recipe[]) {
   console.log(`
 # And now the build rules!
 
-# First, the phony rules that don't product things
+# First, the phony rules that don't produce things
 .PHONY: $\{PROJ_NAME\} flash clean allclean
 
 # Now the default target
@@ -257,7 +257,7 @@ $\{USER_OBJS\} : $(MAKEFILE_LIST)
 -include $(ALL_OBJS:.o=.d)
 
 # Next, the project name shortcut, because it's easier
-$\{PROJ_NAME\}: $\{BUILD_PATH\}/$\{PROJ_NAME\}.${targetSuffix}
+$\{PROJ_NAME\}: $\{BUILD_PATH\} $\{BUILD_PATH\}/$\{PROJ_NAME\}.${targetSuffix}
 
 # Add a 'flash' target
 flash: $\{BUILD_PATH\}/$\{PROJ_NAME\}.flash
@@ -265,9 +265,9 @@ flash: $\{BUILD_PATH\}/$\{PROJ_NAME\}.flash
 # And finally, create the directory
 $\{BUILD_PATH\}:
 ifeq ($(OS),Windows_NT)
-\t-mkdir "$@"
+\t-@mkdir "$@"
 else
-\ttest -d "$@" || mkdir -p "$@"
+\t@test -d "$@" || mkdir -p "$@"
 endif
 
 # Now, on to the actual rules`);
@@ -284,35 +284,25 @@ endif
         cmd = cmd.substring(0, loc) + flg + cmd.substring(loc);
       }
       console.log('\t' + cmd + '\n');
-      // Also, let's spit out a X_compile_commands target
-      const jsonFile = `$\{BUILD_PATH\}/${rule.src.toLowerCase()}_compile_commands.json`;
-      jsonFiles.push(jsonFile);
-      console.log(`${jsonFile}: $(USER_${sfx}_SRCS) $(${sfx}_SYS_SRCS)`);
+      // Also, let's make the .json compile_commands target
+      console.log(`$\{BUILD_PATH\}/%.${rule.src}.json : %.${rule.src}`);
       console.log('ifeq ($(OS),Windows_NT)');
       // Windows Specific for loop and echo here
-      console.log('\techo > $@');
-      console.log('\tfor %I in ($^)  do (');
       console.log(
-        '\techo { "directory": "${PWD}","file":"%~I", "command": >> $@',
+        '\t@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@',
       );
-      cmd = cmd.replace('"$<"', '"%~I"');
-      cmd = cmd.replace('"$@"', '"%~I.o"');
-      cmd = slashify(cmd);
-      console.log('\techo ' + cmd + '}, >> $@ ');
-      console.log('\t)');
+      console.log(`\t@echo "${cmd.replaceAll('"', '\\"')}" >> $@`);
+      console.log('\t@echo }, >> $@');
       console.log('else');
       // *nix Shell for loop/echo here
-      console.log('\techo > $@');
-      console.log('\tfor i in $^ ; do \\');
       console.log(
-        '\techo "{ \\"directory\\": \\"${PWD}\\",\\"file\\":\\"$$i\\",' +
-          '\\"command\\":" >> $@ ; \\',
+        '\t@echo "{ \\"directory\\": \\"$(<D)\\",\\"file\\":\\"$(<F)\\","',
       );
-      cmd = cmd.replace('"$<"', '"$$$$i"');
-      cmd = cmd.replace('"$@"', '"$$$$i.o"');
-      cmd = slashify(cmd);
-      console.log('\techo "\\"' + cmd + '\\"}," >> $@ ;\\');
-      console.log('\tdone');
+      console.log(
+        '\t@echo ' +
+          slashify('"\\"command\\":\\"' + slashify(cmd) + '\\"},"') +
+          ' >> $@',
+      );
       console.log('endif');
     } else if (rule.dst === 'a') {
       console.log('${BUILD_PATH}/system.a : ${SYS_OBJS}');
