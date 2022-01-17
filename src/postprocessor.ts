@@ -299,9 +299,7 @@ endif
         '\t@echo "{ \\"directory\\": \\"$(<D)\\",\\"file\\":\\"$(<F)\\","',
       );
       console.log(
-        '\t@echo ' +
-          slashify('"\\"command\\":\\"' + slashify(cmd) + '\\"},"') +
-          ' >> $@',
+        '\t@echo "\\"command\\":\\"' + slashify(cmd) + '\\"}," >> $@',
       );
       console.log('endif');
     } else if (rule.dst === 'a') {
@@ -323,11 +321,18 @@ endif
       console.log(`\t${rule.command}`);
     }
   });
-  console.log('\n${BUILD_PATH}/compile_commands.json: ' + jsonFiles.join(' '));
-  console.log('\techo "[" > $@.tmp');
-  console.log('\tcat $^ >> $@.tmp');
-  console.log('\techo "]" >> $@.tmp');
-  console.log("\tsed -e ':a' -e 'N' -e '$$!ba' -e 's/},\\n]/}]/g' $@.tmp > $@");
-  //  console.log('\trm $@.tmp\n');
-  console.log('\ncompile_commands: ${BUILD_PATH}/compile_commands.json');
+  console.log(`\n
+$\{BUILD_PATH}/compile_commands.json: $\{USER_JSON} $\{SYS_JSON}
+ifeq ($(OS),Windows_NT)
+\t@echo [ > $@
+\t@sed -e "s/ / /" $^ >> $@
+\t@echo {}] >> $@
+else
+\t@echo "[" > $@.tmp
+\t@sed -e "s/ / /" $^ >> $@.tmp
+\t@echo "]" >> $@.tmp
+\t@sed -e ':a' -e 'N' -e '$$!ba' -e 's/},\\n]/}]/g' $@.tmp > $@
+endif
+
+compile_commands: $\{BUILD_PATH} $\{BUILD_PATH}/compile_commands.json`);
 }

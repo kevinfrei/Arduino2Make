@@ -543,20 +543,26 @@ export function buildPlatform(
   fileDefs.push(
     mkseq('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}', [], []),
   );
-  const mkObjList = (name: string, varname: string): Definition =>
+  const mkObjList = (
+    name: string,
+    varname: string,
+    suffix: string,
+  ): Definition =>
     mkdef(
       name,
       `\\
   $(addprefix $\{BUILD_PATH}/, \\
-    $(patsubst %.c, %.c.o, \\
-      $(patsubst %.cpp, %.cpp.o, \\
-        $(patsubst %.S, %.S.o, $(notdir $\{${varname}\})))))`,
+    $(patsubst %.c, %.c.${suffix}, \\
+      $(patsubst %.cpp, %.cpp.${suffix}, \\
+        $(patsubst %.S, %.S.${suffix}, $(notdir $\{${varname}\})))))`,
       [],
       [],
     );
-  fileDefs.push(mkObjList('SYS_OBJS', 'SYS_SRC'));
-  fileDefs.push(mkObjList('USER_OBJS', 'USER_SRC'));
+  fileDefs.push(mkObjList('SYS_OBJS', 'SYS_SRC', 'o'));
+  fileDefs.push(mkObjList('USER_OBJS', 'USER_SRC', 'o'));
   fileDefs.push(mkdef('ALL_OBJS', '${USER_OBJS} ${SYS_OBJS}', [], []));
+  fileDefs.push(mkObjList('SYS_JSON', 'SYS_SRC', 'json'));
+  fileDefs.push(mkObjList('USER_JSON', 'USER_SRC', 'json'));
   // ALL_OBJS = \
   // $(addprefix ${M_OUT}/, $(patsubst %.cpp, %.cpp.o, $(notdir ${TUSB_SRCS})))
 
