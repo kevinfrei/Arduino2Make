@@ -114,7 +114,7 @@ export default async function main(...args: string[]): Promise<void> {
     makeUnDecl('RUNTIME_OS', 'linux', [], []),
     mkdef(
       'RUNTIME_PLATFORM_PATH',
-      path.resolve(path.dirname(platform)),
+      path.dirname(platform).replaceAll('\\', '/'),
       [],
       [],
     ),
