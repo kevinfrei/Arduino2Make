@@ -108,7 +108,7 @@ function makeRecipes(recipes: Variable, plat: ParsedFile): Recipe[] {
   //  ${tool} -c ${flags} -o $@ $<
 
   // First, let's just get the .o producers
-  for (const src of ['S', 'c', 'cpp']) {
+  for (const src of ['S', 'c', 'ino', 'cpp']) {
     const depVal: DependentValue | undefined = makeRule(
       [src, 'o', 'pattern'],
       'OBJECT_FILE',
@@ -454,7 +454,42 @@ export function buildPlatform(
     }
   }
   // Build up all the various make rules from the recipes in the platform file
-  const recipeSyms = platform.scopedTable.get('recipe');
+  const recipeSyms: Variable | undefined = platform.scopedTable.get('recipe');
+  // A rather messy hack to add .ino capabilities: (add -x c++ to the CPP rule)
+  if (recipeSyms?.children.has('cpp')) {
+    const cppRecipe = recipeSyms.children.get('cpp')!;
+    const cppChild: Variable | undefined = cppRecipe.children.get('o');
+    if (cppChild && cppRecipe.children.size === 1) {
+      const cppPattern = cppChild.children.get('pattern');
+      if (cppPattern && cppChild.children.size === 1 && !!cppPattern.value) {
+        const val = cppPattern.value;
+        const toAdd = val.indexOf(' "{source_file}" -o ');
+        if (toAdd > 0) {
+          const value =
+            val.substring(0, toAdd) + ' -x c++' + val.substring(toAdd);
+          const inoRecipe = {
+            name: 'ino',
+            parent: cppRecipe.parent,
+            children: new Map(),
+          };
+          const oChildVar: Variable = {
+            name: 'o',
+            children: new Map(),
+            parent: inoRecipe,
+          };
+          const pChildVar: Variable = {
+            name: 'pattern',
+            parent: oChildVar,
+            value,
+            children: new Map(),
+          };
+          oChildVar.children.set('pattern', pChildVar);
+          inoRecipe.children.set('o', oChildVar);
+          recipeSyms.children.set('ino', inoRecipe);
+        }
+      }
+    }
+  }
   const rules: Recipe[] = recipeSyms ? makeRecipes(recipeSyms, platform) : [];
 
   // TODO: Get the file list together (just more definitions, I think)
@@ -554,7 +589,8 @@ export function buildPlatform(
   $(addprefix $\{BUILD_PATH}/, \\
     $(patsubst %.c, %.c.${suffix}, \\
       $(patsubst %.cpp, %.cpp.${suffix}, \\
-        $(patsubst %.S, %.S.${suffix}, $(notdir $\{${varname}\})))))`,
+        $(patsubst %.ino, %.ino.${suffix}, \\
+          $(patsubst %.S, %.S.${suffix}, $(notdir $\{${varname}\}))))))`,
       [],
       [],
     );

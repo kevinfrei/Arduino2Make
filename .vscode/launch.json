@@ -12,7 +12,7 @@
       "runtimeArgs": [
         "--inspect-brk",
         "${workspaceFolder}/dbg.js",
-        "c:\\Program Files (x86)\\Arduino\\hardware\\teensy\\avr"
+        "c:\\Progra~2\\Arduino\\hardware\\teensy\\avr"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "openOnSessionStart"
