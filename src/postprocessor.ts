@@ -244,9 +244,9 @@ all: $\{BUILD_PATH\} $\{PROJ_NAME\}
 
 # Some house keeping
 clean:
-\t-rm $\{USER_OBJS\}
+\t-rm $\{USER_OBJS\} $\{USER_EXTRA\}
 
-allclean:
+allclean: clean
 \t-rm -rf $\{BUILD_PATH\}
 
 # Make us rebuild user code if the makefile(s) change:
