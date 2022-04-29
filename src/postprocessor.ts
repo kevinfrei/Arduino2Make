@@ -11,6 +11,9 @@ const optionalDefs: string[] = [
   'COMPILER_C_EXTRA_FLAGS',
   'COMPILER_CPP_EXTRA_FLAGS',
   'COMPILER_C_ELF_EXTRA_FLAGS',
+  'COMPILER_LD_EXTRA_FLAGS',
+  'COMPILER_AR_EXTRA_FLAGS',
+  'COMPILER_ELF_EXTRA_FLAGS',
   'COMPILER_ELF2HEX_EXTRA_FLAGS',
   'COMPILER_AR_EXTRA_FLAGS',
   'UPLOAD_VERBOSE',
@@ -276,14 +279,9 @@ endif
     console.log('');
     if (rule.dst === 'o') {
       console.log(`$\{BUILD_PATH\}/%.${rule.src}.o : %.${rule.src}`);
-      let cmd = rule.command;
       const sfx = rule.src.toUpperCase();
-      const flg = `$\{COMPILER_${sfx}_EXTRA_FLAGS\} `;
-      if (cmd.indexOf(flg) < 0) {
-        const loc = cmd.indexOf('"$<"');
-        cmd = cmd.substring(0, loc) + flg + cmd.substring(loc);
-      }
-      console.log('\t' + cmd + '\n');
+      const cmd = tryToAddUserExtraFlag(sfx, '"$<"', rule.command);
+      console.log(`\t${cmd}\n`);
       // Also, let's make the .json compile_commands target
       console.log(`$\{BUILD_PATH\}/%.${rule.src}.json : %.${rule.src}`);
       console.log('ifeq ($(OS),Windows_NT)');
@@ -304,13 +302,15 @@ endif
       console.log('endif');
     } else if (rule.dst === 'a') {
       console.log('${BUILD_PATH}/system.a : ${SYS_OBJS}');
-      console.log(`\t${rule.command}`);
+      const cmd = tryToAddUserExtraFlag('AR', 'rcs "$@"', rule.command);
+      console.log(`\t${cmd}\n`);
     } else if (rule.dst === 'elf') {
       console.log(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf : ' +
           '${BUILD_PATH}/system.a ${USER_OBJS}',
       );
-      console.log(`\t${rule.command}`);
+      const cmd = tryToAddUserExtraFlag('ELF', '-o "$@"', rule.command);
+      console.log(`\t${cmd}\n`);
     } else {
       console.log(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
@@ -335,4 +335,12 @@ else
 endif
 
 compile_commands: $\{BUILD_PATH} $\{BUILD_PATH}/compile_commands.json`);
+}
+function tryToAddUserExtraFlag(sfx: string, srch: string, cmd: string) {
+  const flg = `$\{COMPILER_${sfx}_EXTRA_FLAGS\} `;
+  if (cmd.indexOf(flg) < 0) {
+    const loc = cmd.indexOf(srch);
+    if (loc > 0) cmd = cmd.substring(0, loc) + flg + cmd.substring(loc);
+  }
+  return cmd;
 }
