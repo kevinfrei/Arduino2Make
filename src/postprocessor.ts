@@ -294,7 +294,7 @@ endif
       console.log('else');
       // *nix Shell for loop/echo here
       console.log(
-        '\t@echo "{ \\"directory\\": \\"$(<D)\\",\\"file\\":\\"$(<F)\\","',
+        '\t@echo "{ \\"directory\\": \\"$(<D)\\",\\"file\\":\\"$(<F)\\"," > $@',
       );
       console.log(
         '\t@echo "\\"command\\":\\"' + slashify(cmd) + '\\"}," >> $@',
@@ -329,7 +329,7 @@ ifeq ($(OS),Windows_NT)
 \t@echo {}] >> $@
 else
 \t@echo "[" > $@.tmp
-\t@sed -e "s/ / /" $^ >> $@.tmp
+\t@cat $^ >> $@.tmp
 \t@echo "]" >> $@.tmp
 \t@sed -e ':a' -e 'N' -e '$$!ba' -e 's/},\\n]/}]/g' $@.tmp > $@
 endif
