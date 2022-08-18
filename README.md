@@ -109,6 +109,9 @@ the bootloader.
 
 ## TODO:
 
+- Switch from GNU Makefiles to CMake stuff (or just add CMake support?)
+- Add ability to pull stuff from a board index json file
+- Add ability to pull down libs from a library index file, not just local
 - Get it working on the AdaFruit AVR stuff
   - I've never actually used Arduino-branded hardware :/
 - Make the thing also spit out VSCode settings! This would be awesome (and not
