@@ -10,10 +10,7 @@
   "bin": {
     "er": "./lib/tools.js"
   },
-  "files": [
-    "lib/**/*",
-    "ar2mak.js"
-  ],
+  "files": ["lib/**/*", "ar2mak.js"],
   "scripts": {
     "release": "rimraf ./lib && tsc -p tsconfig.opt.json && er minify -i -r lib",
     "build": "rimraf ./lib && tsc",
@@ -28,10 +25,10 @@
   },
   "devDependencies": {
     "@freik/build-tools": "^3.2.2",
-    "@types/node": "^18.6.2",
-    "@typescript-eslint/eslint-plugin": "^5.31.0",
-    "@typescript-eslint/parser": "^5.31.0",
-    "eslint": "^8.20.0",
+    "@types/node": "^18.7.6",
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
+    "eslint": "^8.22.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.1",

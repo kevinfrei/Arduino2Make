@@ -1,4 +1,4 @@
-import { Type } from '@freik/core-utils';
+import { MakeError, Type } from '@freik/core-utils';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { buildBoard } from './board.js';
@@ -12,63 +12,60 @@ import { parseFile } from './parser.js';
 import { buildPlatform } from './platform.js';
 import { emitChecks, emitDefs, emitRules, order } from './postprocessor.js';
 
+const err = MakeError();
+
 // Var def to match, substr to find, string to replace substr with
-type Transform = [string, string, string];
+type TransformItem = { defmatch: string; text: string; replace: string };
 // Var def to match, substring to filter out
-type Filter = [string, string];
+type FilterItem = { defmatch: string; remove: string };
 
 // This should grow with time, I think
 type Config = {
-  transforms: Transform[];
-  filters: Filter[];
+  transforms: TransformItem[];
+  filters: FilterItem[];
 };
 
-function isConfig(val: unknown): val is Partial<Config> {
-  if (!Type.isObjectNonNull(val)) {
-    return false;
-  }
-  if (!Type.has(val, 'transforms') && !Type.has(val, 'filters')) {
-    return false;
-  }
-  if (
-    Type.has(val, 'transforms') &&
-    !Type.isArrayOf(val.transforms, (obj): obj is Transform =>
-      Type.is3TupleOf(obj, Type.isString, Type.isString, Type.isString),
-    )
-  ) {
-    return false;
-  }
-  if (
-    Type.has(val, 'filters') &&
-    !Type.isArrayOf(val.filters, (obj): obj is Filter =>
-      Type.is2TupleOf(obj, Type.isString, Type.isString),
-    )
-  ) {
-    return false;
-  }
-  return true;
+const isTransformItem = Type.isSpecificTypeFn<TransformItem>(
+  [
+    ['defmatch', Type.isString],
+    ['remove', Type.isString],
+  ],
+  ['defmatch', 'remove'],
+);
+const isFilterItem = Type.isSpecificTypeFn<FilterItem>(
+  [
+    ['defmatch', Type.isString],
+    ['text', Type.isString],
+    ['replace', Type.isString],
+  ],
+  ['defmatch', 'text', 'replace'],
+);
+const isProbablyConfig = Type.isSpecificTypeFn<Partial<Config>>([
+  ['transforms', isTransformItem],
+  ['filters', isFilterItem],
+]);
+function isConfig(i: unknown): i is Partial<Config> {
+  return (
+    isProbablyConfig(i) && (Type.has(i, 'transforms') || Type.has(i, 'filters'))
+  );
 }
 
 async function readConfig(
   configs: string[],
 ): Promise<Partial<Config> | undefined> {
-  if (configs.length > 1) {
-    return;
-  }
-  if (configs.length === 0) {
-    return {};
-  }
-  try {
-    const cfg = await fs.readFile(configs[0].substring(9), 'utf-8');
-    const json = JSON.parse(cfg) as unknown;
-    if (isConfig(json)) {
-      return json;
+  if (configs.length === 1) {
+    try {
+      const cfg = await fs.readFile(configs[0].substring(9), 'utf-8');
+      const json = JSON.parse(cfg) as unknown;
+      if (isConfig(json)) {
+        return json;
+      }
+      err('Invalid type for config file:');
+      err(json);
+    } catch (e) {
+      err('Unable to read config file:');
+      err(e);
     }
-    console.error('Invalid type for config file:');
-    console.error(json);
-  } catch (e) {
-    console.error('Unable to read config file:');
-    console.error(e);
   }
 }
 
@@ -85,16 +82,13 @@ async function readConfig(
 // Once that's done, then restructre the resulting makefile to be more
 // configurable
 let config: Partial<Config> | undefined;
+
 export default async function main(...args: string[]): Promise<void> {
   const normalArgs = args.filter((val) => !val.startsWith('--config:'));
   config = await readConfig(args.filter((val) => val.startsWith('--config:')));
   if (normalArgs.length === 0 || config === undefined) {
-    console.error(
-      'Usage: {--config:file.json} rootDir {lib1Dir lib2Dir lib3Dir}',
-    );
-    console.error(
-      "  rootDir is where you can find 'boards.txt' and 'platform.txt'",
-    );
+    err('Usage: {--config:file.json} rootDir {lib1Dir lib2Dir lib3Dir}');
+    err("  rootDir is where you can find 'boards.txt' and 'platform.txt'");
     return;
   }
   const root = normalArgs[0];
@@ -111,15 +105,13 @@ export default async function main(...args: string[]): Promise<void> {
     mkdef('RUNTIME_OS', 'windows', [], [isWin]),
     mkdef('uname', '$(shell uname -s)', [], [notWin]),
     mkdef('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
-    makeUnDecl('RUNTIME_OS', 'linux', [], []),
+    makeUnDecl('RUNTIME_OS', 'linux'),
     mkdef(
       'RUNTIME_PLATFORM_PATH',
       path.dirname(platform).replaceAll('\\', '/'),
-      [],
-      [],
     ),
-    mkdef('RUNTIME_IDE_VERSION', '10816', [], []),
-    mkdef('IDE_VERSION', '10816', [], []),
+    mkdef('RUNTIME_IDE_VERSION', '10819'),
+    mkdef('IDE_VERSION', '10819'),
   ];
   const boardDefined = buildBoard(boardSyms);
   // TODO: Don't have recipes & tools fully handled in the platform yet
@@ -148,10 +140,10 @@ export function Transform(
   if (!config || !Type.hasType(config, 'transforms', Type.isArray)) {
     return { name, value };
   }
-  for (const [match, search, replace] of config.transforms) {
+  for (const { defmatch, text, replace } of config.transforms) {
     // For now just do a simple "indexOf" for matching, I guess
-    if (name.indexOf(match) >= 0) {
-      value = value.replace(search, replace);
+    if (name.indexOf(defmatch) >= 0) {
+      value = value.replace(text, replace);
     }
   }
   return { name, value };
@@ -161,9 +153,9 @@ export function Filter(name: string, files: string[]): string[] {
   if (!config || !Type.hasType(config, 'filters', Type.isArray)) {
     return files;
   }
-  for (const [defname, match] of config.filters) {
-    if (name === defname) {
-      files = files.filter((val) => val.indexOf(match) < 0);
+  for (const { defmatch, remove } of config.filters) {
+    if (name === defmatch) {
+      files = files.filter((val) => val.indexOf(remove) < 0);
     }
   }
   return files;

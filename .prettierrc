@@ -4,5 +4,9 @@
   "singleQuote": true,
   "proseWrap": "always",
   "tabWidth": 2,
-  "useTabs": false
+  "useTabs": false,
+  "overrides": [
+    { "files": ".prettier", "options": { "parser": "json" } },
+    { "files": "*.json", "options": { "parser": "json" } }
+  ]
 }

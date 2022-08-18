@@ -353,12 +353,10 @@ export function buildPlatform(
   libLocs: string[],
 ): { defs: Definition[]; rules: Recipe[] } {
   const defs: Definition[] = [
-    mkdef(
-      'BUILD_CORE_PATH',
-      '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}',
-      ['RUNTIME_PLATFORM_PATH', 'BUILD_CORE'],
-      [],
-    ),
+    mkdef('BUILD_CORE_PATH', '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}', [
+      'RUNTIME_PLATFORM_PATH',
+      'BUILD_CORE',
+    ]),
   ];
 
   // Now spit out all the variables
@@ -405,7 +403,7 @@ export function buildPlatform(
   }
   toolDefs.push(
     ...cmds.map((def: Definition) => {
-      return mkundef(def.name, def.value, def.dependsOn, []);
+      return mkundef(def.name, def.value, def.dependsOn);
     }),
   );
 
@@ -570,13 +568,13 @@ export function buildPlatform(
   rules.push(...libRules);
   const sycSrcVal = '${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}';
   const usrSrcVal = '${USER_C_SRCS} ${USER_CPP_SRCS} ${USER_S_SRCS}';
-  fileDefs.push(mkdef('SYS_SRC', sycSrcVal, [], []));
-  fileDefs.push(mkdef('USER_SRC', usrSrcVal, [], []));
+  fileDefs.push(mkdef('SYS_SRC', sycSrcVal));
+  fileDefs.push(mkdef('USER_SRC', usrSrcVal));
 
   // Add the transformations for source files to obj's
-  fileDefs.push(mkdef('ALL_SRC', '${SYS_SRC} ${USER_SRC}', [], []));
+  fileDefs.push(mkdef('ALL_SRC', '${SYS_SRC} ${USER_SRC}'));
   fileDefs.push(
-    mkseq('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}', [], []),
+    mkseq('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}'),
   );
   const mkObjList = (
     name: string,
@@ -596,7 +594,7 @@ export function buildPlatform(
     );
   fileDefs.push(mkObjList('SYS_OBJS', 'SYS_SRC', 'o'));
   fileDefs.push(mkObjList('USER_OBJS', 'USER_SRC', 'o'));
-  fileDefs.push(mkdef('ALL_OBJS', '${USER_OBJS} ${SYS_OBJS}', [], []));
+  fileDefs.push(mkdef('ALL_OBJS', '${USER_OBJS} ${SYS_OBJS}'));
   fileDefs.push(mkObjList('SYS_JSON', 'SYS_SRC', 'json'));
   fileDefs.push(mkObjList('USER_JSON', 'USER_SRC', 'json'));
   // ALL_OBJS = \

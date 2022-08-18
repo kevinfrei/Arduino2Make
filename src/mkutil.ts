@@ -43,37 +43,61 @@ export function makeIfndef(variable: string): Condition {
 export function makeDeclDef(
   name: string,
   value: string,
-  dependsOn: string[],
-  condition: Condition[],
+  dependsOn?: string[],
+  condition?: Condition[],
 ): Definition {
-  return { name, type: 'decl', value, dependsOn, condition };
+  return {
+    name,
+    type: 'decl',
+    value,
+    dependsOn: dependsOn || [],
+    condition: condition || [],
+  };
 }
 
 export function makeSeqDef(
   name: string,
   value: string,
-  dependsOn: string[],
-  condition: Condition[],
+  dependsOn?: string[],
+  condition?: Condition[],
 ): Definition {
-  return { name, type: 'seq', value, dependsOn, condition };
+  return {
+    name,
+    type: 'seq',
+    value,
+    dependsOn: dependsOn || [],
+    condition: condition || [],
+  };
 }
 
 export function makeAppend(
   name: string,
   value: string,
-  dependsOn: string[],
-  condition: Condition[],
+  dependsOn?: string[],
+  condition?: Condition[],
 ): Definition {
-  return { name, type: 'add', value, dependsOn, condition };
+  return {
+    name,
+    type: 'add',
+    value,
+    dependsOn: dependsOn || [],
+    condition: condition || [],
+  };
 }
 
 export function makeUnDecl(
   name: string,
   value: string,
-  dependsOn: string[],
-  condition: Condition[],
+  dependsOn?: string[],
+  condition?: Condition[],
 ): Definition {
-  return { name, type: '?decl', value, dependsOn, condition };
+  return {
+    name,
+    type: '?decl',
+    value,
+    dependsOn: dependsOn || [],
+    condition: condition || [],
+  };
 }
 
 // This takes a value, and returns the resolved value plus the list of
