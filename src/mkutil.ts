@@ -40,6 +40,10 @@ export function makeIfndef(variable: string): Condition {
   };
 }
 
+export function makeIf(variable: string): Condition {
+  return { op: 'raw', variable };
+}
+
 export function makeDeclDef(
   name: string,
   value: string,

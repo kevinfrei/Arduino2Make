@@ -106,8 +106,10 @@ function openConditions(conds: Condition[], begin: number) {
     const sp = getSpaces(i);
     if (cond.op === 'neq' || cond.op === 'eq') {
       console.log(`${sp}if${cond.op} (${cond.variable}, ${cond.value || ''})`);
-    } else {
+    } else if (cond.op !== 'raw') {
       console.log(`${sp}if${cond.op} ${cond.variable}`);
+    } else {
+      console.log(`${sp}if ${cond.variable}`);
     }
   }
 }

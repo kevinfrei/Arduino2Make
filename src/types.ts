@@ -27,7 +27,7 @@ export interface CondDef {
   variable: string;
 }
 export interface Condition {
-  op: 'eq' | 'neq' | 'def' | 'ndef';
+  op: 'eq' | 'neq' | 'def' | 'ndef' | 'raw';
   variable: string;
   value?: string;
 }

@@ -4,23 +4,11 @@ import type { FlatTable, ParsedFile, SymbolTable, Variable } from './types.js';
 /* eslint-disable no-console */
 
 // Parsing stuff goes here
-
-/*
-const makeFullName = (v: Variable): string => {
-  let res = v.name;
-  while (v.parent) {
-    v = v.parent;
-    res = `${v.name}.${res}`;
-  }
-  return res;
-};
-*/
-
 function makeVariable(
   fullName: string,
   value: string,
   table: SymbolTable,
-): Variable {
+): void {
   const pieces: string[] = fullName.split('.');
   let ns: Variable | null = null;
   for (let i = 0; i < pieces.length - 1; i++) {
@@ -42,28 +30,28 @@ function makeVariable(
   }
   const res = { name: locName, parent: ns, value, children: new Map() };
   table.set(locName, res);
-  return res;
 }
 
-const isComment = (line: string): boolean => {
+function isComment(line: string): boolean {
   return line.trim().startsWith('#');
-};
+}
 
-const isVariable = (
+function isVariable(
   line: string,
   table: SymbolTable,
   flatsyms: FlatTable,
-): Variable | void => {
+): boolean {
   const t = line.trim();
   const eq = t.indexOf('=');
   if (eq < 1) {
-    return;
+    return false;
   }
   const fullName = t.substring(0, eq);
   const value = t.substring(eq + 1);
   flatsyms.set(fullName, value);
-  return makeVariable(fullName, value, table);
-};
+  makeVariable(fullName, value, table);
+  return true;
+}
 
 // This does what it says it does...
 export async function parseFile(filepath: string): Promise<ParsedFile> {
