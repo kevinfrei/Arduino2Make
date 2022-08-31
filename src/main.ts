@@ -86,7 +86,7 @@ let config: Partial<Config> | undefined;
 export default async function main(...args: string[]): Promise<void> {
   const normalArgs = args.filter((val) => !val.startsWith('--config:'));
   config = await readConfig(args.filter((val) => val.startsWith('--config:')));
-  if (normalArgs.length === 0 || config === undefined) {
+  if (normalArgs.length === 0 && config === undefined) {
     err('Usage: {--config:file.json} rootDir {lib1Dir lib2Dir lib3Dir}');
     err("  rootDir is where you can find 'boards.txt' and 'platform.txt'");
     return;
