@@ -18,7 +18,7 @@
     "prepare": "yarn run build",
     "format": "prettier --write \"*.js\" \"*.json\" \"*.md\" \"src/*.ts\"",
     "lint": "eslint src --fix --ext ts",
-    "chk": "yarn run lint"
+    "chk": "yarn run build && yarn run lint"
   },
   "dependencies": {
     "@freik/core-utils": "^1.2.0"
