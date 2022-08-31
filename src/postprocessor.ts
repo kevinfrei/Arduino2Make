@@ -1,7 +1,6 @@
-/* eslint-disable no-console */
 // Utilities for doing Makefile stuff
 
-import { Transform } from './main.js';
+import { dump, Transform } from './main.js';
 import type { Condition, Definition, Recipe } from './types.js';
 
 const optionalDefs: string[] = [
@@ -80,13 +79,13 @@ export function order(
 }
 
 export function emitChecks(checks: string[]) {
-  console.log('# First, add some errors for undefined values');
+  dump()('# First, add some errors for undefined values');
   checks.forEach((val: string) => {
-    console.log(`ifndef ${val}`);
-    console.log(`  $(error ${val} is not defined!)`);
-    console.log('endif');
+    dump()(`ifndef ${val}`);
+    dump()(`  $(error ${val} is not defined!)`);
+    dump()('endif');
   });
-  console.log(`
+  dump()(`
 # Check for some source files
 ifeq ($\{USER_C_SRCS}$\{USER_CPP_SRCS}$\{USER_S_SRCS},)
   $(error You must define USER_C_SRCS, USER_CPP_SRCS, or USER_S_SRCS)
@@ -105,18 +104,18 @@ function openConditions(conds: Condition[], begin: number) {
     const cond = conds[i];
     const sp = getSpaces(i);
     if (cond.op === 'neq' || cond.op === 'eq') {
-      console.log(`${sp}if${cond.op} (${cond.variable}, ${cond.value || ''})`);
+      dump()(`${sp}if${cond.op} (${cond.variable}, ${cond.value || ''})`);
     } else if (cond.op !== 'raw') {
-      console.log(`${sp}if${cond.op} ${cond.variable}`);
+      dump()(`${sp}if${cond.op} ${cond.variable}`);
     } else {
-      console.log(`${sp}if ${cond.variable}`);
+      dump()(`${sp}if ${cond.variable}`);
     }
   }
 }
 
 function closeConditions(indent: number, count: number) {
   while (count--) {
-    console.log(`${getSpaces(--indent)}endif`);
+    dump()(`${getSpaces(--indent)}endif`);
   }
 }
 
@@ -171,7 +170,7 @@ function handleCondition(
       // First close out prevConds,
       closeConditions(prevCond.length, prevCond.length - index - 1);
       // then a plain 'else'
-      console.log(`${getSpaces(index)}else`);
+      dump()(`${getSpaces(index)}else`);
       // then open the newConds
       openConditions(newCond, index + 1);
     } else {
@@ -187,7 +186,7 @@ function handleCondition(
     // First close out prevConds,
     closeConditions(prevCond.length, prevCond.length - index - 1);
     // Spit out the else-if
-    console.log(
+    dump()(
       `${getSpaces(index)}else ifeq (${nCnd.variable}, ${nCnd.value || ''})`,
     );
     // then open the newConds
@@ -210,7 +209,7 @@ const opMap: Map<string, string> = new Map([
 ]);
 
 export function emitDefs(defs: Definition[]) {
-  console.log('# And here are all the definitions');
+  dump()('# And here are all the definitions');
   let prevCond: Condition[] = [];
   //  let depth = '';
   defs.forEach((def: Definition) => {
@@ -220,7 +219,7 @@ export function emitDefs(defs: Definition[]) {
     const assign = opMap.get(def.type);
     if (assign) {
       const { name, value } = Transform(def.name, def.value);
-      console.log(`${indent}${name}${assign}${value}`);
+      dump()(`${indent}${name}${assign}${value}`);
     }
     prevCond = curCond;
   });
@@ -238,7 +237,7 @@ export function emitRules(rules: Recipe[]) {
   const flashRules = rules.filter((r: Recipe) => r.dst === 'flash');
   const tmp = flashRules.pop();
   const targetSuffix: string = tmp ? tmp.src : 'unk';
-  console.log(`
+  dump()(`
 # And now the build rules!
 
 # First, the phony rules that don't produce things
@@ -276,54 +275,50 @@ else
 endif
 
 # Now, on to the actual rules`);
-  const jsonFiles: string[] = [];
+  // const jsonFiles: string[] = [];
   rules.forEach((rule: Recipe) => {
-    console.log('');
+    dump()('');
     if (rule.dst === 'o') {
-      console.log(`$\{BUILD_PATH\}/%.${rule.src}.o : %.${rule.src}`);
+      dump()(`$\{BUILD_PATH\}/%.${rule.src}.o : %.${rule.src}`);
       const sfx = rule.src.toUpperCase();
       const cmd = tryToAddUserExtraFlag(sfx, '"$<"', rule.command);
-      console.log(`\t${cmd}\n`);
+      dump()(`\t${cmd}\n`);
       // Also, let's make the .json compile_commands target
-      console.log(`$\{BUILD_PATH\}/%.${rule.src}.json : %.${rule.src}`);
-      console.log('ifeq ($(OS),Windows_NT)');
+      dump()(`$\{BUILD_PATH\}/%.${rule.src}.json : %.${rule.src}`);
+      dump()('ifeq ($(OS),Windows_NT)');
       // Windows Specific for loop and echo here
-      console.log(
-        '\t@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@',
-      );
-      console.log(`\t@echo "${cmd.replaceAll('"', '\\"')}" >> $@`);
-      console.log('\t@echo }, >> $@');
-      console.log('else');
+      dump()('\t@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@');
+      dump()(`\t@echo "${cmd.replaceAll('"', '\\"')}" >> $@`);
+      dump()('\t@echo }, >> $@');
+      dump()('else');
       // *nix Shell for loop/echo here
-      console.log(
+      dump()(
         '\t@echo "{ \\"directory\\": \\"$(<D)\\",\\"file\\":\\"$(<F)\\"," > $@',
       );
-      console.log(
-        '\t@echo "\\"command\\":\\"' + slashify(cmd) + '\\"}," >> $@',
-      );
-      console.log('endif');
+      dump()('\t@echo "\\"command\\":\\"' + slashify(cmd) + '\\"}," >> $@');
+      dump()('endif');
     } else if (rule.dst === 'a') {
-      console.log('${BUILD_PATH}/system.a : ${SYS_OBJS}');
+      dump()('${BUILD_PATH}/system.a : ${SYS_OBJS}');
       const cmd = tryToAddUserExtraFlag('AR', 'rcs "$@"', rule.command);
-      console.log(`\t${cmd}\n`);
+      dump()(`\t${cmd}\n`);
     } else if (rule.dst === 'elf') {
-      console.log(
+      dump()(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf : ' +
           '${BUILD_PATH}/system.a ${USER_OBJS}',
       );
       const cmd = tryToAddUserExtraFlag('ELF', '-o "$@"', rule.command);
-      console.log(`\t${cmd}\n`);
+      dump()(`\t${cmd}\n`);
     } else {
-      console.log(
+      dump()(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
           rule.dst +
           ' : ${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
           rule.src,
       );
-      console.log(`\t${rule.command}`);
+      dump()(`\t${rule.command}`);
     }
   });
-  console.log(`\n
+  dump()(`\n
 $\{BUILD_PATH}/compile_commands.json: $\{USER_JSON} $\{SYS_JSON}
 ifeq ($(OS),Windows_NT)
 \t@echo [ > $@

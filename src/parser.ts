@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as rl from 'readline';
+import { dump } from './main.js';
 import type { FlatTable, ParsedFile, SymbolTable, Variable } from './types.js';
-/* eslint-disable no-console */
 
 // Parsing stuff goes here
 function makeVariable(
@@ -25,8 +25,8 @@ function makeVariable(
   }
   const locName = pieces[pieces.length - 1];
   if (table.get(locName)) {
-    console.error('Duplicate symbol definition: ' + fullName);
-    console.error(table.get(locName));
+    dump('err')('Duplicate symbol definition: ' + fullName);
+    dump('err')(table.get(locName));
   }
   const res = { name: locName, parent: ns, value, children: new Map() };
   table.set(locName, res);
@@ -67,7 +67,7 @@ export async function parseFile(filepath: string): Promise<ParsedFile> {
     }
     // Read the variables one by one
     if (!isVariable(line, scopedTable, flatSymbols)) {
-      console.log(`Error ${num}: ${line}`);
+      dump('err')(`Error ${num}: ${line}`);
     }
   }
   return { scopedTable, flatSymbols };

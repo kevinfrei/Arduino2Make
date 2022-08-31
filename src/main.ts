@@ -1,4 +1,4 @@
-import { MakeError, Type } from '@freik/core-utils';
+import { Type } from '@freik/core-utils';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { buildBoard } from './board.js';
@@ -11,8 +11,6 @@ import {
 import { parseFile } from './parser.js';
 import { buildPlatform } from './platform.js';
 import { emitChecks, emitDefs, emitRules, order } from './postprocessor.js';
-
-const err = MakeError();
 
 // Var def to match, substr to find, string to replace substr with
 type TransformItem = { defmatch: string; text: string; replace: string };
@@ -50,6 +48,19 @@ function isConfig(i: unknown): i is Partial<Config> {
   );
 }
 
+// Eventually, we can dump stuff into different files, right?
+export function dump(which?: string): (message: unknown) => void {
+  if (which === 'err') {
+    return console.error; // eslint-disable-line no-console
+  } else if (which === 'log' || which === undefined) {
+    return console.log; // eslint-disable-line no-console
+  }
+  return (msg) => {
+    // eslint-disable-next-line no-console
+    console.error(which, ' is an invalid selector: ', msg);
+  };
+}
+
 async function readConfig(
   configs: string[],
 ): Promise<Partial<Config> | undefined> {
@@ -60,11 +71,11 @@ async function readConfig(
       if (isConfig(json)) {
         return json;
       }
-      err('Invalid type for config file:');
-      err(json);
+      dump('err')('Invalid type for config file:');
+      dump('err')(json);
     } catch (e) {
-      err('Unable to read config file:');
-      err(e);
+      dump('err')('Unable to read config file:');
+      dump('err')(e);
     }
   }
 }
@@ -87,8 +98,12 @@ export default async function main(...args: string[]): Promise<void> {
   const normalArgs = args.filter((val) => !val.startsWith('--config:'));
   config = await readConfig(args.filter((val) => val.startsWith('--config:')));
   if (normalArgs.length === 0 && config === undefined) {
-    err('Usage: {--config:file.json} rootDir {lib1Dir lib2Dir lib3Dir}');
-    err("  rootDir is where you can find 'boards.txt' and 'platform.txt'");
+    dump('err')(
+      'Usage: {--config:file.json} rootDir {lib1Dir lib2Dir lib3Dir}',
+    );
+    dump('err')(
+      "  rootDir is where you can find 'boards.txt' and 'platform.txt'",
+    );
     return;
   }
   const root = normalArgs[0];
