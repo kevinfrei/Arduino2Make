@@ -130,7 +130,7 @@ export default async function main(...args: string[]): Promise<void> {
   ];
   const boardDefined = buildBoard(boardSyms);
   // TODO: Don't have recipes & tools fully handled in the platform yet
-  const { defs: platDefs, rules } = buildPlatform(
+  const { defs: platDefs, rules } = await buildPlatform(
     boardDefined,
     platSyms,
     path.dirname(platform),

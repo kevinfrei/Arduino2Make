@@ -10,7 +10,7 @@ if (args.length === 0) {
     `${process.argv[1]} <platform dir> <libs to include in the make file>...`,
   );
 } else {
-  main(...process.argv.slice(2))
+  main(...args)
     .then((a) => {})
     .catch((a) => console.log(`# error: ${a}`));
 }

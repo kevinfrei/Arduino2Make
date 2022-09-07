@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import { promises as fsp } from 'fs';
 import * as path from 'path';
 import { Filter } from './main.js';
 import {
@@ -200,12 +200,14 @@ function makeRecipes(recipes: Variable, plat: ParsedFile): Recipe[] {
 }
 
 // Gets all the files under a given directory
-function enumerateFiles(root: string): string[] {
-  if (fs.statSync(root).isDirectory()) {
-    const dirs: string[] = fs.readdirSync(root);
-    return ([] as string[]).concat(
-      ...dirs.map((f) => enumerateFiles(path.join(trimq(root), f))),
-    );
+async function enumerateFiles(root: string): Promise<string[]> {
+  if ((await fsp.stat(root)).isDirectory()) {
+    const dirs: string[] = await fsp.readdir(root);
+    const res = [];
+    for (const f of dirs) {
+      res.push(...(await enumerateFiles(path.join(trimq(root), f))));
+    }
+    return res;
   } else {
     return [root];
   }
@@ -225,8 +227,8 @@ function endsWithNoExamples(paths: string[], suffix: string): string[] {
 
 // Collect all .c, .cpp. .S files, and get the unique paths for VPATH and
 // for includes, as applicable
-function getFileList(filePath: string, allFiles?: string[]) {
-  allFiles = allFiles || enumerateFiles(filePath);
+async function getFileList(filePath: string, allFiles?: string[]) {
+  allFiles = allFiles || (await enumerateFiles(filePath));
   const c = endsWithNoExamples(allFiles, '.c');
   const cpp = endsWithNoExamples(allFiles, '.cpp');
   const s = endsWithNoExamples(allFiles, '.S');
@@ -256,14 +258,14 @@ function mkSrcList(
   );
 }
 
-function getLibInfo(
+async function getLibInfo(
   root: string,
   libFiles: string[],
-): {
+): Promise<{
   defs: Definition[];
   rules: Recipe[];
-} {
-  const { c, cpp, s, paths, inc } = getFileList(root, libFiles);
+}> {
+  const { c, cpp, s, paths, inc } = await getFileList(root, libFiles);
   const libName = path.basename(root);
   const libDefName = 'LIB_' + libName.toUpperCase();
   const libCond = mkdf(libDefName);
@@ -290,9 +292,9 @@ endif
   defs.push(mkSrcList('SYS_INCLUDES', inc, [], [libCond]));
   defs.push(mkapp('VPATH_MORE', paths.map(spacey).join(' '), [], [libCond]));
   // This is only sort of work for the Adafruit nRFCrypto library
-  const fileContents = fs
-    .readFileSync(path.join(trimq(root), 'library.properties'))
-    .toString();
+  const fileContents = (
+    await fsp.readFile(path.join(trimq(root), 'library.properties'))
+  ).toString();
   const ldFlagsPos = fileContents.indexOf('\nldflags');
   if (ldFlagsPos >= 0) {
     const endOfLd = fileContents.indexOf('\n', ldFlagsPos + 1);
@@ -319,22 +321,22 @@ endif
 }
 
 // Given a set of locations, get all the defs & rules for libraries under them
-function addLibs(locs: string[]): {
+async function addLibs(locs: string[]): Promise<{
   defs: Definition[];
   rules: Recipe[];
-} {
+}> {
   const defs: Definition[] = [];
   const rules: Recipe[] = [];
   for (const loc of locs) {
     // First, find any 'library.properties' files
-    const allFiles = enumerateFiles(loc);
+    const allFiles = await enumerateFiles(loc);
     const libRoots = allFiles.filter(
       (fn) => path.basename(fn) === 'library.properties',
     );
     for (const libRoot of libRoots) {
       const libPath = getPath(libRoot);
       const libFiles = allFiles.filter((f) => f.startsWith(libPath));
-      const libData = getLibInfo(libPath, libFiles);
+      const libData = await getLibInfo(libPath, libFiles);
       defs.push(...libData.defs);
       rules.push(...libData.rules);
     }
@@ -346,12 +348,12 @@ function addLibs(locs: string[]): {
 // This is the 'meat' of the whole thing, as recipes generate very different
 // Makefile code.
 // It also returns the set of probably defined values generated from this code
-export function buildPlatform(
+export async function buildPlatform(
   boardDefs: Definition[],
   platform: ParsedFile,
   rootpath: string,
   libLocs: string[],
-): { defs: Definition[]; rules: Recipe[] } {
+): Promise<{ defs: Definition[]; rules: Recipe[] }> {
   const defs: Definition[] = [
     mkdef('BUILD_CORE_PATH', '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}', [
       'RUNTIME_PLATFORM_PATH',
@@ -507,7 +509,7 @@ export function buildPlatform(
   const fileDefs: Definition[] = [];
   // Get the full file list & include path for each core & variant
   for (const core of cores) {
-    const { c, cpp, s, paths } = getFileList(
+    const { c, cpp, s, paths } = await getFileList(
       path.join(trimq(rootpath), 'cores', core),
     );
     const cnd = [mkeq('${BUILD_CORE}', core)];
@@ -542,7 +544,7 @@ export function buildPlatform(
     );
   }
   for (const vrn of variants) {
-    const { c, cpp, s, paths, inc } = getFileList(
+    const { c, cpp, s, paths, inc } = await getFileList(
       path.join(trimq(rootpath), 'variants', vrn),
     );
     const cnd = [mkeq('${BUILD_VARIANT}', vrn)];
@@ -563,7 +565,10 @@ export function buildPlatform(
     );
   }
 
-  const { defs: libsDefs, rules: libRules } = addLibs([rootpath, ...libLocs]);
+  const { defs: libsDefs, rules: libRules } = await addLibs([
+    rootpath,
+    ...libLocs,
+  ]);
   fileDefs.push(...libsDefs);
   rules.push(...libRules);
   const sycSrcVal = '${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}';
