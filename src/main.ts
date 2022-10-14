@@ -2,15 +2,10 @@ import { Type } from '@freik/core-utils';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { buildBoard } from './board.js';
-import {
-  makeDeclDef as mkdef,
-  makeIfeq,
-  makeIfneq,
-  makeUnDecl,
-} from './mkutil.js';
+import { makeDeclDef, makeIfeq, makeIfneq, makeUnDecl } from './mkutil.js';
 import { parseFile } from './parser.js';
 import { buildPlatform } from './platform.js';
-import { emitChecks, emitDefs, emitRules, order } from './postprocessor.js';
+import { emitChecks, emitDefs, emitRules, order } from './targets/makefile.js';
 
 // Var def to match, substr to find, string to replace substr with
 type TransformItem = { defmatch: string; text: string; replace: string };
@@ -127,16 +122,16 @@ export default async function main(...args: string[]): Promise<void> {
   const isMac = makeIfeq('$(uname)', 'Darwin');
   // const notMac = makeIfneq('$(uname)', 'Darwin');
   const initial = [
-    mkdef('RUNTIME_OS', 'windows', [], [isWin]),
-    mkdef('uname', '$(shell uname -s)', [], [notWin]),
-    mkdef('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
+    makeDeclDef('RUNTIME_OS', 'windows', [], [isWin]),
+    makeDeclDef('uname', '$(shell uname -s)', [], [notWin]),
+    makeDeclDef('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
     makeUnDecl('RUNTIME_OS', 'linux'),
-    mkdef(
+    makeDeclDef(
       'RUNTIME_PLATFORM_PATH',
       path.dirname(platform).replaceAll('\\', '/'),
     ),
-    mkdef('RUNTIME_IDE_VERSION', '10819'),
-    mkdef('IDE_VERSION', '10819'),
+    makeDeclDef('RUNTIME_IDE_VERSION', '10819'),
+    makeDeclDef('IDE_VERSION', '10819'),
   ];
 
   // TODO: Make definitions dependent on their condition values, so that I can
