@@ -112,6 +112,16 @@ export default async function main(...args: string[]): Promise<void> {
   const platform = path.join(root, 'platform.txt');
   const boardSyms = await parseFile(board);
   const platSyms = await parseFile(platform);
+  const boardDefined = buildBoard(boardSyms);
+
+  // TODO: Don't have recipes & tools fully handled in the platform yet
+  const { defs: platDefs, rules } = await buildPlatform(
+    boardDefined,
+    platSyms,
+    path.dirname(platform),
+    libLocs,
+  );
+
   const isWin = makeIfeq('$(OS)', 'Windows_NT');
   const notWin = makeIfneq('$(OS)', 'Windows_NT');
   const isMac = makeIfeq('$(uname)', 'Darwin');
@@ -128,14 +138,6 @@ export default async function main(...args: string[]): Promise<void> {
     mkdef('RUNTIME_IDE_VERSION', '10819'),
     mkdef('IDE_VERSION', '10819'),
   ];
-  const boardDefined = buildBoard(boardSyms);
-  // TODO: Don't have recipes & tools fully handled in the platform yet
-  const { defs: platDefs, rules } = await buildPlatform(
-    boardDefined,
-    platSyms,
-    path.dirname(platform),
-    libLocs,
-  );
 
   // TODO: Make definitions dependent on their condition values, so that I can
   // put errors in place when mandatory symbols aren't defined before inclusion

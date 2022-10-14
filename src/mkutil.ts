@@ -261,6 +261,7 @@ export function spacey(inv: string): string {
   }
 }
 
+// Trim off quotation marks
 export function trimq(inv: string): string {
   if (inv.length < 2 || inv[0] !== '"' || inv[inv.length - 1] !== '"') {
     return inv;
