@@ -1,6 +1,6 @@
 {
-  "name": "arduino2make",
-  "version": "0.3.1",
+  "name": "@freik/arduino2proj",
+  "version": "0.4.2",
   "description": "Arduino platform and library to Makefile conversion tool",
   "type": "module",
   "module": "./lib/main.js",
@@ -10,7 +10,10 @@
   "bin": {
     "er": "./lib/tools.js"
   },
-  "files": ["lib/**/*", "ar2mak.js"],
+  "files": [
+    "lib/**/*",
+    "ar2mak.js"
+  ],
   "scripts": {
     "release": "rimraf ./lib && tsc -p tsconfig.opt.json && er minify -i -r lib",
     "build": "rimraf ./lib && tsc",
@@ -24,17 +27,17 @@
     "@freik/core-utils": "^1.2.0"
   },
   "devDependencies": {
-    "@freik/build-tools": "^3.2.2",
-    "@types/node": "^18.7.14",
-    "@typescript-eslint/eslint-plugin": "^5.36.1",
-    "@typescript-eslint/parser": "^5.36.1",
-    "eslint": "^8.23.0",
-    "eslint-config-prettier": "^8.5.0",
+    "@freik/build-tools": "^3.4.5",
+    "@types/node": "^18.11.18",
+    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/parser": "^5.48.2",
+    "eslint": "^8.32.0",
+    "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "husky": "^8.0.1",
-    "prettier": "^2.7.1",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.8.2"
+    "husky": "^8.0.3",
+    "prettier": "^2.8.3",
+    "rimraf": "^4.1.1",
+    "typescript": "^4.9.4"
   },
   "packageManager": "yarn@3.1.1"
 }
