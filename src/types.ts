@@ -5,8 +5,8 @@ export type Variable = {
   children: SymbolTable;
 };
 
-export type SymbolTable = Map<string, Variable>;
 export type FlatTable = Map<string, string>;
+export type SymbolTable = Map<string, Variable>;
 export type NamedTable = Map<string, SymbolTable>;
 export type ParsedFile = { scopedTable: SymbolTable; flatSymbols: FlatTable };
 export type DependentValue = { value: string; unresolved: Set<string> };

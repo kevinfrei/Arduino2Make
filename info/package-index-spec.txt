@@ -1,2 +1,4 @@
 https://arduino.github.io/arduino-cli/0.26/platform-specification/
 https://arduino.github.io/arduino-cli/0.26/package_index_json-specification/
+https://arduino.github.io/arduino-cli/0.26/library-specification/
+

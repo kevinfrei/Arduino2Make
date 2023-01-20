@@ -1,20 +1,18 @@
-import * as fs from 'fs';
 import * as path from 'path';
-import { Filter } from './main.js';
+import { getFileList, mkSrcList } from './files.js';
+import { addLibs, Library } from './libraries.js';
 import {
   getPlainValue,
-  makeAppend as mkapp,
-  makeDeclDef as mkdef,
+  makeAppend,
+  makeDeclDef,
   makeDefinitions,
-  makeIfdef as mkdf,
-  makeIfeq as mkeq,
-  makeSeqDef as mkseq,
-  makeUnDecl as mkundef,
+  makeIfeq,
+  makeSeqDef,
+  makeUnDecl,
   spacey,
   trimq,
 } from './mkutil.js';
 import type {
-  Condition,
   Definition,
   DependentValue,
   FilterFunc,
@@ -199,164 +197,22 @@ function makeRecipes(recipes: Variable, plat: ParsedFile): Recipe[] {
   return result;
 }
 
-// Gets all the files under a given directory
-function enumerateFiles(root: string): string[] {
-  if (fs.statSync(root).isDirectory()) {
-    const dirs: string[] = fs.readdirSync(root);
-    return ([] as string[]).concat(
-      ...dirs.map((f) => enumerateFiles(path.join(trimq(root), f))),
-    );
-  } else {
-    return [root];
-  }
-}
-
-const getPath = (n: string) => path.dirname(trimq(n));
-function endsWithNoExamples(paths: string[], suffix: string): string[] {
-  return paths
-    .filter(
-      (fn) =>
-        fn.endsWith(suffix) &&
-        fn.indexOf('/examples/') < 0 &&
-        fn.indexOf('\\examples\\') < 0,
-    )
-    .map((fn) => spacey(fn).replaceAll('\\', '/'));
-}
-
-// Collect all .c, .cpp. .S files, and get the unique paths for VPATH and
-// for includes, as applicable
-function getFileList(filePath: string, allFiles?: string[]) {
-  allFiles = allFiles || enumerateFiles(filePath);
-  const c = endsWithNoExamples(allFiles, '.c');
-  const cpp = endsWithNoExamples(allFiles, '.cpp');
-  const s = endsWithNoExamples(allFiles, '.S');
-  const paths = [...new Set([...c, ...cpp, ...s].map(getPath))];
-  const inc = [
-    ...new Set(
-      endsWithNoExamples(allFiles, '.h').map((fn) =>
-        spacey('-I' + getPath(fn)),
-      ),
-    ),
-  ];
-  return { c, cpp, s, paths, inc };
-}
-
-function mkSrcList(
-  name: string,
-  files: string[],
-  depend: string | string[],
-  cnd: Condition[],
-): Definition {
-  const filteredFiles = Filter(name, files);
-  return mkapp(
-    name,
-    filteredFiles.join(' \\\n    '),
-    typeof depend === 'string' ? [depend] : depend,
-    cnd,
-  );
-}
-
-function getLibInfo(
-  root: string,
-  libFiles: string[],
-): {
-  defs: Definition[];
-  rules: Recipe[];
-} {
-  const { c, cpp, s, paths, inc } = getFileList(root, libFiles);
-  const libName = path.basename(root);
-  const libDefName = 'LIB_' + libName.toUpperCase();
-  const libCond = mkdf(libDefName);
-  // I need to define a source list, include list
-  // In addition, I need to define a variable that the user can include on
-  // a lib list to be linked against
-  /*
-ifdef LIB_WIRE => ifneq (${LIBWIRE},)
-CPP_SYS_CORE_SRC := ${CPP_SYS_CORE_SRC} Wire.cpp
-SYS_VAR_INCLUDES := ${SYS_VAR_INCLUDES} -I../libLocation/.../Wire/
-VPATH:=${VPATH}:../libLocation/.../Wire/
-endif
-  */
-  const defs: Definition[] = [];
-  if (c.length) {
-    defs.push(mkSrcList('C_SYS_SRCS', c, [], [libCond]));
-  }
-  if (cpp.length) {
-    defs.push(mkSrcList('CPP_SYS_SRCS', cpp, [], [libCond]));
-  }
-  if (s.length) {
-    defs.push(mkSrcList('S_SYS_SRCS', s, [], [libCond]));
-  }
-  defs.push(mkSrcList('SYS_INCLUDES', inc, [], [libCond]));
-  defs.push(mkapp('VPATH_MORE', paths.map(spacey).join(' '), [], [libCond]));
-  // This is only sort of work for the Adafruit nRFCrypto library
-  const fileContents = fs
-    .readFileSync(path.join(trimq(root), 'library.properties'))
-    .toString();
-  const ldFlagsPos = fileContents.indexOf('\nldflags');
-  if (ldFlagsPos >= 0) {
-    const endOfLd = fileContents.indexOf('\n', ldFlagsPos + 1);
-    const flgVal =
-      endOfLd > 0
-        ? fileContents.substring(ldFlagsPos + 9, endOfLd)
-        : fileContents.substring(ldFlagsPos + 9);
-    defs.push(mkapp('COMPILER_LIBRARIES_LDFLAGS', flgVal, [], [libCond]));
-    // Probably not right, but this works for nRFCrypto
-    libFiles
-      .filter((f) => f.endsWith('.a'))
-      .forEach((val) =>
-        defs.push(
-          mkapp(
-            'COMPILER_LIBRARIES_LDFLAGS',
-            '-L' + path.dirname(val),
-            [],
-            [libCond],
-          ),
-        ),
-      );
-  }
-  return { defs, rules: [] };
-}
-
-// Given a set of locations, get all the defs & rules for libraries under them
-function addLibs(locs: string[]): {
-  defs: Definition[];
-  rules: Recipe[];
-} {
-  const defs: Definition[] = [];
-  const rules: Recipe[] = [];
-  for (const loc of locs) {
-    // First, find any 'library.properties' files
-    const allFiles = enumerateFiles(loc);
-    const libRoots = allFiles.filter(
-      (fn) => path.basename(fn) === 'library.properties',
-    );
-    for (const libRoot of libRoots) {
-      const libPath = getPath(libRoot);
-      const libFiles = allFiles.filter((f) => f.startsWith(libPath));
-      const libData = getLibInfo(libPath, libFiles);
-      defs.push(...libData.defs);
-      rules.push(...libData.rules);
-    }
-  }
-  return { defs, rules };
-}
-
 // This generates the rules & whatnot for the platform data
 // This is the 'meat' of the whole thing, as recipes generate very different
 // Makefile code.
 // It also returns the set of probably defined values generated from this code
-export function buildPlatform(
+export async function buildPlatform(
   boardDefs: Definition[],
   platform: ParsedFile,
   rootpath: string,
   libLocs: string[],
-): { defs: Definition[]; rules: Recipe[] } {
+): Promise<{ defs: Definition[]; rules: Recipe[] }> {
   const defs: Definition[] = [
-    mkdef('BUILD_CORE_PATH', '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}', [
-      'RUNTIME_PLATFORM_PATH',
-      'BUILD_CORE',
-    ]),
+    makeDeclDef(
+      'BUILD_CORE_PATH',
+      '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}',
+      ['RUNTIME_PLATFORM_PATH', 'BUILD_CORE'],
+    ),
   ];
 
   // Now spit out all the variables
@@ -390,20 +246,20 @@ export function buildPlatform(
   const cmds = tmpToolDefs.filter((fn) => fn.name.endsWith('_CMD'));
   const osxTools = tmpToolDefs.filter((fn) => fn.name.endsWith('_MACOSX'));
   const winTools = tmpToolDefs.filter((fn) => fn.name.endsWith('_WINDOWS'));
-  const osxCnd = mkeq('${RUNTIME_OS}', 'macosx');
+  const osxCnd = makeIfeq('${RUNTIME_OS}', 'macosx');
   const toolDefs: Definition[] = [];
   for (const osxt of osxTools) {
     const name = osxt.name.substring(0, osxt.name.lastIndexOf('_MACOSX'));
-    toolDefs.push(mkdef(name, osxt.value, osxt.dependsOn, [osxCnd]));
+    toolDefs.push(makeDeclDef(name, osxt.value, osxt.dependsOn, [osxCnd]));
   }
-  const winCnd = mkeq('${RUNTIME_OS}', 'windows');
+  const winCnd = makeIfeq('${RUNTIME_OS}', 'windows');
   for (const wint of winTools) {
     const name = wint.name.substring(0, wint.name.lastIndexOf('_WINDOWS'));
-    toolDefs.push(mkdef(name, wint.value, wint.dependsOn, [winCnd]));
+    toolDefs.push(makeDeclDef(name, wint.value, wint.dependsOn, [winCnd]));
   }
   toolDefs.push(
     ...cmds.map((def: Definition) => {
-      return mkundef(def.name, def.value, def.dependsOn);
+      return makeUnDecl(def.name, def.value, def.dependsOn);
     }),
   );
 
@@ -432,17 +288,17 @@ export function buildPlatform(
       if (!patt) continue;
       // TODO: Add support for UPLOAD_WAIT_FOR_UPLOAD_PORT
       // TODO: Add support for UPLOAD_USE_1200BPS_TOUCH
-      const chup = mkeq('${UPLOAD_USE_1200BPS_TOUCH}', 'true');
-      const uef = mkdef('UPLOAD_EXTRA_FLAGS', '--touch 1200', [], [chup]);
+      const chup = makeIfeq('${UPLOAD_USE_1200BPS_TOUCH}', 'true');
+      const uef = makeDeclDef('UPLOAD_EXTRA_FLAGS', '--touch 1200', [], [chup]);
       toolDefs.push(uef);
-      const ucnd = mkeq('${UPLOAD_TOOL}', key);
+      const ucnd = makeIfeq('${UPLOAD_TOOL}', key);
       const patdval = getPlainValue(patt, platform);
       const flashTool = patdval.value.replace(
         '${CMD}',
         '${TOOLS_' + key.toUpperCase() + '_CMD}',
       );
       patdval.unresolved.delete('CMD');
-      const tldef = mkdef(
+      const tldef = makeDeclDef(
         'UPLOAD_PATTERN',
         flashTool.replace('${BUILD_PATH}', '$(abspath ${BUILD_PATH})'),
         [...patdval.unresolved, uef.name],
@@ -507,10 +363,10 @@ export function buildPlatform(
   const fileDefs: Definition[] = [];
   // Get the full file list & include path for each core & variant
   for (const core of cores) {
-    const { c, cpp, s, paths } = getFileList(
+    const { c, cpp, s, paths } = await getFileList(
       path.join(trimq(rootpath), 'cores', core),
     );
-    const cnd = [mkeq('${BUILD_CORE}', core)];
+    const cnd = [makeIfeq('${BUILD_CORE}', core)];
     if (c.length) {
       fileDefs.push(mkSrcList('C_SYS_SRCS', c, 'BUILD_CORE', cnd));
     }
@@ -521,7 +377,7 @@ export function buildPlatform(
       fileDefs.push(mkSrcList('S_SYS_SRCS', s, 'BUILD_CORE', cnd));
     }
     fileDefs.push(
-      mkapp(
+      makeAppend(
         'SYS_INCLUDES',
         ' ' +
           spacey(
@@ -538,14 +394,19 @@ export function buildPlatform(
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
     fileDefs.push(
-      mkapp('VPATH_CORE', paths.map(spacey).join(' '), ['BUILD_CORE'], cnd),
+      makeAppend(
+        'VPATH_CORE',
+        paths.map(spacey).join(' '),
+        ['BUILD_CORE'],
+        cnd,
+      ),
     );
   }
   for (const vrn of variants) {
-    const { c, cpp, s, paths, inc } = getFileList(
+    const { c, cpp, s, paths, inc } = await getFileList(
       path.join(trimq(rootpath), 'variants', vrn),
     );
-    const cnd = [mkeq('${BUILD_VARIANT}', vrn)];
+    const cnd = [makeIfeq('${BUILD_VARIANT}', vrn)];
     if (c.length) {
       fileDefs.push(mkSrcList('C_SYS_SRCS', c, 'BUILD_VARIANT', cnd));
     }
@@ -559,29 +420,36 @@ export function buildPlatform(
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
     fileDefs.push(
-      mkapp('VPATH_CORE', paths.map(spacey).join(' '), ['BUILD_VARIANT'], cnd),
+      makeAppend(
+        'VPATH_CORE',
+        paths.map(spacey).join(' '),
+        ['BUILD_VARIANT'],
+        cnd,
+      ),
     );
   }
 
-  const { defs: libsDefs, rules: libRules } = addLibs([rootpath, ...libLocs]);
-  fileDefs.push(...libsDefs);
-  rules.push(...libRules);
+  const libs = await addLibs([rootpath, ...libLocs]);
+  libs.forEach((val: Library) => {
+    fileDefs.push(...val.defs);
+  });
+
   const sycSrcVal = '${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}';
   const usrSrcVal = '${USER_C_SRCS} ${USER_CPP_SRCS} ${USER_S_SRCS}';
-  fileDefs.push(mkdef('SYS_SRC', sycSrcVal));
-  fileDefs.push(mkdef('USER_SRC', usrSrcVal));
+  fileDefs.push(makeDeclDef('SYS_SRC', sycSrcVal));
+  fileDefs.push(makeDeclDef('USER_SRC', usrSrcVal));
 
   // Add the transformations for source files to obj's
-  fileDefs.push(mkdef('ALL_SRC', '${SYS_SRC} ${USER_SRC}'));
+  fileDefs.push(makeDeclDef('ALL_SRC', '${SYS_SRC} ${USER_SRC}'));
   fileDefs.push(
-    mkseq('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}'),
+    makeSeqDef('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}'),
   );
   const mkObjList = (
     name: string,
     varname: string,
     suffix: string,
   ): Definition =>
-    mkdef(
+    makeDeclDef(
       name,
       `\\
   $(addprefix $\{BUILD_PATH}/, \\
@@ -594,7 +462,7 @@ export function buildPlatform(
     );
   fileDefs.push(mkObjList('SYS_OBJS', 'SYS_SRC', 'o'));
   fileDefs.push(mkObjList('USER_OBJS', 'USER_SRC', 'o'));
-  fileDefs.push(mkdef('ALL_OBJS', '${USER_OBJS} ${SYS_OBJS}'));
+  fileDefs.push(makeDeclDef('ALL_OBJS', '${USER_OBJS} ${SYS_OBJS}'));
   fileDefs.push(mkObjList('SYS_JSON', 'SYS_SRC', 'json'));
   fileDefs.push(mkObjList('USER_JSON', 'USER_SRC', 'json'));
   // ALL_OBJS = \

@@ -1,7 +1,7 @@
 // Utilities for doing Makefile stuff
 
-import { dump, Transform } from './main.js';
-import type { Condition, Definition, Recipe } from './types.js';
+import { dump, Transform } from '../main.js';
+import type { Condition, Definition, Recipe } from '../types.js';
 
 const optionalDefs: string[] = [
   'INCLUDES',

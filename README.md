@@ -9,6 +9,12 @@ projects using:
 - Adafruit ItsyBitsy nRF52840
 - Teensy 3.2
 - Teensy 4.0
+- Teensy 4.1
+
+> I'm in the process of switching this over to an NPM module, because I've been
+> using node to do some basic stuff (like auto-code formatting) and it's quite
+> convenient to just have a mostly self-contained scripting system wrapped
+> around a big ungainly collection of C++ code.
 
 Maybe I'll also get it tested with the Adafruit SAMD stuff, as I have a PyRuler
 (which is mostly an Adafruit Trinket M0). I'm trying to beat into something

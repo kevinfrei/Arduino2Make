@@ -1,6 +1,6 @@
 import {
   getPlainValue,
-  makeDeclDef as mkdef,
+  makeDeclDef,
   makeDefinitions,
   makeIfeq,
   makeMenuOptions,
@@ -12,7 +12,7 @@ import type { Definition, FilterFunc, ParsedFile } from './types.js';
 export function buildBoard(board: ParsedFile): Definition[] {
   let menus: Set<string> = new Set();
   let defined: Definition[] = [
-    mkdef('BUILD_PROJECT_NAME', '${PROJ_NAME}', ['PROJ_NAME'], []),
+    makeDeclDef('BUILD_PROJECT_NAME', '${PROJ_NAME}', ['PROJ_NAME'], []),
   ];
   for (const item of board.scopedTable.values()) {
     if (item.name === 'menu') {
