@@ -26,21 +26,21 @@ type Config = {
 const isTransformItem = Type.isSpecificTypeFn<TransformItem>(
   [
     ['defmatch', Type.isString],
-    ['remove', Type.isString],
-  ],
-  ['defmatch', 'remove'],
-);
-const isFilterItem = Type.isSpecificTypeFn<FilterItem>(
-  [
-    ['defmatch', Type.isString],
     ['text', Type.isString],
     ['replace', Type.isString],
   ],
   ['defmatch', 'text', 'replace'],
 );
+const isFilterItem = Type.isSpecificTypeFn<FilterItem>(
+  [
+    ['defmatch', Type.isString],
+    ['remove', Type.isString],
+  ],
+  ['defmatch', 'remove'],
+);
 const isProbablyConfig = Type.isSpecificTypeFn<Partial<Config>>([
-  ['transforms', isTransformItem],
-  ['filters', isFilterItem],
+  ['transforms', Type.isArrayOfFn(isTransformItem)],
+  ['filters', Type.isArrayOfFn(isFilterItem)],
 ]);
 function isConfig(i: unknown): i is Partial<Config> {
   return (
@@ -48,12 +48,31 @@ function isConfig(i: unknown): i is Partial<Config> {
   );
 }
 
+let outputFile: string[] | undefined;
+let outputName: string | undefined;
+
+function openOutputFile(args: string[]): string[] {
+  const res = args.filter((val) => !val.startsWith('--out:'));
+  if (res.length !== args.length) {
+    const outName = args.find((val) => val.startsWith('--out:'));
+    outputName = outName?.substring(6);
+    outputFile = [];
+  }
+  return res;
+}
+
+function dumpToFile(message: unknown): void {
+  if (outputFile !== undefined && Type.isString(message)) {
+    outputFile.push(message);
+  }
+}
+
 // Eventually, we can dump stuff into different files, right?
 export function dump(which?: string): (message: unknown) => void {
   if (which === 'err') {
     return console.error; // eslint-disable-line no-console
   } else if (which === 'log' || which === undefined) {
-    return console.log; // eslint-disable-line no-console
+    return Type.isUndefined(outputFile) ? console.log : dumpToFile; // eslint-disable-line no-console
   }
   return (msg) => {
     // eslint-disable-next-line no-console
@@ -95,8 +114,10 @@ async function readConfig(
 let config: Partial<Config> | undefined;
 
 export default async function main(...args: string[]): Promise<void> {
-  const normalArgs = args.filter((val) => !val.startsWith('--config:'));
+  const noConfig = args.filter((val) => !val.startsWith('--config:'));
   config = await readConfig(args.filter((val) => val.startsWith('--config:')));
+  const normalArgs = openOutputFile(noConfig);
+
   if (normalArgs.length === 0 && config === undefined) {
     dump('err')(
       'Usage: {--config:file.json} rootDir {lib1Dir lib2Dir lib3Dir}',
@@ -146,6 +167,9 @@ export default async function main(...args: string[]): Promise<void> {
   emitChecks(checks);
   emitDefs(defs);
   emitRules(rules);
+  if (!Type.isUndefined(outputFile) && Type.isString(outputName)) {
+    await fs.writeFile(outputName, outputFile.join('\n'), 'utf-8');
+  }
 }
 
 export function Transform(
