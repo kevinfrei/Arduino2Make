@@ -33,13 +33,10 @@ const isFilterItem = Type.isSpecificTypeFn<FilterItem>(
   ],
   ['defmatch', 'remove'],
 );
-const isProbablyConfig = Type.isSpecificTypeFn<Partial<Config>>([
-  ['transforms', Type.isArrayOfFn(isTransformItem)],
-  ['filters', Type.isArrayOfFn(isFilterItem)],
-]);
 function isConfig(i: unknown): i is Partial<Config> {
   return (
-    isProbablyConfig(i) && (Type.has(i, 'transforms') || Type.has(i, 'filters'))
+    Type.hasType(i, 'transforms', Type.isArrayOfFn(isTransformItem)) ||
+    Type.hasType(i, 'filters', Type.isArrayOfFn(isFilterItem))
   );
 }
 
