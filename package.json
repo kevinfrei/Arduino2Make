@@ -1,6 +1,6 @@
 {
   "name": "@freik/arduino2proj",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Arduino platform and library to Makefile conversion tool",
   "type": "module",
   "module": "./lib/main.js",

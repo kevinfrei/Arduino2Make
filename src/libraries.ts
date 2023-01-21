@@ -17,8 +17,15 @@ export async function addLibs(locs: string[]): Promise<Library[]> {
     );
     for (const libRoot of libRoots) {
       const libPath = getPath(libRoot);
-      const libFiles = allFiles.filter((f) => f.startsWith(libPath));
-      libData.push(await getLibInfo(libPath, libFiles));
+      const srcLibFiles = allFiles.filter((f) =>
+        f.startsWith(path.join(libPath, 'src')),
+      );
+      if (srcLibFiles.length === 0) {
+        const allLibFiles = allFiles.filter((f) => f.startsWith(libPath));
+        libData.push(await getLibInfo(libPath, allLibFiles));
+      } else {
+        libData.push(await getLibInfo(libPath, srcLibFiles));
+      }
     }
   }
   return libData;
