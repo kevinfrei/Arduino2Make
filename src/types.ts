@@ -1,19 +1,22 @@
-export type Variable = {
+// The basic types for a parsed file:
+export type SimpleSymbol = {
   name: string;
   value?: string;
-  parent: Variable | null;
+  parent: SimpleSymbol | null;
   children: SymbolTable;
 };
-
+// This is just a "a.b.c"="Something Here" list:
 export type FlatTable = Map<string, string>;
-export type SymbolTable = Map<string, Variable>;
-export type NamedTable = Map<string, SymbolTable>;
+// This is the scoped c(b(a)) -> "Something Here" list:
+export type SymbolTable = Map<string, SimpleSymbol>;
+// A Parsed file is *both* of those things (for no good reason: Why not just a SymbolTable?)
 export type ParsedFile = { scopedTable: SymbolTable; flatSymbols: FlatTable };
+
 export type DependentValue = { value: string; unresolved: Set<string> };
 
-export type FilterFunc = (str: Variable) => boolean;
+export type FilterFunc = (str: SimpleSymbol) => boolean;
 export type ValueMakerFunc = (
-  vrbl: Variable,
+  vrbl: SimpleSymbol,
   file: ParsedFile,
 ) => DependentValue;
 
@@ -22,10 +25,12 @@ export interface CondEq {
   variable: string;
   value: string;
 }
+
 export interface CondDef {
   op: 'def' | 'ndef';
   variable: string;
 }
+
 export interface Condition {
   op: 'eq' | 'neq' | 'def' | 'ndef' | 'raw';
   variable: string;

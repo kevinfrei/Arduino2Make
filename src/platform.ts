@@ -18,14 +18,14 @@ import type {
   FilterFunc,
   ParsedFile,
   Recipe,
-  Variable,
+  SimpleSymbol,
 } from './types.js';
 
 function getNestedChild(
-  vrbl: Variable,
+  vrbl: SimpleSymbol,
   ...children: string[]
-): Variable | undefined {
-  let v: Variable | undefined = vrbl;
+): SimpleSymbol | undefined {
+  let v: SimpleSymbol | undefined = vrbl;
   for (const child of children) {
     if (!v) {
       return;
@@ -73,9 +73,12 @@ function cleanup(val: string): string {
 
 // For reference, stuff like $@, $^, and $< are called 'automatic variables'
 // in the GNU Makefile documentation
-function makeRecipes(recipes: Variable, plat: ParsedFile): Recipe[] {
+function makeRecipes(recipes: SimpleSymbol, plat: ParsedFile): Recipe[] {
   function getRule(...location: string[]): DependentValue | undefined {
-    const pattern: Variable | undefined = getNestedChild(recipes, ...location);
+    const pattern: SimpleSymbol | undefined = getNestedChild(
+      recipes,
+      ...location,
+    );
     if (pattern) {
       const res = getPlainValue(pattern, plat);
       if (res.value.length > 0) {
@@ -225,7 +228,7 @@ export async function buildPlatform(
   const plain = getPlainValue;
   const defined = makeDefinitions(fakeTop, plain, platform, null, skip);
 
-  function parentTool(a: Variable): boolean {
+  function parentTool(a: SimpleSymbol): boolean {
     for (; a.parent; a = a.parent) {
       if (a.name === 'tools') {
         return true;
@@ -308,11 +311,12 @@ export async function buildPlatform(
     }
   }
   // Build up all the various make rules from the recipes in the platform file
-  const recipeSyms: Variable | undefined = platform.scopedTable.get('recipe');
+  const recipeSyms: SimpleSymbol | undefined =
+    platform.scopedTable.get('recipe');
   // A rather messy hack to add .ino capabilities: (add -x c++ to the CPP rule)
   if (recipeSyms?.children.has('cpp')) {
     const cppRecipe = recipeSyms.children.get('cpp')!;
-    const cppChild: Variable | undefined = cppRecipe.children.get('o');
+    const cppChild: SimpleSymbol | undefined = cppRecipe.children.get('o');
     if (cppChild && cppRecipe.children.size === 1) {
       const cppPattern = cppChild.children.get('pattern');
       if (cppPattern && cppChild.children.size === 1 && !!cppPattern.value) {
@@ -326,12 +330,12 @@ export async function buildPlatform(
             parent: cppRecipe.parent,
             children: new Map(),
           };
-          const oChildVar: Variable = {
+          const oChildVar: SimpleSymbol = {
             name: 'o',
             children: new Map(),
             parent: inoRecipe,
           };
-          const pChildVar: Variable = {
+          const pChildVar: SimpleSymbol = {
             name: 'pattern',
             parent: oChildVar,
             value,

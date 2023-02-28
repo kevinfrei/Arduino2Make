@@ -1,16 +1,21 @@
 import * as fs from 'fs';
 import * as rl from 'readline';
 import { dump } from './main.js';
-import type { FlatTable, ParsedFile, SymbolTable, Variable } from './types.js';
+import type {
+  FlatTable,
+  ParsedFile,
+  SimpleSymbol,
+  SymbolTable,
+} from './types.js';
 
 // Parsing stuff goes here
-function makeVariable(
+function makeSimpleSymbol(
   fullName: string,
   value: string,
   table: SymbolTable,
 ): void {
   const pieces: string[] = fullName.split('.');
-  let ns: Variable | null = null;
+  let ns: SimpleSymbol | null = null;
   for (let i = 0; i < pieces.length - 1; i++) {
     const nm: string = pieces[i];
     const data = table.get(nm);
@@ -36,7 +41,7 @@ function isComment(line: string): boolean {
   return line.trim().startsWith('#');
 }
 
-function isVariable(
+export function parseVariable(
   line: string,
   table: SymbolTable,
   flatsyms: FlatTable,
@@ -49,11 +54,11 @@ function isVariable(
   const fullName = t.substring(0, eq);
   const value = t.substring(eq + 1);
   flatsyms.set(fullName, value);
-  makeVariable(fullName, value, table);
+  makeSimpleSymbol(fullName, value, table);
   return true;
 }
 
-// This does what it says it does...
+// Read in the text file, and spit out the parsed file
 export async function parseFile(filepath: string): Promise<ParsedFile> {
   const scopedTable: SymbolTable = new Map();
   const flatSymbols: FlatTable = new Map();
@@ -66,7 +71,7 @@ export async function parseFile(filepath: string): Promise<ParsedFile> {
       continue;
     }
     // Read the variables one by one
-    if (!isVariable(line, scopedTable, flatSymbols)) {
+    if (!parseVariable(line, scopedTable, flatSymbols)) {
       dump('err')(`Error ${num}: ${line}`);
     }
   }

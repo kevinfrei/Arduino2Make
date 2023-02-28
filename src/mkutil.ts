@@ -4,8 +4,8 @@ import type {
   DependentValue,
   FilterFunc,
   ParsedFile,
+  SimpleSymbol,
   ValueMakerFunc,
-  Variable,
 } from './types.js';
 
 // Utilities for doing Makefile stuff
@@ -144,7 +144,7 @@ function makifyName(nm: string): string {
 }
 
 // Upper-cases with underscores
-function getMakeName(vrbl: Variable, top: Variable) {
+function getMakeName(vrbl: SimpleSymbol, top: SimpleSymbol) {
   let name = vrbl.name;
   while (vrbl.parent && vrbl.parent !== top) {
     vrbl = vrbl.parent;
@@ -154,7 +154,10 @@ function getMakeName(vrbl: Variable, top: Variable) {
 }
 
 // TODO: This should handle any escaping necessary
-export function resolvedValue(vrbl: Variable, parsedFile: ParsedFile): string {
+export function resolvedValue(
+  vrbl: SimpleSymbol,
+  parsedFile: ParsedFile,
+): string {
   if (vrbl.value) {
     const res = resolveValue(vrbl.value, parsedFile);
     return res.value;
@@ -189,7 +192,7 @@ function unresolvedValue(value: string): DependentValue {
 }
 
 export function getPlainValue(
-  vrbl: Variable,
+  vrbl: SimpleSymbol,
   _parsedFile: ParsedFile,
 ): DependentValue {
   if (vrbl.value) {
@@ -200,18 +203,18 @@ export function getPlainValue(
 }
 
 export function makeDefinitions(
-  top: Variable,
+  top: SimpleSymbol,
   valueMaker: ValueMakerFunc,
   parsedFile: ParsedFile,
   condition: Condition[] | undefined | null,
   filter?: FilterFunc,
 ): Definition[] {
   const defined: Definition[] = [];
-  const toDef: Variable[] = [...top.children.values()];
+  const toDef: SimpleSymbol[] = [...top.children.values()];
   while (toDef.length > 0) {
     const foo = toDef.pop();
     if (!foo) continue; // Typescript is dumber than Flow here...
-    const vrbl: Variable = foo;
+    const vrbl: SimpleSymbol = foo;
     if (!filter || filter(vrbl)) {
       toDef.push(...vrbl.children.values());
       if (vrbl.value) {
@@ -226,7 +229,7 @@ export function makeDefinitions(
 }
 
 export function makeMenuOptions(
-  top: Variable,
+  top: SimpleSymbol,
   parsedFile: ParsedFile,
   _menus: Set<string>,
   initConds: Condition[],

@@ -2,6 +2,7 @@ import { SafelyUnpickle, Type } from '@freik/core-utils';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { buildBoard } from './board.js';
+import { makeGlobals } from './globals.js';
 import { parseFile } from './parser.js';
 import { buildPlatform } from './platform.js';
 import { Emit } from './targets/makefile.js';
@@ -96,7 +97,7 @@ async function readConfig(
 
 // Overall structure:
 // Walk the platform.txt file, documented here:
-// https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
+// https://arduino.github.io/arduino-cli/platform-specification/
 // reading variables, adding their values, and creating Make-compatible versions
 // of those variable names
 
@@ -126,6 +127,7 @@ export default async function main(...args: string[]): Promise<void> {
   const libLocs = normalArgs.slice(1);
   const board = path.join(root, 'boards.txt');
   const platform = path.join(root, 'platform.txt');
+  const globals = makeGlobals();
   const boardSyms = await parseFile(board);
   const platSyms = await parseFile(platform);
   const boardDefined = buildBoard(boardSyms);
