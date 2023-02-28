@@ -96,7 +96,7 @@ free to check it out.
 I also used it for a little test project for a pull request test you can see
 here: (https://github.com/kevinfrei/ST7789_135_240_test)
 
-## Currently:
+## Currently
 
 It seems to work reliably for my needs. I also added some custom modification
 stuff that I should document somewhere. Here's how I use it in my firmware:
