@@ -21,7 +21,12 @@ export async function addLibs(locs: string[]): Promise<Library[]> {
         f.startsWith(path.join(libPath, 'src')),
       );
       if (srcLibFiles.length === 0) {
-        const allLibFiles = allFiles.filter((f) => f.startsWith(libPath));
+        // Make sure that the filter includes the trailing slash,
+        // otherwise Time and Timer path allLibFiles
+        const withEnd = libPath.endsWith(path.sep)
+          ? libPath
+          : libPath + path.sep;
+        const allLibFiles = allFiles.filter((f) => f.startsWith(withEnd));
         libData.push(await getLibInfo(libPath, allLibFiles));
       } else {
         libData.push(await getLibInfo(libPath, srcLibFiles));

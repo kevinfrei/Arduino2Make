@@ -2542,13 +2542,10 @@ ifdef LIB_FREQCOUNT
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FreqCount
 endif
 ifdef LIB_FREQMEASURE
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FreqMeasure/FreqMeasure.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FreqMeasureMulti/FreqMeasureMulti.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FreqMeasureMulti/FreqMeasureMultiIMXRT.cpp
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FreqMeasure/FreqMeasure.cpp
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FreqMeasure \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FreqMeasure/util \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FreqMeasureMulti
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FreqMeasure src/__test__/hardware/teensy/avr/libraries/FreqMeasureMulti
+    -Isrc/__test__/hardware/teensy/avr/libraries/FreqMeasure/util
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FreqMeasure
 endif
 ifdef LIB_FREQMEASUREMULTI
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FreqMeasureMulti/FreqMeasureMulti.cpp \
@@ -2916,11 +2913,9 @@ ifdef LIB_SOFTWARESERIAL
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SoftwareSerial
 endif
 ifdef LIB_SPI
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/SPI/SPI.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SPIFlash/SPIFlash.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SPI \
-    -Isrc/__test__/hardware/teensy/avr/libraries/SPIFlash
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SPI src/__test__/hardware/teensy/avr/libraries/SPIFlash
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/SPI/SPI.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SPI
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SPI
 endif
 ifdef LIB_SSD1351
   C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ssd1351/fontconvert/fontconvert.c \
@@ -2957,17 +2952,9 @@ ifdef LIB_TFT_ILI9163C
 endif
 ifdef LIB_TIME
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Time/DateStrings.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Time/Time.cpp \
-    src/__test__/hardware/teensy/avr/libraries/TimeAlarms/TimeAlarms.cpp \
-    src/__test__/hardware/teensy/avr/libraries/TimerOne/TimerOne.cpp \
-    src/__test__/hardware/teensy/avr/libraries/TimerThree/TimerThree.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Time \
-    -Isrc/__test__/hardware/teensy/avr/libraries/TimeAlarms \
-    -Isrc/__test__/hardware/teensy/avr/libraries/TimerOne/config \
-    -Isrc/__test__/hardware/teensy/avr/libraries/TimerOne \
-    -Isrc/__test__/hardware/teensy/avr/libraries/TimerThree/config \
-    -Isrc/__test__/hardware/teensy/avr/libraries/TimerThree
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Time src/__test__/hardware/teensy/avr/libraries/TimeAlarms src/__test__/hardware/teensy/avr/libraries/TimerOne src/__test__/hardware/teensy/avr/libraries/TimerThree
+    src/__test__/hardware/teensy/avr/libraries/Time/Time.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Time
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Time
 endif
 ifdef LIB_TIMEALARMS
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TimeAlarms/TimeAlarms.cpp
