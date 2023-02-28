@@ -3031,6 +3031,279 @@ ifdef LIB_XPT2046_TOUCHSCREEN
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/XPT2046_Touchscreen
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/XPT2046_Touchscreen
 endif
+ifdef LIB_ADAFRUIT_CIRCUIT_PLAYGROUND
+  CPP_SYS_SRCS+=src/__test__/libraries/Adafruit_Circuit_Playground/Adafruit_CircuitPlayground.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_CPlay_FreeTouch.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_CPlay_LIS3DH.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_CPlay_Mic.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_CPlay_NeoPixel.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_CPlay_Speaker.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_ZeroPDM.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/CPlay_CapacitiveSensor.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/CP_Firmata.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibDecodeBase.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibHardware.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibProtocols.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibRecvBase.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibRecvPCI.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibSAMD21.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibSendBase.cpp \
+    src/__test__/libraries/Adafruit_Circuit_Playground/utility/talkie.cpp
+  S_SYS_SRCS+=src/__test__/libraries/Adafruit_Circuit_Playground/utility/ffft.S
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Adafruit_Circuit_Playground \
+    -Isrc/__test__/libraries/Adafruit_Circuit_Playground/utility
+  VPATH_MORE+=src/__test__/libraries/Adafruit_Circuit_Playground src/__test__/libraries/Adafruit_Circuit_Playground/utility
+endif
+ifdef LIB_BRIDGE
+  CPP_SYS_SRCS+=src/__test__/libraries/Bridge/src/Bridge.cpp \
+    src/__test__/libraries/Bridge/src/BridgeClient.cpp \
+    src/__test__/libraries/Bridge/src/BridgeServer.cpp \
+    src/__test__/libraries/Bridge/src/BridgeSSLClient.cpp \
+    src/__test__/libraries/Bridge/src/BridgeUdp.cpp \
+    src/__test__/libraries/Bridge/src/Console.cpp \
+    src/__test__/libraries/Bridge/src/FileIO.cpp \
+    src/__test__/libraries/Bridge/src/HttpClient.cpp \
+    src/__test__/libraries/Bridge/src/Mailbox.cpp \
+    src/__test__/libraries/Bridge/src/Process.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Bridge/src
+  VPATH_MORE+=src/__test__/libraries/Bridge/src
+endif
+ifdef LIB_ESPLORA
+  CPP_SYS_SRCS+=src/__test__/libraries/Esplora/src/Esplora.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Esplora/src
+  VPATH_MORE+=src/__test__/libraries/Esplora/src
+endif
+ifdef LIB_ETHERNET
+  CPP_SYS_SRCS+=src/__test__/libraries/Ethernet/src/Dhcp.cpp \
+    src/__test__/libraries/Ethernet/src/Dns.cpp \
+    src/__test__/libraries/Ethernet/src/Ethernet.cpp \
+    src/__test__/libraries/Ethernet/src/EthernetClient.cpp \
+    src/__test__/libraries/Ethernet/src/EthernetServer.cpp \
+    src/__test__/libraries/Ethernet/src/EthernetUdp.cpp \
+    src/__test__/libraries/Ethernet/src/socket.cpp \
+    src/__test__/libraries/Ethernet/src/utility/w5100.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Ethernet/src \
+    -Isrc/__test__/libraries/Ethernet/src/utility
+  VPATH_MORE+=src/__test__/libraries/Ethernet/src src/__test__/libraries/Ethernet/src/utility
+endif
+ifdef LIB_FIRMATA
+  CPP_SYS_SRCS+=src/__test__/libraries/Firmata/Firmata.cpp \
+    src/__test__/libraries/Firmata/FirmataMarshaller.cpp \
+    src/__test__/libraries/Firmata/FirmataParser.cpp \
+    src/__test__/libraries/Firmata/utility/BLEStream.cpp \
+    src/__test__/libraries/Firmata/utility/BluefruitLE_SPI_Stream.cpp \
+    src/__test__/libraries/Firmata/utility/EthernetClientStream.cpp \
+    src/__test__/libraries/Firmata/utility/EthernetServerStream.cpp \
+    src/__test__/libraries/Firmata/utility/SerialFirmata.cpp \
+    src/__test__/libraries/Firmata/utility/WiFiStream.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Firmata \
+    -Isrc/__test__/libraries/Firmata/utility
+  VPATH_MORE+=src/__test__/libraries/Firmata src/__test__/libraries/Firmata/utility
+endif
+ifdef LIB_GSM
+  CPP_SYS_SRCS+=src/__test__/libraries/GSM/src/GSM3CircularBuffer.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileAccessProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileCellManagement.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileClientProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileClientService.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileDataNetworkProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileMockupProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileNetworkProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileNetworkRegistry.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileServerProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileServerService.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileSMSProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3MobileVoiceProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1AccessProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1BandManagement.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1BaseProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1CellManagement.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1ClientProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1DataNetworkProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1DirectModemProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1ModemCore.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1ModemVerification.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1MultiClientProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1MultiServerProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1PinManagement.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1ScanNetworks.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1ServerProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1SMSProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3ShieldV1VoiceProvider.cpp \
+    src/__test__/libraries/GSM/src/GSM3SMSService.cpp \
+    src/__test__/libraries/GSM/src/GSM3SoftSerial.cpp \
+    src/__test__/libraries/GSM/src/GSM3VoiceCallService.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/GSM/src
+  VPATH_MORE+=src/__test__/libraries/GSM/src
+endif
+ifdef LIB_KEYBOARD
+  CPP_SYS_SRCS+=src/__test__/libraries/Keyboard/src/Keyboard.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Keyboard/src
+  VPATH_MORE+=src/__test__/libraries/Keyboard/src
+endif
+ifdef LIB_LIQUIDCRYSTAL
+  CPP_SYS_SRCS+=src/__test__/libraries/LiquidCrystal/src/LiquidCrystal.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/LiquidCrystal/src
+  VPATH_MORE+=src/__test__/libraries/LiquidCrystal/src
+endif
+ifdef LIB_MOUSE
+  CPP_SYS_SRCS+=src/__test__/libraries/Mouse/src/Mouse.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Mouse/src
+  VPATH_MORE+=src/__test__/libraries/Mouse/src
+endif
+ifdef LIB_ROBOTIRREMOTE
+  CPP_SYS_SRCS+=src/__test__/libraries/RobotIRremote/src/IRremote.cpp \
+    src/__test__/libraries/RobotIRremote/src/IRremoteTools.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/RobotIRremote/src
+  VPATH_MORE+=src/__test__/libraries/RobotIRremote/src
+endif
+ifdef LIB_ROBOT_CONTROL
+  C_SYS_SRCS+=src/__test__/libraries/Robot_Control/src/glcdfont.c
+  CPP_SYS_SRCS+=src/__test__/libraries/Robot_Control/src/ArduinoRobot.cpp \
+    src/__test__/libraries/Robot_Control/src/Arduino_LCD.cpp \
+    src/__test__/libraries/Robot_Control/src/communication.cpp \
+    src/__test__/libraries/Robot_Control/src/Compass.cpp \
+    src/__test__/libraries/Robot_Control/src/EasyTransfer2.cpp \
+    src/__test__/libraries/Robot_Control/src/EEPROM_I2C.cpp \
+    src/__test__/libraries/Robot_Control/src/Fat16.cpp \
+    src/__test__/libraries/Robot_Control/src/helper.cpp \
+    src/__test__/libraries/Robot_Control/src/information.cpp \
+    src/__test__/libraries/Robot_Control/src/keyboard.cpp \
+    src/__test__/libraries/Robot_Control/src/lcd.cpp \
+    src/__test__/libraries/Robot_Control/src/Melody.cpp \
+    src/__test__/libraries/Robot_Control/src/Motors.cpp \
+    src/__test__/libraries/Robot_Control/src/Multiplexer.cpp \
+    src/__test__/libraries/Robot_Control/src/RobotSdCard.cpp \
+    src/__test__/libraries/Robot_Control/src/SdCard.cpp \
+    src/__test__/libraries/Robot_Control/src/Sensors.cpp \
+    src/__test__/libraries/Robot_Control/src/Squawk.cpp \
+    src/__test__/libraries/Robot_Control/src/SquawkSD.cpp \
+    src/__test__/libraries/Robot_Control/src/utility/Adafruit_GFX.cpp \
+    src/__test__/libraries/Robot_Control/src/utility/RobotTextManager.cpp \
+    src/__test__/libraries/Robot_Control/src/utility/VirtualKeyboard.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Robot_Control/src \
+    -Isrc/__test__/libraries/Robot_Control/src/utility
+  VPATH_MORE+=src/__test__/libraries/Robot_Control/src src/__test__/libraries/Robot_Control/src/utility
+endif
+ifdef LIB_ROBOT_MOTOR
+  CPP_SYS_SRCS+=src/__test__/libraries/Robot_Motor/src/ArduinoRobotMotorBoard.cpp \
+    src/__test__/libraries/Robot_Motor/src/EasyTransfer2.cpp \
+    src/__test__/libraries/Robot_Motor/src/lineFollow.cpp \
+    src/__test__/libraries/Robot_Motor/src/Multiplexer.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Robot_Motor/src
+  VPATH_MORE+=src/__test__/libraries/Robot_Motor/src
+endif
+ifdef LIB_SD
+  CPP_SYS_SRCS+=src/__test__/libraries/SD/src/File.cpp \
+    src/__test__/libraries/SD/src/SD.cpp \
+    src/__test__/libraries/SD/src/utility/Sd2Card.cpp \
+    src/__test__/libraries/SD/src/utility/SdFile.cpp \
+    src/__test__/libraries/SD/src/utility/SdVolume.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/SD/src \
+    -Isrc/__test__/libraries/SD/src/utility
+  VPATH_MORE+=src/__test__/libraries/SD/src src/__test__/libraries/SD/src/utility
+endif
+ifdef LIB_SERVO
+  CPP_SYS_SRCS+=src/__test__/libraries/Servo/src/avr/Servo.cpp \
+    src/__test__/libraries/Servo/src/mbed/Servo.cpp \
+    src/__test__/libraries/Servo/src/megaavr/Servo.cpp \
+    src/__test__/libraries/Servo/src/nrf52/Servo.cpp \
+    src/__test__/libraries/Servo/src/sam/Servo.cpp \
+    src/__test__/libraries/Servo/src/samd/Servo.cpp \
+    src/__test__/libraries/Servo/src/stm32f4/Servo.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Servo/src/avr \
+    -Isrc/__test__/libraries/Servo/src/mbed \
+    -Isrc/__test__/libraries/Servo/src/megaavr \
+    -Isrc/__test__/libraries/Servo/src/nrf52 \
+    -Isrc/__test__/libraries/Servo/src/sam \
+    -Isrc/__test__/libraries/Servo/src/samd \
+    -Isrc/__test__/libraries/Servo/src \
+    -Isrc/__test__/libraries/Servo/src/stm32f4
+  VPATH_MORE+=src/__test__/libraries/Servo/src/avr src/__test__/libraries/Servo/src/mbed src/__test__/libraries/Servo/src/megaavr src/__test__/libraries/Servo/src/nrf52 src/__test__/libraries/Servo/src/sam src/__test__/libraries/Servo/src/samd src/__test__/libraries/Servo/src/stm32f4
+endif
+ifdef LIB_SPACEBREWYUN
+  CPP_SYS_SRCS+=src/__test__/libraries/SpacebrewYun/src/SpacebrewYun.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/SpacebrewYun/src
+  VPATH_MORE+=src/__test__/libraries/SpacebrewYun/src
+endif
+ifdef LIB_STEPPER
+  CPP_SYS_SRCS+=src/__test__/libraries/Stepper/src/Stepper.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Stepper/src
+  VPATH_MORE+=src/__test__/libraries/Stepper/src
+endif
+ifdef LIB_TEMBOO
+  C_SYS_SRCS+=src/__test__/libraries/Temboo/src/utility/MQTTConnectClient.c \
+    src/__test__/libraries/Temboo/src/utility/MQTTConnectServer.c \
+    src/__test__/libraries/Temboo/src/utility/MQTTDeserializePublish.c \
+    src/__test__/libraries/Temboo/src/utility/MQTTFormat.c \
+    src/__test__/libraries/Temboo/src/utility/MQTTPacket.c \
+    src/__test__/libraries/Temboo/src/utility/MQTTSerializePublish.c \
+    src/__test__/libraries/Temboo/src/utility/MQTTSubscribeClient.c \
+    src/__test__/libraries/Temboo/src/utility/MQTTSubscribeServer.c \
+    src/__test__/libraries/Temboo/src/utility/MQTTUnsubscribeClient.c \
+    src/__test__/libraries/Temboo/src/utility/MQTTUnsubscribeServer.c \
+    src/__test__/libraries/Temboo/src/utility/TembooGlobal.c \
+    src/__test__/libraries/Temboo/src/utility/TembooGPIO.c \
+    src/__test__/libraries/Temboo/src/utility/TembooWebSocketRequestHandles.c
+  CPP_SYS_SRCS+=src/__test__/libraries/Temboo/src/Temboo.cpp \
+    src/__test__/libraries/Temboo/src/TembooCoAPEdgeDevice.cpp \
+    src/__test__/libraries/Temboo/src/TembooMonitoring.cpp \
+    src/__test__/libraries/Temboo/src/TembooMQTTEdgeDevice.cpp \
+    src/__test__/libraries/Temboo/src/TembooSSL.cpp \
+    src/__test__/libraries/Temboo/src/utility/BaseFormatter.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoDevice.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoDeviceFormatter.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoInput.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoInputExpression.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoInputExpressionFormatter.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoInputExpressionSet.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoInputFormatter.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoInputSet.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoOutput.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoOutputFormatter.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoOutputSet.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoPreset.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoPresetFormatter.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoSensorInput.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoSensorInputFormatter.cpp \
+    src/__test__/libraries/Temboo/src/utility/ChoreoSensorInputSet.cpp \
+    src/__test__/libraries/Temboo/src/utility/CoapMessageLayer.cpp \
+    src/__test__/libraries/Temboo/src/utility/CoapMsg.cpp \
+    src/__test__/libraries/Temboo/src/utility/CoapRRLayer.cpp \
+    src/__test__/libraries/Temboo/src/utility/DataFormatter.cpp \
+    src/__test__/libraries/Temboo/src/utility/TembooCoAPSession.cpp \
+    src/__test__/libraries/Temboo/src/utility/TembooDS18B20.cpp \
+    src/__test__/libraries/Temboo/src/utility/TembooMQTTSession.cpp \
+    src/__test__/libraries/Temboo/src/utility/TembooOneWire.cpp \
+    src/__test__/libraries/Temboo/src/utility/TembooSession.cpp \
+    src/__test__/libraries/Temboo/src/utility/tmbhmac.cpp \
+    src/__test__/libraries/Temboo/src/utility/tmbmd5.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Temboo/src \
+    -Isrc/__test__/libraries/Temboo/src/utility
+  VPATH_MORE+=src/__test__/libraries/Temboo/src/utility src/__test__/libraries/Temboo/src
+endif
+ifdef LIB_TFT
+  C_SYS_SRCS+=src/__test__/libraries/TFT/src/utility/glcdfont.c
+  CPP_SYS_SRCS+=src/__test__/libraries/TFT/src/TFT.cpp \
+    src/__test__/libraries/TFT/src/utility/Adafruit_GFX.cpp \
+    src/__test__/libraries/TFT/src/utility/Adafruit_ST7735.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/TFT/src \
+    -Isrc/__test__/libraries/TFT/src/utility
+  VPATH_MORE+=src/__test__/libraries/TFT/src/utility src/__test__/libraries/TFT/src
+endif
+ifdef LIB_WIFI
+  CPP_SYS_SRCS+=src/__test__/libraries/WiFi/src/utility/server_drv.cpp \
+    src/__test__/libraries/WiFi/src/utility/spi_drv.cpp \
+    src/__test__/libraries/WiFi/src/utility/wifi_drv.cpp \
+    src/__test__/libraries/WiFi/src/WiFi.cpp \
+    src/__test__/libraries/WiFi/src/WiFiClient.cpp \
+    src/__test__/libraries/WiFi/src/WiFiServer.cpp \
+    src/__test__/libraries/WiFi/src/WiFiUdp.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/WiFi/src/utility \
+    -Isrc/__test__/libraries/WiFi/src
+  VPATH_MORE+=src/__test__/libraries/WiFi/src/utility src/__test__/libraries/WiFi/src
+endif
 SYS_SRC=${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}
 USER_SRC=${USER_C_SRCS} ${USER_CPP_SRCS} ${USER_S_SRCS}
 ALL_SRC=${SYS_SRC} ${USER_SRC}

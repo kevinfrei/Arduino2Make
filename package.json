@@ -18,7 +18,7 @@
     "prepare": "yarn run build",
     "format": "ftool format",
     "lint": "eslint src --fix --ext ts",
-    "chk": "yarn run build && yarn run lint",
+    "chk": "yarn run build && yarn run lint && yarn run test",
     "test": "jest --config jestconfig.json",
     "watch": "jest --config jestconfig.json --watch"
   },

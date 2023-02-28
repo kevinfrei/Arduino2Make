@@ -984,6 +984,32 @@ else ifeq (${BUILD_VARIANT}, circuitplay32u4)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/circuitplay32u4
   VPATH_CORE+=
 endif
+ifdef LIB_EEPROM
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/EEPROM/src
+  VPATH_MORE+=
+endif
+ifdef LIB_HID
+  CPP_SYS_SRCS+=src/__test__/hardware/arduino/avr/libraries/HID/src/HID.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/HID/src
+  VPATH_MORE+=src/__test__/hardware/arduino/avr/libraries/HID/src
+endif
+ifdef LIB_SOFTWARESERIAL
+  CPP_SYS_SRCS+=src/__test__/hardware/arduino/avr/libraries/SoftwareSerial/src/SoftwareSerial.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/SoftwareSerial/src
+  VPATH_MORE+=src/__test__/hardware/arduino/avr/libraries/SoftwareSerial/src
+endif
+ifdef LIB_SPI
+  CPP_SYS_SRCS+=src/__test__/hardware/arduino/avr/libraries/SPI/src/SPI.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/SPI/src
+  VPATH_MORE+=src/__test__/hardware/arduino/avr/libraries/SPI/src
+endif
+ifdef LIB_WIRE
+  C_SYS_SRCS+=src/__test__/hardware/arduino/avr/libraries/Wire/src/utility/twi.c
+  CPP_SYS_SRCS+=src/__test__/hardware/arduino/avr/libraries/Wire/src/Wire.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/Wire/src/utility \
+    -Isrc/__test__/hardware/arduino/avr/libraries/Wire/src
+  VPATH_MORE+=src/__test__/hardware/arduino/avr/libraries/Wire/src/utility src/__test__/hardware/arduino/avr/libraries/Wire/src
+endif
 SYS_SRC=${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}
 USER_SRC=${USER_C_SRCS} ${USER_CPP_SRCS} ${USER_S_SRCS}
 ALL_SRC=${SYS_SRC} ${USER_SRC}
