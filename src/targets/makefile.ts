@@ -1,7 +1,11 @@
 // Utilities for doing Makefile stuff
 
 import path from 'path';
-import { dump, Transform } from '../main.js';
+import {
+  CalculateChecksAndOrderDefinitions,
+  dump,
+  Transform,
+} from '../main.js';
 import { makeDeclDef, makeIfeq, makeIfneq, makeUnDecl } from '../mkutil.js';
 import type { Condition, Definition, Recipe } from '../types.js';
 
@@ -19,66 +23,6 @@ const optionalDefs: string[] = [
   'COMPILER_AR_EXTRA_FLAGS',
   'UPLOAD_VERBOSE',
 ];
-
-function order(
-  defs: Definition[],
-  rules: Recipe[],
-): { checks: string[]; defs: Definition[] } {
-  // Don't know if I'll need the rules or not
-
-  // First, let's identify all the mandatory user-defined symbols
-  const allDefs = new Set(defs.map((d) => d.name));
-  const tmp: string[] = [];
-  const allDeps = new Set(
-    tmp.concat(
-      ...defs.map((d) => d.dependsOn),
-      ...rules.map((rec) => rec.dependsOn),
-    ),
-  );
-  // Remove allDefs from allDeps
-  const checks: Set<string> = new Set(
-    [...allDeps].filter((x) => !allDefs.has(x)),
-  );
-  const done: Set<string> = new Set(checks);
-  // Clear out known optional values
-  optionalDefs.forEach((a) => checks.delete(a));
-
-  // Now checks has the list of all undefined symbols
-  // These should have checks emitted in the makefile to validate that the user
-  // has defined them already (or have defaults assigned if that's unimportant)
-
-  function allDefined(def: Definition): boolean {
-    for (const d of def.dependsOn) {
-      if (!done.has(d)) {
-        return false;
-      }
-    }
-    return true;
-  }
-  const ordered: Definition[] = [];
-  const stillPending: Map<string, number> = new Map();
-  defs.forEach((d: Definition) => {
-    let val = stillPending.get(d.name);
-    if (typeof val !== 'number') {
-      val = 0;
-    }
-    stillPending.set(d.name, val + 1);
-  });
-  // This is such a lame, slow sorting algorithm. I really should do better...
-  const skip: Set<number> = new Set();
-  for (let i = 0; i < defs.length; i++) {
-    if (!skip.has(i)) {
-      if (allDefined(defs[i])) {
-        ordered.push(defs[i]);
-        done.add(defs[i].name);
-        skip.add(i);
-        i = -1;
-      }
-    }
-  }
-
-  return { checks: [...checks.keys()], defs: ordered };
-}
 
 function emitChecks(checks: string[]) {
   dump()('# First, add some errors for undefined values');
@@ -367,11 +311,12 @@ export function Emit(
     makeDeclDef('IDE_VERSION', '10819'),
   ];
 
-  // TODO: Make definitions dependent on their condition values, so that I can
+  // Make definitions dependent on their condition values, so that I can
   // put errors in place when mandatory symbols aren't defined before inclusion
-  const { checks, defs } = order(
+  const { checks, defs } = CalculateChecksAndOrderDefinitions(
     [...initial, ...boardDefined, ...platDefs],
     rules,
+    optionalDefs,
   );
   emitChecks(checks);
   emitDefs(defs);
