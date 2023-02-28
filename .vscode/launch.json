@@ -16,6 +16,21 @@
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest tests",
+      "runtimeArgs": [
+        "--inspect-brk",
+        "${workspaceRoot}/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--config",
+        "${workspaceFolder}/jestconfig.json"
+      ],
+      "console": "integratedTerminal",
+      "preLaunchTask": "build",
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ]
 }

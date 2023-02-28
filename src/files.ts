@@ -1,3 +1,4 @@
+import { pathCompare } from '@freik/node-utils';
 import { promises as fsp } from 'fs';
 import * as path from 'path';
 import { Filter } from './main.js';
@@ -8,6 +9,7 @@ import { Condition, Definition } from './types.js';
 export async function enumerateFiles(root: string): Promise<string[]> {
   if ((await fsp.stat(root)).isDirectory()) {
     const dirs: string[] = await fsp.readdir(root);
+    dirs.sort(pathCompare);
     const res = [];
     for (const f of dirs) {
       res.push(...(await enumerateFiles(path.join(trimq(root), f))));
