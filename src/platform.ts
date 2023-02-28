@@ -222,7 +222,6 @@ export async function buildPlatform(
   const fakeTop = {
     name: 'fake',
     children: platform.scopedTable,
-    parent: null,
   };
   const skip: FilterFunc = (a) => a.name !== 'recipe' && a.name !== 'tools';
   const plain = getPlainValue;

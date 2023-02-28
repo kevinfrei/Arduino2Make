@@ -1,41 +1,9 @@
+import { Type } from '@freik/core-utils';
 import * as fs from 'fs';
 import * as rl from 'readline';
 import { dump } from './main.js';
-import type {
-  FlatTable,
-  ParsedFile,
-  SimpleSymbol,
-  SymbolTable,
-} from './types.js';
-
-// Parsing stuff goes here
-function makeSimpleSymbol(
-  fullName: string,
-  value: string,
-  table: SymbolTable,
-): void {
-  const pieces: string[] = fullName.split('.');
-  let ns: SimpleSymbol | null = null;
-  for (let i = 0; i < pieces.length - 1; i++) {
-    const nm: string = pieces[i];
-    const data = table.get(nm);
-    if (data) {
-      ns = data;
-      table = data.children;
-    } else {
-      ns = { name: nm, children: new Map(), parent: ns };
-      table.set(nm, ns);
-      table = ns.children;
-    }
-  }
-  const locName = pieces[pieces.length - 1];
-  if (table.get(locName)) {
-    dump('err')('Duplicate symbol definition: ' + fullName);
-    dump('err')(table.get(locName));
-  }
-  const res = { name: locName, parent: ns, value, children: new Map() };
-  table.set(locName, res);
-}
+import { getScopedName, makeSymbol } from './symbols.js';
+import type { FlatTable, ParsedFile, SymbolTable } from './types.js';
 
 function isComment(line: string): boolean {
   return line.trim().startsWith('#');
@@ -54,8 +22,7 @@ export function parseVariable(
   const fullName = t.substring(0, eq);
   const value = t.substring(eq + 1);
   flatsyms.set(fullName, value);
-  makeSimpleSymbol(fullName, value, table);
-  return true;
+  return !Type.isUndefined(makeSymbol(getScopedName(fullName), value, table));
 }
 
 // Read in the text file, and spit out the parsed file

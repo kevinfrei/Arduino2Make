@@ -1,3 +1,5 @@
+import { Type } from '@freik/core-utils';
+import { lookupSymbol } from './symbols.js';
 import type {
   Condition,
   Definition,
@@ -110,8 +112,8 @@ function resolveValue(value: string, parsedFile: ParsedFile): DependentValue {
   let res = '';
   let loc = 0;
   let unresolved: Set<string> = new Set();
-  const flatSymbols = parsedFile.flatSymbols;
   do {
+    // Find the next {} pair
     const newloc = value.indexOf('{', loc);
     if (newloc >= 0) {
       res = res + value.substring(loc, newloc);
@@ -120,12 +122,14 @@ function resolveValue(value: string, parsedFile: ParsedFile): DependentValue {
         return { value: '', unresolved: new Set() };
       }
       const nextSym = value.substring(newloc + 1, close);
-      const symVal = flatSymbols.get(nextSym);
-      if (!symVal) {
+      // Get the value of that symbol
+
+      const symVal = lookupSymbol(nextSym, parsedFile.scopedTable);
+      if (Type.isUndefined(symVal)) {
         unresolved.add(nextSym);
         res = `${res}{${nextSym}}`;
       } else {
-        // Potentially unbounded recursion here. That would be bad...
+        // Potentially unbounded/mutual recursion here. That would be bad...
         const val = resolveValue(symVal, parsedFile);
         unresolved = new Set([...unresolved, ...val.unresolved]);
         res = res + val.value;

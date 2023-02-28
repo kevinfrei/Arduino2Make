@@ -2,7 +2,7 @@
 export type SimpleSymbol = {
   name: string;
   value?: string;
-  parent: SimpleSymbol | null;
+  parent?: SimpleSymbol;
   children: SymbolTable;
 };
 // This is just a "a.b.c"="Something Here" list:
