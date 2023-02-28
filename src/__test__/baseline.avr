@@ -1,0 +1,1134 @@
+# First, add some errors for undefined values
+ifndef PROJ_NAME
+  $(error PROJ_NAME is not defined!)
+endif
+ifndef BOARD_NAME
+  $(error BOARD_NAME is not defined!)
+endif
+ifndef IN_CPU
+  $(error IN_CPU is not defined!)
+endif
+ifndef BUILD_PATH
+  $(error BUILD_PATH is not defined!)
+endif
+ifndef ARCHIVE_FILE
+  $(error ARCHIVE_FILE is not defined!)
+endif
+ifndef RUNTIME_TOOLS_AVR_GCC_PATH
+  $(error RUNTIME_TOOLS_AVR_GCC_PATH is not defined!)
+endif
+ifndef RUNTIME_TOOLS_ARDUINOOTA_PATH
+  $(error RUNTIME_TOOLS_ARDUINOOTA_PATH is not defined!)
+endif
+ifndef CMD_PATH
+  $(error CMD_PATH is not defined!)
+endif
+ifndef CONFIG_PATH
+  $(error CONFIG_PATH is not defined!)
+endif
+ifndef UPLOAD_VERIFY
+  $(error UPLOAD_VERIFY is not defined!)
+endif
+ifndef SERIAL_PORT
+  $(error SERIAL_PORT is not defined!)
+endif
+ifndef BUILD_ARCH
+  $(error BUILD_ARCH is not defined!)
+endif
+ifndef COMPILER_LDFLAGS
+  $(error COMPILER_LDFLAGS is not defined!)
+endif
+ifndef COMPILER_LIBRARIES_LDFLAGS
+  $(error COMPILER_LIBRARIES_LDFLAGS is not defined!)
+endif
+
+# Check for some source files
+ifeq (${USER_C_SRCS}${USER_CPP_SRCS}${USER_S_SRCS},)
+  $(error You must define USER_C_SRCS, USER_CPP_SRCS, or USER_S_SRCS)
+endif
+
+# And here are all the definitions
+ifeq ($(OS), Windows_NT)
+  RUNTIME_OS=windows
+else
+  uname=$(shell uname -s)
+  ifeq ($(uname), Darwin)
+    RUNTIME_OS=macosx
+  endif
+endif
+RUNTIME_OS?=linux
+RUNTIME_PLATFORM_PATH=src/__test__/hardware/arduino/avr
+RUNTIME_IDE_VERSION=10819
+IDE_VERSION=10819
+BUILD_PROJECT_NAME=${PROJ_NAME}
+ifeq (${BOARD_NAME}, yun)
+  BUILD_VARIANT=yun
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_YUN
+  BUILD_USB_PRODUCT="Arduino Yun"
+  BUILD_PID=0x8041
+  BUILD_VID=0x2341
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_NOBLINK=caterina/Caterina-Yun-noblink.hex
+  BOOTLOADER_FILE=caterina/Caterina-Yun.hex
+  BOOTLOADER_EXTENDED_FUSES=0xfb
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  PID_3=0x8041
+  PID_2=0x0041
+  PID_1=0x8041
+  PID_0=0x0041
+  VID_3=0x2A03
+  VID_2=0x2A03
+  VID_1=0x2341
+  VID_0=0x2341
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2560
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  UPLOAD_TOOL=avrdude
+  UPLOAD_VIA_SSH=true
+  NAME=Arduino Yún
+else ifeq (${BOARD_NAME}, uno)
+  BUILD_VARIANT=standard
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_UNO
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega328p
+  BOOTLOADER_FILE=optiboot/optiboot_atmega328.hex
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_EXTENDED_FUSES=0xFD
+  BOOTLOADER_HIGH_FUSES=0xDE
+  BOOTLOADER_LOW_FUSES=0xFF
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_SPEED=115200
+  UPLOAD_MAXIMUM_DATA_SIZE=2048
+  UPLOAD_MAXIMUM_SIZE=32256
+  UPLOAD_PROTOCOL=arduino
+  UPLOAD_TOOL=avrdude
+  PID_3=0x0243
+  PID_2=0x0043
+  PID_1=0x0001
+  PID_0=0x0043
+  VID_3=0x2341
+  VID_2=0x2A03
+  VID_1=0x2341
+  VID_0=0x2341
+  NAME=Arduino Uno
+else ifeq (${BOARD_NAME}, diecimila)
+  BUILD_VARIANT=standard
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_DUEMILANOVE
+  BUILD_F_CPU=16000000L
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_LOW_FUSES=0xFF
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_PROTOCOL=arduino
+  UPLOAD_TOOL=avrdude
+  NAME=Arduino Duemilanove or Diecimila
+  ifeq (${IN_CPU}, atmega328)
+    BUILD_MCU=atmega328p
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_atmega328.hex
+    BOOTLOADER_EXTENDED_FUSES=0xFD
+    BOOTLOADER_HIGH_FUSES=0xDA
+    UPLOAD_SPEED=57600
+    UPLOAD_MAXIMUM_DATA_SIZE=2048
+    UPLOAD_MAXIMUM_SIZE=30720
+  else ifeq (${IN_CPU}, atmega168)
+    BUILD_MCU=atmega168
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_diecimila.hex
+    BOOTLOADER_EXTENDED_FUSES=0xF8
+    BOOTLOADER_HIGH_FUSES=0xdd
+    UPLOAD_SPEED=19200
+    UPLOAD_MAXIMUM_DATA_SIZE=1024
+    UPLOAD_MAXIMUM_SIZE=14336
+  endif
+else ifeq (${BOARD_NAME}, nano)
+  BUILD_VARIANT=eightanaloginputs
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_NANO
+  BUILD_F_CPU=16000000L
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_PROTOCOL=arduino
+  UPLOAD_TOOL=avrdude
+  NAME=Arduino Nano
+  ifeq (${IN_CPU}, atmega328)
+    BUILD_MCU=atmega328p
+    BOOTLOADER_FILE=optiboot/optiboot_atmega328.hex
+    BOOTLOADER_EXTENDED_FUSES=0xFD
+    BOOTLOADER_HIGH_FUSES=0xDA
+    BOOTLOADER_LOW_FUSES=0xFF
+    UPLOAD_SPEED=115200
+    UPLOAD_MAXIMUM_DATA_SIZE=2048
+    UPLOAD_MAXIMUM_SIZE=30720
+  else ifeq (${IN_CPU}, atmega328old)
+    BUILD_MCU=atmega328p
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_atmega328.hex
+    BOOTLOADER_EXTENDED_FUSES=0xFD
+    BOOTLOADER_HIGH_FUSES=0xDA
+    BOOTLOADER_LOW_FUSES=0xFF
+    UPLOAD_SPEED=57600
+    UPLOAD_MAXIMUM_DATA_SIZE=2048
+    UPLOAD_MAXIMUM_SIZE=30720
+  else ifeq (${IN_CPU}, atmega168)
+    BUILD_MCU=atmega168
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_diecimila.hex
+    BOOTLOADER_EXTENDED_FUSES=0xF8
+    BOOTLOADER_HIGH_FUSES=0xdd
+    BOOTLOADER_LOW_FUSES=0xff
+    UPLOAD_SPEED=19200
+    UPLOAD_MAXIMUM_DATA_SIZE=1024
+    UPLOAD_MAXIMUM_SIZE=14336
+  endif
+else ifeq (${BOARD_NAME}, mega)
+  BUILD_BOARD=AVR_MEGA2560
+  BUILD_VARIANT=mega
+  BUILD_CORE=arduino
+  BUILD_F_CPU=16000000L
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_LOW_FUSES=0xFF
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_MAXIMUM_DATA_SIZE=8192
+  UPLOAD_TOOL=avrdude
+  PID_5=0x0242
+  PID_4=0x0210
+  PID_3=0x0042
+  PID_2=0x0010
+  PID_1=0x0042
+  PID_0=0x0010
+  VID_5=0x2341
+  VID_4=0x2341
+  VID_3=0x2A03
+  VID_2=0x2A03
+  VID_1=0x2341
+  VID_0=0x2341
+  NAME=Arduino Mega or Mega 2560
+  ifeq (${IN_CPU}, atmega2560)
+    BUILD_BOARD=AVR_MEGA2560
+    BUILD_MCU=atmega2560
+    BOOTLOADER_FILE=stk500v2/stk500boot_v2_mega2560.hex
+    BOOTLOADER_EXTENDED_FUSES=0xFD
+    BOOTLOADER_HIGH_FUSES=0xD8
+    UPLOAD_SPEED=115200
+    UPLOAD_MAXIMUM_SIZE=253952
+    UPLOAD_PROTOCOL=wiring
+  else ifeq (${IN_CPU}, atmega1280)
+    BUILD_BOARD=AVR_MEGA
+    BUILD_MCU=atmega1280
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_atmega1280.hex
+    BOOTLOADER_EXTENDED_FUSES=0xF5
+    BOOTLOADER_HIGH_FUSES=0xDA
+    UPLOAD_SPEED=57600
+    UPLOAD_MAXIMUM_SIZE=126976
+    UPLOAD_PROTOCOL=arduino
+  endif
+else ifeq (${BOARD_NAME}, megaADK)
+  BUILD_VARIANT=mega
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_ADK
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega2560
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=stk500v2/stk500boot_v2_mega2560.hex
+  BOOTLOADER_EXTENDED_FUSES=0xFD
+  BOOTLOADER_HIGH_FUSES=0xD8
+  BOOTLOADER_LOW_FUSES=0xFF
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_SPEED=115200
+  UPLOAD_MAXIMUM_DATA_SIZE=8192
+  UPLOAD_MAXIMUM_SIZE=253952
+  UPLOAD_PROTOCOL=wiring
+  UPLOAD_TOOL=avrdude
+  PID_3=0x0044
+  PID_2=0x003f
+  PID_1=0x0044
+  PID_0=0x003f
+  VID_3=0x2A03
+  VID_2=0x2A03
+  VID_1=0x2341
+  VID_0=0x2341
+  NAME=Arduino Mega ADK
+else ifeq (${BOARD_NAME}, leonardo)
+  BUILD_VARIANT=leonardo
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_LEONARDO
+  BUILD_USB_PRODUCT="Arduino Leonardo"
+  BUILD_PID=0x8036
+  BUILD_VID=0x2341
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=caterina/Caterina-Leonardo.hex
+  BOOTLOADER_EXTENDED_FUSES=0xcb
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2560
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  UPLOAD_TOOL=avrdude
+  PID_3=0x8036
+  PID_2=0x0036
+  PID_1=0x8036
+  PID_0=0x0036
+  VID_3=0x2A03
+  VID_2=0x2A03
+  VID_1=0x2341
+  VID_0=0x2341
+  NAME=Arduino Leonardo
+else ifeq (${BOARD_NAME}, leonardoeth)
+  BUILD_VARIANT=leonardo
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_LEONARDO_ETH
+  BUILD_USB_PRODUCT="Arduino Leonardo ETH"
+  BUILD_PID=0x8040
+  BUILD_VID=0x2a03
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=caterina/Caterina-LeonardoEthernet.hex
+  BOOTLOADER_EXTENDED_FUSES=0xcb
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2560
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  UPLOAD_TOOL=avrdude
+  PID_1=0x8040
+  PID_0=0x0040
+  VID_1=0x2a03
+  VID_0=0x2a03
+  NAME=Arduino Leonardo ETH
+else ifeq (${BOARD_NAME}, micro)
+  BUILD_VARIANT=micro
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_MICRO
+  BUILD_USB_PRODUCT="Arduino Micro"
+  BUILD_PID=0x8037
+  BUILD_VID=0x2341
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=caterina/Caterina-Micro.hex
+  BOOTLOADER_EXTENDED_FUSES=0xcb
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2560
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  UPLOAD_TOOL=avrdude
+  PID_5=0x8237
+  PID_4=0x0237
+  PID_3=0x8037
+  PID_2=0x0037
+  PID_1=0x8037
+  PID_0=0x0037
+  VID_5=0x2341
+  VID_4=0x2341
+  VID_3=0x2A03
+  VID_2=0x2A03
+  VID_1=0x2341
+  VID_0=0x2341
+  NAME=Arduino Micro
+else ifeq (${BOARD_NAME}, esplora)
+  BUILD_VARIANT=leonardo
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_ESPLORA
+  BUILD_USB_PRODUCT="Arduino Esplora"
+  BUILD_PID=0x803c
+  BUILD_VID=0x2341
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=caterina/Caterina-Esplora.hex
+  BOOTLOADER_EXTENDED_FUSES=0xcb
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2560
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  UPLOAD_TOOL=avrdude
+  PID_3=0x803C
+  PID_2=0x003C
+  PID_1=0x803C
+  PID_0=0x003C
+  VID_3=0x2A03
+  VID_2=0x2A03
+  VID_1=0x2341
+  VID_0=0x2341
+  NAME=Arduino Esplora
+else ifeq (${BOARD_NAME}, mini)
+  BUILD_VARIANT=eightanaloginputs
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_MINI
+  BUILD_F_CPU=16000000L
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_PROTOCOL=arduino
+  UPLOAD_TOOL=avrdude
+  NAME=Arduino Mini
+  ifeq (${IN_CPU}, atmega328)
+    BUILD_MCU=atmega328p
+    BOOTLOADER_FILE=optiboot/optiboot_atmega328-Mini.hex
+    BOOTLOADER_EXTENDED_FUSES=0xFD
+    BOOTLOADER_HIGH_FUSES=0xd8
+    UPLOAD_SPEED=115200
+    UPLOAD_MAXIMUM_DATA_SIZE=2048
+    UPLOAD_MAXIMUM_SIZE=28672
+  else ifeq (${IN_CPU}, atmega168)
+    BUILD_MCU=atmega168
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_ng.hex
+    BOOTLOADER_EXTENDED_FUSES=0xF8
+    BOOTLOADER_HIGH_FUSES=0xdd
+    UPLOAD_SPEED=19200
+    UPLOAD_MAXIMUM_DATA_SIZE=1024
+    UPLOAD_MAXIMUM_SIZE=14336
+  endif
+else ifeq (${BOARD_NAME}, ethernet)
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_ETHERNET
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega328p
+  BUILD_VARIANT=ethernet
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=optiboot/optiboot_atmega328.hex
+  BOOTLOADER_EXTENDED_FUSES=0xFD
+  BOOTLOADER_HIGH_FUSES=0xde
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_SPEED=115200
+  UPLOAD_MAXIMUM_DATA_SIZE=2048
+  UPLOAD_MAXIMUM_SIZE=32256
+  UPLOAD_PROTOCOL=arduino
+  UPLOAD_TOOL=avrdude
+  NAME=Arduino Ethernet
+else ifeq (${BOARD_NAME}, fio)
+  BUILD_VARIANT=eightanaloginputs
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_FIO
+  BUILD_F_CPU=8000000L
+  BUILD_MCU=atmega328p
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=atmega/ATmegaBOOT_168_atmega328_pro_8MHz.hex
+  BOOTLOADER_EXTENDED_FUSES=0xFD
+  BOOTLOADER_HIGH_FUSES=0xDA
+  BOOTLOADER_LOW_FUSES=0xFF
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2048
+  UPLOAD_MAXIMUM_SIZE=30720
+  UPLOAD_PROTOCOL=arduino
+  UPLOAD_TOOL=avrdude
+  NAME=Arduino Fio
+else ifeq (${BOARD_NAME}, bt)
+  BUILD_VARIANT=eightanaloginputs
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_BT
+  BUILD_F_CPU=16000000L
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=19200
+  UPLOAD_PROTOCOL=arduino
+  UPLOAD_TOOL=avrdude
+  NAME=Arduino BT
+  ifeq (${IN_CPU}, atmega328)
+    BUILD_MCU=atmega328p
+    BOOTLOADER_FILE=bt/ATmegaBOOT_168_atmega328_bt.hex
+    BOOTLOADER_EXTENDED_FUSES=0xFD
+    BOOTLOADER_HIGH_FUSES=0xd8
+    UPLOAD_MAXIMUM_DATA_SIZE=2048
+    UPLOAD_MAXIMUM_SIZE=28672
+  else ifeq (${IN_CPU}, atmega168)
+    BUILD_MCU=atmega168
+    BOOTLOADER_FILE=bt/ATmegaBOOT_168.hex
+    BOOTLOADER_EXTENDED_FUSES=0xF8
+    BOOTLOADER_HIGH_FUSES=0xdd
+    UPLOAD_MAXIMUM_DATA_SIZE=1024
+    UPLOAD_MAXIMUM_SIZE=14336
+  endif
+else ifeq (${BOARD_NAME}, LilyPadUSB)
+  BUILD_VARIANT=leonardo
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_LILYPAD_USB
+  BUILD_USB_PRODUCT="LilyPad USB"
+  BUILD_PID=0x9208
+  BUILD_VID=0x1B4F
+  BUILD_F_CPU=8000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=caterina-LilyPadUSB/Caterina-LilyPadUSB.hex
+  BOOTLOADER_EXTENDED_FUSES=0xce
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2560
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  UPLOAD_TOOL=avrdude
+  PID_1=0x9208
+  PID_0=0x9207
+  VID_1=0x1B4F
+  VID_0=0x1B4F
+  NAME=LilyPad Arduino USB
+else ifeq (${BOARD_NAME}, lilypad)
+  BUILD_VARIANT=standard
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_LILYPAD
+  BUILD_F_CPU=8000000L
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_PROTOCOL=arduino
+  UPLOAD_TOOL=avrdude
+  NAME=LilyPad Arduino
+  ifeq (${IN_CPU}, atmega328)
+    BUILD_MCU=atmega328p
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_atmega328_pro_8MHz.hex
+    BOOTLOADER_EXTENDED_FUSES=0xFD
+    BOOTLOADER_HIGH_FUSES=0xDA
+    BOOTLOADER_LOW_FUSES=0xFF
+    UPLOAD_SPEED=57600
+    UPLOAD_MAXIMUM_DATA_SIZE=2048
+    UPLOAD_MAXIMUM_SIZE=30720
+  else ifeq (${IN_CPU}, atmega168)
+    BUILD_MCU=atmega168
+    BOOTLOADER_FILE=lilypad/LilyPadBOOT_168.hex
+    BOOTLOADER_EXTENDED_FUSES=0xF8
+    BOOTLOADER_HIGH_FUSES=0xdd
+    BOOTLOADER_LOW_FUSES=0xe2
+    UPLOAD_SPEED=19200
+    UPLOAD_MAXIMUM_DATA_SIZE=1024
+    UPLOAD_MAXIMUM_SIZE=14336
+  endif
+else ifeq (${BOARD_NAME}, pro)
+  BUILD_VARIANT=eightanaloginputs
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_PRO
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_PROTOCOL=arduino
+  UPLOAD_TOOL=avrdude
+  NAME=Arduino Pro or Pro Mini
+  ifeq (${IN_CPU}, 16MHzatmega328)
+    BUILD_F_CPU=16000000L
+    BUILD_MCU=atmega328p
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_atmega328.hex
+    BOOTLOADER_EXTENDED_FUSES=0xFD
+    BOOTLOADER_HIGH_FUSES=0xDA
+    BOOTLOADER_LOW_FUSES=0xFF
+    UPLOAD_SPEED=57600
+    UPLOAD_MAXIMUM_DATA_SIZE=2048
+    UPLOAD_MAXIMUM_SIZE=30720
+  else ifeq (${IN_CPU}, 8MHzatmega328)
+    BUILD_F_CPU=8000000L
+    BUILD_MCU=atmega328p
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_atmega328_pro_8MHz.hex
+    BOOTLOADER_EXTENDED_FUSES=0xFD
+    BOOTLOADER_HIGH_FUSES=0xDA
+    BOOTLOADER_LOW_FUSES=0xFF
+    UPLOAD_SPEED=57600
+    UPLOAD_MAXIMUM_DATA_SIZE=2048
+    UPLOAD_MAXIMUM_SIZE=30720
+  else ifeq (${IN_CPU}, 16MHzatmega168)
+    BUILD_F_CPU=16000000L
+    BUILD_MCU=atmega168
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_diecimila.hex
+    BOOTLOADER_EXTENDED_FUSES=0xF8
+    BOOTLOADER_HIGH_FUSES=0xdd
+    BOOTLOADER_LOW_FUSES=0xff
+    UPLOAD_SPEED=19200
+    UPLOAD_MAXIMUM_DATA_SIZE=1024
+    UPLOAD_MAXIMUM_SIZE=14336
+  else ifeq (${IN_CPU}, 8MHzatmega168)
+    BUILD_F_CPU=8000000L
+    BUILD_MCU=atmega168
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_pro_8MHz.hex
+    BOOTLOADER_EXTENDED_FUSES=0xF8
+    BOOTLOADER_HIGH_FUSES=0xdd
+    BOOTLOADER_LOW_FUSES=0xc6
+    UPLOAD_SPEED=19200
+    UPLOAD_MAXIMUM_DATA_SIZE=1024
+    UPLOAD_MAXIMUM_SIZE=14336
+  endif
+else ifeq (${BOARD_NAME}, atmegang)
+  BUILD_VARIANT=standard
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_NG
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmegang
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_SPEED=19200
+  UPLOAD_PROTOCOL=arduino
+  UPLOAD_TOOL=avrdude
+  NAME=Arduino NG or older
+  ifeq (${IN_CPU}, atmega168)
+    BUILD_MCU=atmega168
+    BOOTLOADER_FILE=atmega/ATmegaBOOT_168_ng.hex
+    BOOTLOADER_EXTENDED_FUSES=0xF8
+    BOOTLOADER_HIGH_FUSES=0xdd
+    BOOTLOADER_LOW_FUSES=0xff
+    UPLOAD_MAXIMUM_DATA_SIZE=1024
+    UPLOAD_MAXIMUM_SIZE=14336
+  else ifeq (${IN_CPU}, atmega8)
+    BUILD_MCU=atmega8
+    BOOTLOADER_FILE=atmega8/ATmegaBOOT-prod-firmware-2009-11-07.hex
+    BOOTLOADER_HIGH_FUSES=0xca
+    BOOTLOADER_LOW_FUSES=0xdf
+    UPLOAD_MAXIMUM_DATA_SIZE=1024
+    UPLOAD_MAXIMUM_SIZE=7168
+  endif
+else ifeq (${BOARD_NAME}, robotControl)
+  BUILD_VARIANT=robot_control
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_ROBOT_CONTROL
+  BUILD_USB_PRODUCT="Robot Control"
+  BUILD_PID=0x8038
+  BUILD_VID=0x2341
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=caterina-Arduino_Robot/Caterina-Robot-Control.hex
+  BOOTLOADER_EXTENDED_FUSES=0xcb
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2560
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  UPLOAD_TOOL=avrdude
+  PID_3=0x8038
+  PID_2=0x0038
+  PID_1=0x8038
+  PID_0=0x0038
+  VID_3=0x2A03
+  VID_2=0x2A03
+  VID_1=0x2341
+  VID_0=0x2341
+  NAME=Arduino Robot Control
+else ifeq (${BOARD_NAME}, robotMotor)
+  BUILD_VARIANT=robot_motor
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_ROBOT_MOTOR
+  BUILD_USB_PRODUCT="Robot Motor"
+  BUILD_PID=0x8039
+  BUILD_VID=0x2341
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=caterina-Arduino_Robot/Caterina-Robot-Motor.hex
+  BOOTLOADER_EXTENDED_FUSES=0xcb
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2560
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  UPLOAD_TOOL=avrdude
+  PID_3=0x8039
+  PID_2=0x0039
+  PID_1=0x8039
+  PID_0=0x0039
+  VID_3=0x2A03
+  VID_2=0x2A03
+  VID_1=0x2341
+  VID_0=0x2341
+  NAME=Arduino Robot Motor
+else ifeq (${BOARD_NAME}, gemma)
+  UPLOAD_MAXIMUM_SIZE=5310
+  UPLOAD_TOOL=avrdude
+  BUILD_BOARD=AVR_GEMMA
+  BUILD_VARIANT=gemma
+  BUILD_CORE=arduino
+  BUILD_F_CPU=8000000L
+  BUILD_MCU=attiny85
+  BOOTLOADER_FILE=gemma/gemma_v1.hex
+  BOOTLOADER_TOOL=avrdude
+  BOOTLOADER_EXTENDED_FUSES=0xFE
+  BOOTLOADER_HIGH_FUSES=0xD5
+  BOOTLOADER_LOW_FUSES=0xF1
+  NAME=Arduino Gemma
+  PID_0=0x0c9f
+  VID_0=0x2341
+else ifeq (${BOARD_NAME}, circuitplay32u4cat)
+  PID_0=0x8011
+  VID_0=0x239A
+  UPLOAD_TOOL=avrdude
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  BUILD_USB_MANUFACTURER="Adafruit"
+  BUILD_USB_PRODUCT="Circuit Playground"
+  BUILD_BOARD=AVR_CIRCUITPLAY
+  BUILD_VARIANT=circuitplay32u4
+  BUILD_CORE=arduino
+  BUILD_PID=0x8011
+  BUILD_VID=0x239A
+  BUILD_F_CPU=8000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_TOOL=avrdude
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=caterina/Caterina-Circuitplay32u4.hex
+  BOOTLOADER_EXTENDED_FUSES=0xcb
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  NAME=Adafruit Circuit Playground
+else ifeq (${BOARD_NAME}, yunmini)
+  BUILD_VARIANT=yun
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_YUNMINI
+  BUILD_USB_PRODUCT="Arduino Yún Mini"
+  BUILD_PID=0x8050
+  BUILD_VID=0x2a03
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=caterina/Caterina-YunMini.hex
+  BOOTLOADER_EXTENDED_FUSES=0xfb
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  PID_1=0x8050
+  PID_0=0x0050
+  VID_1=0x2a03
+  VID_0=0x2a03
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2560
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  UPLOAD_TOOL=avrdude
+  UPLOAD_VIA_SSH=true
+  NAME=Arduino Yún Mini
+else ifeq (${BOARD_NAME}, chiwawa)
+  BUILD_VARIANT=yun
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_INDUSTRIAL101
+  BUILD_USB_PRODUCT="Arduino Industrial 101"
+  BUILD_PID=0x8056
+  BUILD_VID=0x2a03
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=caterina/Caterina-Industrial101.hex
+  BOOTLOADER_EXTENDED_FUSES=0xfb
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  PID_1=0x8056
+  PID_0=0x0056
+  VID_1=0x2a03
+  VID_0=0x2a03
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2560
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  UPLOAD_TOOL=avrdude
+  UPLOAD_VIA_SSH=true
+  NAME=Arduino Industrial 101
+else ifeq (${BOARD_NAME}, one)
+  BUILD_VARIANT=yun
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_LININO_ONE
+  BUILD_USB_PRODUCT="Linino One"
+  BUILD_PID=0x8001
+  BUILD_VID=0x2a03
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega32u4
+  BOOTLOADER_LOCK_BITS=0x2F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_FILE=caterina/Caterina-LininoOne.hex
+  BOOTLOADER_EXTENDED_FUSES=0xfb
+  BOOTLOADER_HIGH_FUSES=0xd8
+  BOOTLOADER_LOW_FUSES=0xff
+  BOOTLOADER_TOOL=avrdude
+  PID_1=0x8001
+  PID_0=0x0001
+  VID_1=0x2a03
+  VID_0=0x2a03
+  UPLOAD_WAIT_FOR_UPLOAD_PORT=true
+  UPLOAD_USE_1200BPS_TOUCH=true
+  UPLOAD_DISABLE_FLUSHING=true
+  UPLOAD_SPEED=57600
+  UPLOAD_MAXIMUM_DATA_SIZE=2560
+  UPLOAD_MAXIMUM_SIZE=28672
+  UPLOAD_PROTOCOL=avr109
+  UPLOAD_TOOL=avrdude
+  UPLOAD_VIA_SSH=true
+  NAME=Linino One
+else ifeq (${BOARD_NAME}, unowifi)
+  BUILD_ESP_CH_UART_BR=19200
+  BUILD_EXTRA_FLAGS=-DESP_CH_UART -DESP_CH_UART_BR=${BUILD_ESP_CH_UART_BR}
+  BUILD_VARIANT=standard
+  BUILD_CORE=arduino
+  BUILD_BOARD=AVR_UNO_WIFI_DEV_ED
+  BUILD_F_CPU=16000000L
+  BUILD_MCU=atmega328p
+  BOOTLOADER_FILE=optiboot/optiboot_atmega328.hex
+  BOOTLOADER_LOCK_BITS=0x0F
+  BOOTLOADER_UNLOCK_BITS=0x3F
+  BOOTLOADER_EXTENDED_FUSES=0x05
+  BOOTLOADER_HIGH_FUSES=0xDE
+  BOOTLOADER_LOW_FUSES=0xFF
+  BOOTLOADER_TOOL=avrdude
+  UPLOAD_NETWORK_PORT=80
+  UPLOAD_NETWORK_ENDPOINT_RESET=/log/reset
+  UPLOAD_NETWORK_SYNC_RETURN=204:SYNC
+  UPLOAD_NETWORK_ENDPOINT_SYNC=/pgm/sync
+  UPLOAD_NETWORK_ENDPOINT_UPLOAD=/pgm/upload
+  UPLOAD_SPEED=115200
+  UPLOAD_MAXIMUM_DATA_SIZE=2048
+  UPLOAD_MAXIMUM_SIZE=32256
+  UPLOAD_PROTOCOL=arduino
+  UPLOAD_TOOL=avrdude
+  PID_0=0x0057
+  VID_0=0x2A03
+  NAME=Arduino Uno WiFi
+endif
+BUILD_CORE_PATH=${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}
+PREPROC_MACROS_FLAGS=-w -x c++ -E -CC
+PREPROC_INCLUDES_FLAGS=-w -x c++ -M -MG -MP
+ARCHIVE_FILE_PATH=${BUILD_PATH}/${ARCHIVE_FILE}
+BUILD_USB_FLAGS=-DUSB_VID=${BUILD_VID} -DUSB_PID=${BUILD_PID} '-DUSB_MANUFACTURER=${BUILD_USB_MANUFACTURER}' '-DUSB_PRODUCT=${BUILD_USB_PRODUCT}'
+ifeq (${BOARD_NAME}, yun)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+else ifeq (${BOARD_NAME}, leonardo)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+else ifeq (${BOARD_NAME}, leonardoeth)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+else ifeq (${BOARD_NAME}, micro)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+else ifeq (${BOARD_NAME}, esplora)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+else ifeq (${BOARD_NAME}, LilyPadUSB)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+else ifeq (${BOARD_NAME}, robotControl)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+else ifeq (${BOARD_NAME}, robotMotor)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+else ifeq (${BOARD_NAME}, circuitplay32u4cat)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+else ifeq (${BOARD_NAME}, yunmini)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+else ifeq (${BOARD_NAME}, chiwawa)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+else ifeq (${BOARD_NAME}, one)
+  BUILD_EXTRA_FLAGS=${BUILD_USB_FLAGS}
+endif
+BUILD_USB_MANUFACTURER="Unknown"
+COMPILER_SIZE_CMD=avr-size
+COMPILER_ELF2HEX_CMD=avr-objcopy
+COMPILER_ELF2HEX_FLAGS=-O ihex -R .eeprom
+COMPILER_OBJCOPY_EEP_FLAGS=-O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0
+COMPILER_OBJCOPY_CMD=avr-objcopy
+COMPILER_AR_FLAGS=rcs
+COMPILER_AR_CMD=avr-gcc-ar
+COMPILER_CPP_CMD=avr-g++
+COMPILER_S_FLAGS=-c -g -x assembler-with-cpp -flto -MMD
+COMPILER_C_ELF_CMD=avr-gcc
+COMPILER_C_CMD=avr-gcc
+COMPILER_PATH=${RUNTIME_TOOLS_AVR_GCC_PATH}/bin/
+COMPILER_WARNING_FLAGS=-w
+COMPILER_CPP_FLAGS=-c -g -Os ${COMPILER_WARNING_FLAGS} -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto
+COMPILER_C_ELF_FLAGS=${COMPILER_WARNING_FLAGS} -Os -g -flto -fuse-linker-plugin -Wl,--gc-sections
+COMPILER_C_FLAGS=-c -g -Os ${COMPILER_WARNING_FLAGS} -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects
+COMPILER_WARNING_FLAGS_ALL=-Wall -Wextra
+COMPILER_WARNING_FLAGS_MORE=-Wall
+COMPILER_WARNING_FLAGS_NONE=-w
+VERSION=1.8.3
+NAME=Arduino AVR Boards
+TOOLS_AVRDUDE_NETWORK_CMD?=${RUNTIME_TOOLS_ARDUINOOTA_PATH}/bin/arduinoOTA
+ifeq (${UPLOAD_USE_1200BPS_TOUCH}, true)
+  UPLOAD_EXTRA_FLAGS=--touch 1200
+endif
+ifeq (${UPLOAD_TOOL}, avrdude)
+  UPLOAD_PATTERN="${CMD_PATH}" "-C${CONFIG_PATH}" ${UPLOAD_VERBOSE} ${UPLOAD_VERIFY} -p${BUILD_MCU} -c${UPLOAD_PROTOCOL} "-P${SERIAL_PORT}" -b${UPLOAD_SPEED} -D "-Uflash:w:$(abspath ${BUILD_PATH})/${BUILD_PROJECT_NAME}.hex:i"
+endif
+ifeq (${UPLOAD_USE_1200BPS_TOUCH}, true)
+  UPLOAD_EXTRA_FLAGS=--touch 1200
+endif
+ifeq (${UPLOAD_TOOL}, avrdude_remote)
+  UPLOAD_PATTERN=/usr/bin/run-avrdude /tmp/sketch.hex ${UPLOAD_VERBOSE} -p${BUILD_MCU}
+endif
+ifeq (${BUILD_CORE}, arduino)
+  C_SYS_SRCS+=src/__test__/hardware/arduino/avr/cores/arduino/hooks.c \
+    src/__test__/hardware/arduino/avr/cores/arduino/WInterrupts.c \
+    src/__test__/hardware/arduino/avr/cores/arduino/wiring.c \
+    src/__test__/hardware/arduino/avr/cores/arduino/wiring_analog.c \
+    src/__test__/hardware/arduino/avr/cores/arduino/wiring_digital.c \
+    src/__test__/hardware/arduino/avr/cores/arduino/wiring_pulse.c \
+    src/__test__/hardware/arduino/avr/cores/arduino/wiring_shift.c
+  CPP_SYS_SRCS+=src/__test__/hardware/arduino/avr/cores/arduino/abi.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/CDC.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/HardwareSerial.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/HardwareSerial0.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/HardwareSerial1.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/HardwareSerial2.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/HardwareSerial3.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/IPAddress.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/main.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/new.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/PluggableUSB.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/Print.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/Stream.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/Tone.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/USBCore.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/WMath.cpp \
+    src/__test__/hardware/arduino/avr/cores/arduino/WString.cpp
+  S_SYS_SRCS+=src/__test__/hardware/arduino/avr/cores/arduino/wiring_pulse.S
+  SYS_INCLUDES+= -Isrc/__test__/hardware/arduino/avr/cores/arduino
+  VPATH_CORE+=src/__test__/hardware/arduino/avr/cores/arduino
+endif
+ifeq (${BUILD_VARIANT}, yun)
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/yun
+  VPATH_CORE+=
+else ifeq (${BUILD_VARIANT}, standard)
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/standard
+  VPATH_CORE+=
+else ifeq (${BUILD_VARIANT}, eightanaloginputs)
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/eightanaloginputs
+  VPATH_CORE+=
+else ifeq (${BUILD_VARIANT}, mega)
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/mega
+  VPATH_CORE+=
+else ifeq (${BUILD_VARIANT}, leonardo)
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/leonardo
+  VPATH_CORE+=
+else ifeq (${BUILD_VARIANT}, micro)
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/micro
+  VPATH_CORE+=
+else ifeq (${BUILD_VARIANT}, ethernet)
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/ethernet
+  VPATH_CORE+=
+else ifeq (${BUILD_VARIANT}, robot_control)
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/robot_control
+  VPATH_CORE+=
+else ifeq (${BUILD_VARIANT}, robot_motor)
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/robot_motor
+  VPATH_CORE+=
+else ifeq (${BUILD_VARIANT}, gemma)
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/gemma
+  VPATH_CORE+=
+else ifeq (${BUILD_VARIANT}, circuitplay32u4)
+  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/circuitplay32u4
+  VPATH_CORE+=
+endif
+SYS_SRC=${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}
+USER_SRC=${USER_C_SRCS} ${USER_CPP_SRCS} ${USER_S_SRCS}
+ALL_SRC=${SYS_SRC} ${USER_SRC}
+VPATH:=${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}
+SYS_OBJS=\
+  $(addprefix ${BUILD_PATH}/, \
+    $(patsubst %.c, %.c.o, \
+      $(patsubst %.cpp, %.cpp.o, \
+        $(patsubst %.ino, %.ino.o, \
+          $(patsubst %.S, %.S.o, $(notdir ${SYS_SRC}))))))
+USER_OBJS=\
+  $(addprefix ${BUILD_PATH}/, \
+    $(patsubst %.c, %.c.o, \
+      $(patsubst %.cpp, %.cpp.o, \
+        $(patsubst %.ino, %.ino.o, \
+          $(patsubst %.S, %.S.o, $(notdir ${USER_SRC}))))))
+ALL_OBJS=${USER_OBJS} ${SYS_OBJS}
+SYS_JSON=\
+  $(addprefix ${BUILD_PATH}/, \
+    $(patsubst %.c, %.c.json, \
+      $(patsubst %.cpp, %.cpp.json, \
+        $(patsubst %.ino, %.ino.json, \
+          $(patsubst %.S, %.S.json, $(notdir ${SYS_SRC}))))))
+USER_JSON=\
+  $(addprefix ${BUILD_PATH}/, \
+    $(patsubst %.c, %.c.json, \
+      $(patsubst %.cpp, %.cpp.json, \
+        $(patsubst %.ino, %.ino.json, \
+          $(patsubst %.S, %.S.json, $(notdir ${USER_SRC}))))))
+
+# And now the build rules!
+
+# First, the phony rules that don't produce things
+.PHONY: ${PROJ_NAME} flash clean allclean
+
+# Now the default target
+all: ${BUILD_PATH} ${PROJ_NAME}
+
+# Some house keeping
+clean:
+	-rm ${USER_OBJS} ${USER_EXTRA}
+
+allclean: clean
+	-rm -rf ${BUILD_PATH}
+
+# Make us rebuild user code if the makefile(s) change:
+# Needs to be above the deps thing, I think
+${USER_OBJS} : $(MAKEFILE_LIST)
+
+# Let's start using the generated .d files...
+-include $(ALL_OBJS:.o=.d)
+
+# Next, the project name shortcut, because it's easier
+${PROJ_NAME}: ${BUILD_PATH} ${BUILD_PATH}/${PROJ_NAME}.hex
+
+# Add a 'flash' target
+flash: ${BUILD_PATH}/${PROJ_NAME}.flash
+
+# And finally, create the directory
+${BUILD_PATH}:
+ifeq ($(OS),Windows_NT)
+	-@mkdir "$@"
+else
+	@test -d "$@" || mkdir -p "$@"
+endif
+
+# Now, on to the actual rules
+
+${BUILD_PATH}/%.S.o : %.S
+	"${COMPILER_PATH}${COMPILER_C_CMD}" ${COMPILER_S_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_S_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} "$<" -o "$@"
+
+${BUILD_PATH}/%.S.json : %.S
+ifeq ($(OS),Windows_NT)
+	@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@
+	@echo "\"${COMPILER_PATH}${COMPILER_C_CMD}\" ${COMPILER_S_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_S_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} \"$<\" -o \"$@\"" >> $@
+	@echo }, >> $@
+else
+	@echo "{ \"directory\": \"$(<D)\",\"file\":\"$(<F)\"," > $@
+	@echo "\"command\":\"\\\"${COMPILER_PATH}${COMPILER_C_CMD}\\\" ${COMPILER_S_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_S_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} \\\"$<\\\" -o \\\"$@\\\"\"}," >> $@
+endif
+
+${BUILD_PATH}/%.c.o : %.c
+	"${COMPILER_PATH}${COMPILER_C_CMD}" ${COMPILER_C_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_C_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} "$<" -o "$@"
+
+${BUILD_PATH}/%.c.json : %.c
+ifeq ($(OS),Windows_NT)
+	@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@
+	@echo "\"${COMPILER_PATH}${COMPILER_C_CMD}\" ${COMPILER_C_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_C_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} \"$<\" -o \"$@\"" >> $@
+	@echo }, >> $@
+else
+	@echo "{ \"directory\": \"$(<D)\",\"file\":\"$(<F)\"," > $@
+	@echo "\"command\":\"\\\"${COMPILER_PATH}${COMPILER_C_CMD}\\\" ${COMPILER_C_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_C_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} \\\"$<\\\" -o \\\"$@\\\"\"}," >> $@
+endif
+
+${BUILD_PATH}/%.ino.o : %.ino
+	"${COMPILER_PATH}${COMPILER_CPP_CMD}" ${COMPILER_CPP_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_CPP_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} -x c++ ${COMPILER_INO_EXTRA_FLAGS} "$<" -o "$@"
+
+${BUILD_PATH}/%.ino.json : %.ino
+ifeq ($(OS),Windows_NT)
+	@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@
+	@echo "\"${COMPILER_PATH}${COMPILER_CPP_CMD}\" ${COMPILER_CPP_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_CPP_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} -x c++ ${COMPILER_INO_EXTRA_FLAGS} \"$<\" -o \"$@\"" >> $@
+	@echo }, >> $@
+else
+	@echo "{ \"directory\": \"$(<D)\",\"file\":\"$(<F)\"," > $@
+	@echo "\"command\":\"\\\"${COMPILER_PATH}${COMPILER_CPP_CMD}\\\" ${COMPILER_CPP_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_CPP_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} -x c++ ${COMPILER_INO_EXTRA_FLAGS} \\\"$<\\\" -o \\\"$@\\\"\"}," >> $@
+endif
+
+${BUILD_PATH}/%.cpp.o : %.cpp
+	"${COMPILER_PATH}${COMPILER_CPP_CMD}" ${COMPILER_CPP_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_CPP_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} "$<" -o "$@"
+
+${BUILD_PATH}/%.cpp.json : %.cpp
+ifeq ($(OS),Windows_NT)
+	@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@
+	@echo "\"${COMPILER_PATH}${COMPILER_CPP_CMD}\" ${COMPILER_CPP_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_CPP_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} \"$<\" -o \"$@\"" >> $@
+	@echo }, >> $@
+else
+	@echo "{ \"directory\": \"$(<D)\",\"file\":\"$(<F)\"," > $@
+	@echo "\"command\":\"\\\"${COMPILER_PATH}${COMPILER_CPP_CMD}\\\" ${COMPILER_CPP_FLAGS} -mmcu=${BUILD_MCU} -DF_CPU=${BUILD_F_CPU} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DARDUINO_ARCH_${BUILD_ARCH} ${COMPILER_CPP_EXTRA_FLAGS} ${BUILD_EXTRA_FLAGS} ${SYS_INCLUDES} ${USER_INCLUDES} \\\"$<\\\" -o \\\"$@\\\"\"}," >> $@
+endif
+
+${BUILD_PATH}/system.a : ${SYS_OBJS}
+	"${COMPILER_PATH}${COMPILER_AR_CMD}" ${COMPILER_AR_FLAGS} ${COMPILER_AR_EXTRA_FLAGS} "$@" $^
+
+
+${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf : ${BUILD_PATH}/system.a ${USER_OBJS}
+	"${COMPILER_PATH}${COMPILER_C_ELF_CMD}" ${COMPILER_C_ELF_FLAGS} -mmcu=${BUILD_MCU} ${COMPILER_C_ELF_EXTRA_FLAGS} ${COMPILER_LDFLAGS} ${COMPILER_ELF_EXTRA_FLAGS} -o "$@" ${USER_OBJS} ${COMPILER_LIBRARIES_LDFLAGS} "${BUILD_PATH}/system.a" "-L${BUILD_PATH}" -lm
+
+
+${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex : ${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf
+	"${COMPILER_PATH}${COMPILER_ELF2HEX_CMD}" ${COMPILER_ELF2HEX_FLAGS} ${COMPILER_ELF2HEX_EXTRA_FLAGS} "$<" "$@"
+
+${BUILD_PATH}/${BUILD_PROJECT_NAME}.flash : ${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex
+	${UPLOAD_PATTERN} ${UPLOAD_EXTRA_FLAGS}
+
+
+${BUILD_PATH}/compile_commands.json: ${USER_JSON} ${SYS_JSON}
+ifeq ($(OS),Windows_NT)
+	@echo [ > $@
+	@sed -e "s/ / /" $^ >> $@
+	@echo {}] >> $@
+else
+	@echo "[" > $@.tmp
+	@cat $^ >> $@.tmp
+	@echo "]" >> $@.tmp
+	@sed -e ':a' -e 'N' -e '$$!ba' -e 's/},\n]/}]/g' $@.tmp > $@
+endif
+
+compile_commands: ${BUILD_PATH} ${BUILD_PATH}/compile_commands.json
