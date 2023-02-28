@@ -1,11 +1,10 @@
-import { Type } from '@freik/core-utils';
+import { SafelyUnpickle, Type } from '@freik/core-utils';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { buildBoard } from './board.js';
-import { makeDeclDef, makeIfeq, makeIfneq, makeUnDecl } from './mkutil.js';
 import { parseFile } from './parser.js';
 import { buildPlatform } from './platform.js';
-import { emitChecks, emitDefs, emitRules, order } from './targets/makefile.js';
+import { Emit } from './targets/makefile.js';
 
 // Var def to match, substr to find, string to replace substr with
 type TransformItem = { defmatch: string; text: string; replace: string };
@@ -61,15 +60,18 @@ function dumpToFile(message: unknown): void {
 
 // Eventually, we can dump stuff into different files, right?
 export function dump(which?: string): (message: unknown) => void {
-  if (which === 'err') {
-    return console.error; // eslint-disable-line no-console
-  } else if (which === 'log' || which === undefined) {
-    return Type.isUndefined(outputFile) ? console.log : dumpToFile; // eslint-disable-line no-console
+  switch (which) {
+    case undefined:
+    case 'log':
+      return Type.isUndefined(outputFile) ? console.log : dumpToFile; // eslint-disable-line no-console
+    case 'err':
+      return console.error; // eslint-disable-line no-console
+    default:
+      return (msg) => {
+        // eslint-disable-next-line no-console
+        console.error(which, ' is an invalid selector: ', msg);
+      };
   }
-  return (msg) => {
-    // eslint-disable-next-line no-console
-    console.error(which, ' is an invalid selector: ', msg);
-  };
 }
 
 async function readConfig(
@@ -78,12 +80,12 @@ async function readConfig(
   if (configs.length === 1) {
     try {
       const cfg = await fs.readFile(configs[0].substring(9), 'utf-8');
-      const json = JSON.parse(cfg) as unknown;
-      if (isConfig(json)) {
-        return json;
+      const json = SafelyUnpickle(cfg, isConfig);
+      if (Type.isUndefined(json)) {
+        dump('err')('Invalid type for config file:');
+        dump('err')(json);
       }
-      dump('err')('Invalid type for config file:');
-      dump('err')(json);
+      return json;
     } catch (e) {
       dump('err')('Unable to read config file:');
       dump('err')(e);
@@ -112,7 +114,7 @@ export default async function main(...args: string[]): Promise<void> {
 
   if (normalArgs.length === 0 && config === undefined) {
     dump('err')(
-      'Usage: {--config:file.json} rootDir {lib1Dir lib2Dir lib3Dir}',
+      'Usage: {--config:file.json} {--out:<filename>} rootDir {lib1Dir lib2Dir lib3Dir}',
     );
     dump('err')(
       "  rootDir is where you can find 'boards.txt' and 'platform.txt'",
@@ -135,32 +137,8 @@ export default async function main(...args: string[]): Promise<void> {
     libLocs,
   );
 
-  const isWin = makeIfeq('$(OS)', 'Windows_NT');
-  const notWin = makeIfneq('$(OS)', 'Windows_NT');
-  const isMac = makeIfeq('$(uname)', 'Darwin');
-  // const notMac = makeIfneq('$(uname)', 'Darwin');
-  const initial = [
-    makeDeclDef('RUNTIME_OS', 'windows', [], [isWin]),
-    makeDeclDef('uname', '$(shell uname -s)', [], [notWin]),
-    makeDeclDef('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
-    makeUnDecl('RUNTIME_OS', 'linux'),
-    makeDeclDef(
-      'RUNTIME_PLATFORM_PATH',
-      path.dirname(platform).replaceAll('\\', '/'),
-    ),
-    makeDeclDef('RUNTIME_IDE_VERSION', '10819'),
-    makeDeclDef('IDE_VERSION', '10819'),
-  ];
+  Emit(platform, boardDefined, platDefs, rules);
 
-  // TODO: Make definitions dependent on their condition values, so that I can
-  // put errors in place when mandatory symbols aren't defined before inclusion
-  const { checks, defs } = order(
-    [...initial, ...boardDefined, ...platDefs],
-    rules,
-  );
-  emitChecks(checks);
-  emitDefs(defs);
-  emitRules(rules);
   if (!Type.isUndefined(outputFile) && Type.isString(outputName)) {
     await fs.writeFile(outputName, outputFile.join('\n'), 'utf-8');
   }

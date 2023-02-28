@@ -1,6 +1,8 @@
 // Utilities for doing Makefile stuff
 
+import path from 'path';
 import { dump, Transform } from '../main.js';
+import { makeDeclDef, makeIfeq, makeIfneq, makeUnDecl } from '../mkutil.js';
 import type { Condition, Definition, Recipe } from '../types.js';
 
 const optionalDefs: string[] = [
@@ -18,7 +20,7 @@ const optionalDefs: string[] = [
   'UPLOAD_VERBOSE',
 ];
 
-export function order(
+function order(
   defs: Definition[],
   rules: Recipe[],
 ): { checks: string[]; defs: Definition[] } {
@@ -78,7 +80,7 @@ export function order(
   return { checks: [...checks.keys()], defs: ordered };
 }
 
-export function emitChecks(checks: string[]) {
+function emitChecks(checks: string[]) {
   dump()('# First, add some errors for undefined values');
   checks.forEach((val: string) => {
     dump()(`ifndef ${val}`);
@@ -208,7 +210,7 @@ const opMap: Map<string, string> = new Map([
   ['?decl', '?='],
 ]);
 
-export function emitDefs(defs: Definition[]) {
+function emitDefs(defs: Definition[]) {
   dump()('# And here are all the definitions');
   let prevCond: Condition[] = [];
   //  let depth = '';
@@ -231,7 +233,7 @@ function slashify(str: string): string {
   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"').replace(/'/g, '');
 }
 
-export function emitRules(rules: Recipe[]) {
+function emitRules(rules: Recipe[]) {
   // Check to see what our flash target depends on
   // TODO: Not sure what to do if we have multiple flash targets :/
   const flashRules = rules.filter((r: Recipe) => r.dst === 'flash');
@@ -340,4 +342,38 @@ function tryToAddUserExtraFlag(sfx: string, srch: string, cmd: string) {
     if (loc > 0) cmd = cmd.substring(0, loc) + flg + cmd.substring(loc);
   }
   return cmd;
+}
+
+export function Emit(
+  platform: string,
+  boardDefined: Definition[],
+  platDefs: Definition[],
+  rules: Recipe[],
+): void {
+  const isWin = makeIfeq('$(OS)', 'Windows_NT');
+  const notWin = makeIfneq('$(OS)', 'Windows_NT');
+  const isMac = makeIfeq('$(uname)', 'Darwin');
+  // const notMac = makeIfneq('$(uname)', 'Darwin');
+  const initial = [
+    makeDeclDef('RUNTIME_OS', 'windows', [], [isWin]),
+    makeDeclDef('uname', '$(shell uname -s)', [], [notWin]),
+    makeDeclDef('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
+    makeUnDecl('RUNTIME_OS', 'linux'),
+    makeDeclDef(
+      'RUNTIME_PLATFORM_PATH',
+      path.dirname(platform).replaceAll('\\', '/'),
+    ),
+    makeDeclDef('RUNTIME_IDE_VERSION', '10819'),
+    makeDeclDef('IDE_VERSION', '10819'),
+  ];
+
+  // TODO: Make definitions dependent on their condition values, so that I can
+  // put errors in place when mandatory symbols aren't defined before inclusion
+  const { checks, defs } = order(
+    [...initial, ...boardDefined, ...platDefs],
+    rules,
+  );
+  emitChecks(checks);
+  emitDefs(defs);
+  emitRules(rules);
 }

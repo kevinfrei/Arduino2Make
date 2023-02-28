@@ -37,50 +37,56 @@ beforeAll(deleteOutputs);
 afterAll(deleteOutputs);
 
 it('AVR basics', async () => {
-  expect(
-    await main(`--out:${avrOutput}`, 'src/__test__/hardware/arduino/avr'),
-  ).toBeFalsy();
-  expect(
-    await fileCompare(avrOutput, 'src/__test__/baseline.avr'),
-  ).toBeTruthy();
+  let failed = true;
+  try {
+    expect(
+      await main(`--out:${avrOutput}`, 'src/__test__/hardware/arduino/avr'),
+    ).toBeFalsy();
+    expect(
+      await fileCompare(avrOutput, 'src/__test__/baseline.avr'),
+    ).toBeTruthy();
+    failed = false;
+  } finally {
+    if (failed) {
+      await promises.copyFile(avrOutput, avrOutput + '.err');
+    }
+  }
 });
 
 it('Teensy basics', async () => {
-  expect(
-    await main(`--out:${teensyOutput}`, 'src/__test__/hardware/teensy/avr'),
-  ).toBeFalsy();
-  expect(
-    await fileCompare(teensyOutput, 'src/__test__/baseline.teensy'),
-  ).toBeTruthy();
+  let failed = true;
+  try {
+    expect(
+      await main(`--out:${teensyOutput}`, 'src/__test__/hardware/teensy/avr'),
+    ).toBeFalsy();
+    expect(
+      await fileCompare(teensyOutput, 'src/__test__/baseline.teensy'),
+    ).toBeTruthy();
+    failed = false;
+  } finally {
+    if (failed) {
+      await promises.copyFile(teensyOutput, teensyOutput + '.err');
+    }
+  }
 });
 
 it('Teensy with some libs', async () => {
-  expect(
-    await main(
-      `--out:${teensyLibsOutput}`,
-      'src/__test__/hardware/teensy/avr',
-      'src/__test__/libraries/Adafruit_Circuit_Playground',
-      'src/__test__/libraries/Bridge',
-      'src/__test__/libraries/Esplora',
-      'src/__test__/libraries/Ethernet',
-      'src/__test__/libraries/Firmata',
-      'src/__test__/libraries/GSM',
-      'src/__test__/libraries/Keyboard',
-      'src/__test__/libraries/LiquidCrystal',
-      'src/__test__/libraries/Mouse',
-      'src/__test__/libraries/RobotIRremote',
-      'src/__test__/libraries/Robot_Control',
-      'src/__test__/libraries/Robot_Motor',
-      'src/__test__/libraries/SD',
-      'src/__test__/libraries/Servo',
-      'src/__test__/libraries/SpacebrewYun',
-      'src/__test__/libraries/Stepper',
-      'src/__test__/libraries/Temboo',
-      'src/__test__/libraries/TFT',
-      'src/__test__/libraries/WiFi',
-    ),
-  ).toBeFalsy();
-  expect(
-    await fileCompare(teensyLibsOutput, 'src/__test__/baseline.libs'),
-  ).toBeTruthy();
+  let failed = true;
+  try {
+    expect(
+      await main(
+        `--out:${teensyLibsOutput}`,
+        'src/__test__/hardware/teensy/avr',
+        'src/__test__/libraries',
+      ),
+    ).toBeFalsy();
+    expect(
+      await fileCompare(teensyLibsOutput, 'src/__test__/baseline.libs'),
+    ).toBeTruthy();
+    failed = false;
+  } finally {
+    if (failed) {
+      await promises.copyFile(teensyLibsOutput, teensyLibsOutput + '.err');
+    }
+  }
 });
