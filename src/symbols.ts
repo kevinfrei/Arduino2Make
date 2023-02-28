@@ -1,30 +1,39 @@
 import { Type } from '@freik/core-utils';
 import { dump } from './main.js';
-import type { SimpleSymbol, SymbolTable } from './types.js';
+import type { ScopedName, SimpleSymbol, SymbolTable } from './types.js';
 
-export function getScopedName(fullName: string): string[] {
-  return fullName.split('.');
+export function getScopedName(fullName: string): ScopedName {
+  const names = fullName.split('.');
+  const getElement: (index: number) => string = (index: number) => {
+    if (index >= 0 && index < names.length) {
+      return names[index];
+    }
+    throw Error('Invalid element index!');
+  };
+  const getFullName: () => string = () => names.join('.');
+  const length: () => number = () => names.length;
+  return { getElement, getFullName, length };
 }
 
 // Parsing stuff goes here
 function makeSimpleSymbol(
-  pieces: string[],
+  pieces: ScopedName,
   value: string,
   table: SymbolTable,
   index: number,
   parent: SimpleSymbol | undefined,
 ): SimpleSymbol | undefined {
   index = index || 0;
-  if (index >= pieces.length) {
-    dump('err')('Duplicate symbol definition: ' + pieces.join('.'));
+  if (index >= pieces.length()) {
+    dump('err')('Duplicate symbol definition: ' + pieces.getFullName());
     return parent;
   }
-  const nm: string = pieces[index];
+  const nm = pieces.getElement(index);
   let childSym = table.get(nm);
   if (Type.isUndefined(childSym)) {
     childSym = { name: nm, children: new Map(), parent };
     table.set(nm, childSym);
-    if (index === pieces.length - 1) {
+    if (index === pieces.length() - 1) {
       childSym.value = value;
       return childSym;
     }
@@ -40,12 +49,12 @@ function makeSimpleSymbol(
 
 // Make a symbol in the given symbol table
 export function makeSymbol(
-  piecesOrName: string[] | string,
+  piecesOrName: string,
   value: string,
   table: SymbolTable,
 ): SimpleSymbol | undefined {
   return makeSimpleSymbol(
-    Type.isString(piecesOrName) ? getScopedName(piecesOrName) : piecesOrName,
+    getScopedName(piecesOrName),
     value,
     table,
     0,
@@ -55,16 +64,16 @@ export function makeSymbol(
 
 // Lookup the (flat or split) symbol in the table
 export function lookupSymbol(
-  fullName: string | string[],
+  fullName: string | ScopedName,
   table: SymbolTable,
 ): string | undefined {
   const pieces = Type.isString(fullName) ? getScopedName(fullName) : fullName;
-  for (let i = 0; i < pieces.length; i++) {
-    const sym = table.get(pieces[i]);
+  for (let i = 0; i < pieces.length(); i++) {
+    const sym = table.get(pieces.getElement(i));
     if (Type.isUndefined(sym)) {
       return;
     }
-    if (i === pieces.length - 1) {
+    if (i === pieces.length() - 1) {
       return sym.value;
     }
     table = sym.children;

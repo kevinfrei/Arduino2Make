@@ -51,3 +51,9 @@ export type Recipe = {
   command: string;
   dependsOn: string[];
 };
+
+export type ScopedName = {
+  getElement: (index: number) => string;
+  getFullName: () => string;
+  length: () => number;
+};

@@ -123,7 +123,6 @@ function resolveValue(value: string, parsedFile: ParsedFile): DependentValue {
       }
       const nextSym = value.substring(newloc + 1, close);
       // Get the value of that symbol
-
       const symVal = lookupSymbol(nextSym, parsedFile.scopedTable);
       if (Type.isUndefined(symVal)) {
         unresolved.add(nextSym);
