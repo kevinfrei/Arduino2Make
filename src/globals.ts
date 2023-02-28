@@ -1,5 +1,5 @@
 import { parseVariable } from './parser';
-import { FlatTable, ParsedFile, SymbolTable } from './types';
+import { ParsedFile, SymbolTable } from './types';
 
 /*
 These are all the pre-defined symbols, per the specification:
@@ -7,9 +7,8 @@ These are all the pre-defined symbols, per the specification:
 
 export function makeGlobals(): ParsedFile {
   const scopedTable: SymbolTable = new Map();
-  const flatSymbols: FlatTable = new Map();
   const pv = (nm: string, val?: string) =>
-    parseVariable(nm + '=' + (val || `@@${nm}@@`), scopedTable, flatSymbols);
+    parseVariable(nm + '=' + (val || `@@${nm}@@`), scopedTable);
   // {runtime.platform.path}: the absolute path of the board platform folder (i.e. the folder containing boards.txt)
   pv('runtime.platform.path');
   // {runtime.hardware.path}: the absolute path of the hardware folder (i.e. the folder containing the board platform folder)
@@ -44,5 +43,5 @@ export function makeGlobals(): ParsedFile {
   pv('extra.time.zone');
   // {extra.time.dst}: local daylight savings time offset
   pv('extra.time.dst');
-  return { scopedTable, flatSymbols };
+  return { scopedTable };
 }

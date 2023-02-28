@@ -2,18 +2,14 @@ import { Type } from '@freik/core-utils';
 import * as fs from 'fs';
 import * as rl from 'readline';
 import { dump } from './main.js';
-import { getScopedName, makeSymbol } from './symbols.js';
-import type { FlatTable, ParsedFile, SymbolTable } from './types.js';
+import { makeSymbol } from './symbols.js';
+import type { ParsedFile, SymbolTable } from './types.js';
 
 function isComment(line: string): boolean {
   return line.trim().startsWith('#');
 }
 
-export function parseVariable(
-  line: string,
-  table: SymbolTable,
-  flatsyms: FlatTable,
-): boolean {
+export function parseVariable(line: string, table: SymbolTable): boolean {
   const t = line.trim();
   const eq = t.indexOf('=');
   if (eq < 1) {
@@ -21,14 +17,12 @@ export function parseVariable(
   }
   const fullName = t.substring(0, eq);
   const value = t.substring(eq + 1);
-  flatsyms.set(fullName, value);
-  return !Type.isUndefined(makeSymbol(getScopedName(fullName), value, table));
+  return !Type.isUndefined(makeSymbol(fullName, value, table));
 }
 
 // Read in the text file, and spit out the parsed file
 export async function parseFile(filepath: string): Promise<ParsedFile> {
   const scopedTable: SymbolTable = new Map();
-  const flatSymbols: FlatTable = new Map();
 
   const read = rl.createInterface({ input: fs.createReadStream(filepath) });
   let num = 0;
@@ -38,9 +32,9 @@ export async function parseFile(filepath: string): Promise<ParsedFile> {
       continue;
     }
     // Read the variables one by one
-    if (!parseVariable(line, scopedTable, flatSymbols)) {
+    if (!parseVariable(line, scopedTable)) {
       dump('err')(`Error ${num}: ${line}`);
     }
   }
-  return { scopedTable, flatSymbols };
+  return { scopedTable };
 }

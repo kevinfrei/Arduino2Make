@@ -10,7 +10,7 @@ export type FlatTable = Map<string, string>;
 // This is the scoped c(b(a)) -> "Something Here" list:
 export type SymbolTable = Map<string, SimpleSymbol>;
 // A Parsed file is *both* of those things (for no good reason: Why not just a SymbolTable?)
-export type ParsedFile = { scopedTable: SymbolTable; flatSymbols: FlatTable };
+export type ParsedFile = { scopedTable: SymbolTable };
 
 export type DependentValue = { value: string; unresolved: Set<string> };
 

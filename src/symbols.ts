@@ -40,11 +40,17 @@ function makeSimpleSymbol(
 
 // Make a symbol in the given symbol table
 export function makeSymbol(
-  pieces: string[],
+  piecesOrName: string[] | string,
   value: string,
   table: SymbolTable,
 ): SimpleSymbol | undefined {
-  return makeSimpleSymbol(pieces, value, table, 0, undefined);
+  return makeSimpleSymbol(
+    Type.isString(piecesOrName) ? getScopedName(piecesOrName) : piecesOrName,
+    value,
+    table,
+    0,
+    undefined,
+  );
 }
 
 // Lookup the (flat or split) symbol in the table
