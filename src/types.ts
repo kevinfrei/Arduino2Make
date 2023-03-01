@@ -5,11 +5,9 @@ export type SimpleSymbol = {
   parent?: SimpleSymbol;
   children: SymbolTable;
 };
-// This is just a "a.b.c"="Something Here" list:
-export type FlatTable = Map<string, string>;
 // This is the scoped c(b(a)) -> "Something Here" list:
 export type SymbolTable = Map<string, SimpleSymbol>;
-// A Parsed file is *both* of those things (for no good reason: Why not just a SymbolTable?)
+// A parsed file as something fancier than a SymbolTable, mostly for historical reasons
 export type ParsedFile = { scopedTable: SymbolTable };
 
 export type DependentValue = { value: string; unresolved: Set<string> };

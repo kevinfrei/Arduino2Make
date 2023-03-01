@@ -12,6 +12,7 @@ function isComment(line: string): boolean {
 export function parseVariable(line: string, table: SymbolTable): boolean {
   const t = line.trim();
   const eq = t.indexOf('=');
+  /* istanbul ignore if */
   if (eq < 1) {
     return false;
   }
@@ -32,6 +33,7 @@ export async function parseFile(filepath: string): Promise<ParsedFile> {
       continue;
     }
     // Read the variables one by one
+    /* istanbul ignore if */
     if (!parseVariable(line, scopedTable)) {
       dump('err')(`Error ${num}: ${line}`);
     }

@@ -1,7 +1,7 @@
 import { pathCompare } from '@freik/node-utils';
 import { promises as fsp } from 'fs';
 import * as path from 'path';
-import { Filter } from './main.js';
+import { Filter } from './config.js';
 import { makeAppend, spacey, trimq } from './mkutil.js';
 import { Condition, Definition } from './types.js';
 

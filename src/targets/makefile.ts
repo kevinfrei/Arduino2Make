@@ -1,11 +1,8 @@
 // Utilities for doing Makefile stuff
 
 import path from 'path';
-import {
-  CalculateChecksAndOrderDefinitions,
-  dump,
-  Transform,
-} from '../main.js';
+import { Transform } from '../config.js';
+import { CalculateChecksAndOrderDefinitions, dump } from '../main.js';
 import { makeDeclDef, makeIfeq, makeIfneq, makeUnDecl } from '../mkutil.js';
 import type { Condition, Definition, Recipe } from '../types.js';
 
