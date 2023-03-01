@@ -55,3 +55,34 @@ export type ScopedName = {
   getFullName: () => string;
   length: () => number;
 };
+
+type Dependency = { name: string; ver: string };
+type SemVer = string | { major: number; minor: number; patch: number };
+type Categories =
+  | 'Uncategorized'
+  | 'Display'
+  | 'Communication'
+  | 'Signal Input/Output'
+  | 'Sensors'
+  | 'Device Control'
+  | 'Timing'
+  | 'Data Storage'
+  | 'Data Processing'
+  | 'Other';
+
+export type LibProps = {
+  name: string;
+  version: SemVer;
+  author: string[];
+  maintainer: string;
+  sentence: string;
+  paragraph: string;
+  category: Categories;
+  url: string;
+  architecture: string;
+  depends: Dependency[];
+  linkage?: boolean;
+  includes: string[];
+  precompiled: boolean | 'full';
+  ldflags: string;
+};

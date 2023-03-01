@@ -43,5 +43,6 @@ export function makeGlobals(): ParsedFile {
   pv('extra.time.zone');
   // {extra.time.dst}: local daylight savings time offset
   pv('extra.time.dst');
+
   return { scopedTable };
 }

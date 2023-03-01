@@ -1,7 +1,8 @@
-import { promises as fsp } from 'fs';
+import { Type } from '@freik/core-utils';
 import * as path from 'path';
 import { enumerateFiles, getFileList, getPath, mkSrcList } from './files.js';
 import { makeAppend, makeIfdef, spacey, trimq } from './mkutil.js';
+import { parseFile } from './parser.js';
 import type { Definition } from './types.js';
 
 export type Library = { defs: Definition[] };
@@ -66,16 +67,10 @@ endif
     makeAppend('VPATH_MORE', paths.map(spacey).join(' '), [], [libCond]),
   );
   // This is only sort of work for the Adafruit nRFCrypto library
-  const fileContents = (
-    await fsp.readFile(path.join(trimq(root), 'library.properties'))
-  ).toString();
-  const ldFlagsPos = fileContents.indexOf('\nldflags');
-  if (ldFlagsPos >= 0) {
-    const endOfLd = fileContents.indexOf('\n', ldFlagsPos + 1);
-    const flgVal =
-      endOfLd > 0
-        ? fileContents.substring(ldFlagsPos + 9, endOfLd)
-        : fileContents.substring(ldFlagsPos + 9);
+  const lib = await parseFile(path.join(trimq(root), 'library.properties'));
+  const ldFlags = lib.scopedTable.get('ldflags');
+  if (!Type.isUndefined(ldFlags) && Type.isString(ldFlags.value)) {
+    const flgVal = ldFlags.value;
     defs.push(makeAppend('COMPILER_LIBRARIES_LDFLAGS', flgVal, [], [libCond]));
     // Probably not right, but this works for nRFCrypto
     libFiles
