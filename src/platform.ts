@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { getFileList, mkSrcList } from './files.js';
-import { addLibs, Library } from './libraries.js';
+import { addLibs } from './libraries.js';
 import {
   getPlainValue,
   makeAppend,
@@ -16,6 +16,7 @@ import type {
   Definition,
   DependentValue,
   FilterFunc,
+  Library,
   ParsedFile,
   Recipe,
   SimpleSymbol,

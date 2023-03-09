@@ -56,9 +56,11 @@ export type ScopedName = {
   length: () => number;
 };
 
-type Dependency = { name: string; ver: string };
-type SemVer = string | { major: number; minor: number; patch: number };
-type Categories =
+// Library types:
+
+export type Dependency = { name: string; ver?: string };
+export type SemVer = string | { major: number; minor: number; patch: number };
+export type Categories =
   | 'Uncategorized'
   | 'Display'
   | 'Communication'
@@ -81,8 +83,23 @@ export type LibProps = {
   url: string;
   architecture: string;
   depends: Dependency[];
-  linkage?: boolean;
+  staticLink: boolean;
   includes: string[];
   precompiled: boolean | 'full';
   ldflags: string;
+};
+
+export type Files = {
+  c: string[];
+  cpp: string[];
+  s: string[];
+  h: string[];
+  path: string[];
+};
+
+export type Library = {
+  props: Partial<LibProps>;
+  files: Files;
+  // TODO: Move to Make
+  defs: Definition[];
 };
