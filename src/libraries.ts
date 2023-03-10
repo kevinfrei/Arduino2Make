@@ -179,7 +179,7 @@ function GetCategory(str?: string): Categories {
 }
 
 function getString(name: string, tbl: SymbolTable): string | undefined {
-  const val = tbl.get('version')?.value;
+  const val = tbl.get(name)?.value;
   if (Type.isString(val)) {
     return val;
   }
@@ -188,7 +188,7 @@ function getString(name: string, tbl: SymbolTable): string | undefined {
 function LibPropsFromParsedFile(file: ParsedFile): Partial<LibProps> {
   const tbl = file.scopedTable;
   const name = getString('name', tbl);
-  const version = GetSemanticVersion();
+  const version = GetSemanticVersion(getString('version', tbl));
   const ldflags = getString('ldflags', tbl);
   const architecture = getString('architectures', tbl);
   const depends = GetDepenencies(getString('depends', tbl));

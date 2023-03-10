@@ -1,3 +1,4 @@
+import { Type } from '@freik/core-utils';
 import * as path from 'path';
 import { getFileList, mkSrcList } from './files.js';
 import { addLibs } from './libraries.js';
@@ -321,6 +322,9 @@ export async function buildPlatform(
       const cppPattern = cppChild.children.get('pattern');
       if (cppPattern && cppChild.children.size === 1 && !!cppPattern.value) {
         const val = cppPattern.value;
+        if (!Type.isString(val)) {
+          throw new Error('cpp patterns must be strings, not functions');
+        }
         const toAdd = val.indexOf(' "{source_file}" -o ');
         if (toAdd > 0) {
           const value =

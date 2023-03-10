@@ -129,7 +129,10 @@ function resolveValue(value: string, parsedFile: ParsedFile): DependentValue {
         res = `${res}{${nextSym}}`;
       } else {
         // Potentially unbounded/mutual recursion here. That would be bad...
-        const val = resolveValue(symVal, parsedFile);
+        const val = resolveValue(
+          Type.isString(symVal) ? symVal : symVal(),
+          parsedFile,
+        );
         unresolved = new Set([...unresolved, ...val.unresolved]);
         res = res + val.value;
       }
@@ -162,7 +165,8 @@ export function resolvedValue(
   parsedFile: ParsedFile,
 ): string {
   if (vrbl.value) {
-    const res = resolveValue(vrbl.value, parsedFile);
+    const val = Type.isString(vrbl.value) ? vrbl.value : vrbl.value();
+    const res = resolveValue(val, parsedFile);
     return res.value;
   } else {
     return '';
@@ -199,7 +203,9 @@ export function getPlainValue(
   _parsedFile: ParsedFile,
 ): DependentValue {
   if (vrbl.value) {
-    return unresolvedValue(vrbl.value);
+    return unresolvedValue(
+      Type.isString(vrbl.value) ? vrbl.value : vrbl.value(),
+    );
   } else {
     return { value: '', unresolved: new Set() };
   }
