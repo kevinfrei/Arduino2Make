@@ -1,7 +1,7 @@
 import { Type } from '@freik/core-utils';
 import * as path from 'path';
-import { getFileList, mkSrcList } from './files.js';
-import { EnumerateLibraries } from './libraries.js';
+import { EnumerateDirectory, getFileList, mkSrcList } from './files.js';
+import { EnumerateLibraries, GetLibraryLocations } from './libraries.js';
 import {
   getPlainValue,
   makeAppend,
@@ -436,8 +436,12 @@ export async function buildPlatform(
       ),
     );
   }
-
-  const libs = await EnumerateLibraries([rootpath, ...libLocs]);
+  // Get the library list from the platform
+  const platformLibs = await EnumerateDirectory(
+    path.join(rootpath, 'libraries'),
+  );
+  const userLibs = await GetLibraryLocations(libLocs);
+  const libs = await EnumerateLibraries([...platformLibs, ...libLocs]);
   libs.forEach((val: Library) => {
     fileDefs.push(...val.defs);
   });

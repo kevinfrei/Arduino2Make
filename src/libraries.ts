@@ -1,6 +1,14 @@
 import { Type } from '@freik/core-utils';
+import { promises as fsp } from 'fs';
 import * as path from 'path';
-import { enumerateFiles, getFileList, getPath, mkSrcList } from './files.js';
+import {
+  EnumerateDirectory,
+  enumerateFiles,
+  getFileList,
+  getPath,
+  mkSrcList,
+  ReadDir,
+} from './files.js';
 import { makeAppend, makeIfdef, spacey, trimq } from './mkutil.js';
 import { parseFile } from './parser.js';
 import type {
@@ -22,7 +30,7 @@ import type {
 export async function EnumerateLibraries(locs: string[]): Promise<Library[]> {
   const libData: Library[] = [];
   for (const loc of locs) {
-    // First, find any 'library.properties' files
+    // First, find any 'library.properties' files for v1.5 libraries
     const allFiles = await enumerateFiles(loc);
     const libRoots = allFiles.filter(
       (fn) => path.basename(fn) === 'library.properties',
@@ -118,7 +126,7 @@ function GetSemanticVersion(verstr?: string): SemVer {
   if (Type.isUndefined(verstr)) {
     return '';
   }
-  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(verstr);
+  const match = /^(\d+)(?:\.(\d+)(?:\.(\d+))?)?$/.exec(verstr);
   if (match === null) {
     return verstr;
   }
@@ -218,4 +226,48 @@ function LibPropsFromParsedFile(file: ParsedFile): Partial<LibProps> {
     precompiled,
     ldflags,
   };
+}
+
+async function isLibrary(loc: string): Promise<boolean> {
+  // If the folder contains a 'library.properties' file, it's a library
+  // If it contains a 'keywords.txt' file, it's a library
+  // If it contains any .h, .cpp, .c files, it's a library
+  for (const file of (await ReadDir(loc)).map((v) => v.toLocaleLowerCase())) {
+    if (file === 'library.properties') {
+      return true;
+    }
+    /* 
+    // A src folder requires a library.properties file, so don't handle this:
+    if (file === 'src'){
+      // TODO: Check if it's a dir...
+      return true;
+    }
+    */
+    if (file === 'keywords.txt') {
+      return true;
+    }
+    if (file.endsWith('.h') || file.endsWith('.c') || file.endsWith('.cpp')) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// We may have individual library locations, or a folder that contains a number
+// of *singly nested* library locations.
+// This turns them into the former (a list of library locations)
+export async function GetLibraryLocations(locs: string[]): Promise<string[]> {
+  const libLocs: string[] = [];
+  for (const lib of locs) {
+    if (await isLibrary(lib)) {
+      libLocs.push(lib);
+    } else {
+      for (const sub of await EnumerateDirectory(lib)) {
+        if ((await fsp.stat(sub)).isDirectory() && (await isLibrary(sub))) {
+          libLocs.push(sub);
+        }
+      }
+    }
+  }
+  return libLocs;
 }

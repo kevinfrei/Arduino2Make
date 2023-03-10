@@ -5,18 +5,32 @@ import { Filter } from './config.js';
 import { makeAppend, spacey, trimq } from './mkutil.js';
 import { Condition, Definition } from './types.js';
 
+// Use this to keep things in a predictable order...
+export async function ReadDir(root: string): Promise<string[]> {
+  const files: string[] = await fsp.readdir(root);
+  files.sort(pathCompare);
+  return files;
+}
+
 // Gets all the files under a given directory
 export async function enumerateFiles(root: string): Promise<string[]> {
   if ((await fsp.stat(root)).isDirectory()) {
-    const dirs: string[] = await fsp.readdir(root);
-    dirs.sort(pathCompare);
     const res = [];
-    for (const f of dirs) {
+    for (const f of await ReadDir(root)) {
       res.push(...(await enumerateFiles(path.join(trimq(root), f))));
     }
     return res;
   } else {
     return [root];
+  }
+}
+
+export async function EnumerateDirectory(root: string): Promise<string[]> {
+  if ((await fsp.stat(root)).isDirectory()) {
+    const r = trimq(root);
+    return (await ReadDir(root)).map((n) => path.join(r, n));
+  } else {
+    return [];
   }
 }
 
