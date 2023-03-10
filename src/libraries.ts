@@ -12,6 +12,7 @@ import type {
   Library,
   ParsedFile,
   SemVer,
+  SymbolTable,
 } from './types.js';
 
 // Details here:
@@ -177,23 +178,29 @@ function GetCategory(str?: string): Categories {
   }
 }
 
+function getString(name: string, tbl: SymbolTable): string | undefined {
+  const val = tbl.get('version')?.value;
+  if (Type.isString(val)) {
+    return val;
+  }
+}
+
 function LibPropsFromParsedFile(file: ParsedFile): Partial<LibProps> {
   const tbl = file.scopedTable;
-  const name = tbl.get('name')?.value;
-  const version = GetSemanticVersion(tbl.get('version')?.value);
-  const ldFlags = tbl.get('ldflags');
-  const ldflags = ldFlags?.value;
-  const architecture = tbl.get('architectures')?.value;
-  const depends = GetDepenencies(tbl.get('depends')?.value);
-  const staticLink = tbl.get('dot_a_linkage')?.value === 'true';
-  const includes = GetList(tbl.get('includes')?.value);
-  const precompiled = GetPrecomp(tbl.get('precompiled')?.value);
-  const author = GetList(tbl.get('author')?.value);
-  const maintainer = tbl.get('maintainer')?.value;
-  const sentence = tbl.get('sentence')?.value;
-  const paragraph = tbl.get('paragraph')?.value;
-  const url = tbl.get('url')?.value;
-  const category = GetCategory(tbl.get('category')?.value);
+  const name = getString('name', tbl);
+  const version = GetSemanticVersion();
+  const ldflags = getString('ldflags', tbl);
+  const architecture = getString('architectures', tbl);
+  const depends = GetDepenencies(getString('depends', tbl));
+  const staticLink = getString('dot_a_linkage', tbl) === 'true';
+  const includes = GetList(getString('includes', tbl));
+  const precompiled = GetPrecomp(getString('precompiled', tbl));
+  const author = GetList(getString('author', tbl));
+  const maintainer = getString('maintainer', tbl);
+  const sentence = getString('sentence', tbl);
+  const paragraph = getString('paragraph', tbl);
+  const url = getString('url', tbl);
+  const category = GetCategory(getString('category', tbl));
   return {
     name,
     version,

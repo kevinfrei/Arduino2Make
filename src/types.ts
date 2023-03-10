@@ -1,7 +1,7 @@
 // The basic types for a parsed file:
 export type SimpleSymbol = {
   name: string;
-  value?: string;
+  value?: string | (() => string);
   parent?: SimpleSymbol;
   children: SymbolTable;
 };

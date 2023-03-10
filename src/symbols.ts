@@ -18,7 +18,7 @@ export function getScopedName(fullName: string): ScopedName {
 // Parsing stuff goes here
 function makeSimpleSymbol(
   pieces: ScopedName,
-  value: string,
+  value: string | (() => string),
   table: SymbolTable,
   index: number,
   parent: SimpleSymbol | undefined,
@@ -50,7 +50,7 @@ function makeSimpleSymbol(
 // Make a symbol in the given symbol table
 export function makeSymbol(
   piecesOrName: string,
-  value: string,
+  value: string | (() => string),
   table: SymbolTable,
 ): SimpleSymbol | undefined {
   return makeSimpleSymbol(
@@ -66,7 +66,7 @@ export function makeSymbol(
 export function lookupSymbol(
   fullName: string | ScopedName,
   table: SymbolTable,
-): string | undefined {
+): string | (() => string) | undefined {
   const pieces = Type.isString(fullName) ? getScopedName(fullName) : fullName;
   for (let i = 0; i < pieces.length(); i++) {
     const sym = table.get(pieces.getElement(i));
