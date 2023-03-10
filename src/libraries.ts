@@ -86,9 +86,11 @@ async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
   defs.push(mkSrcList('SYS_INCLUDES', inc, [], [libCond]));
   files.path = paths;
   // TODO: Move to Make
-  defs.push(
-    makeAppend('VPATH_MORE', paths.map(spacey).join(' '), [], [libCond]),
-  );
+  if (paths.length > 0) {
+    defs.push(
+      makeAppend('VPATH_MORE', paths.map(spacey).join(' '), [], [libCond]),
+    );
+  }
   // This is only sort of work for the Adafruit nRFCrypto library
   const lib = await parseFile(path.join(trimq(root), 'library.properties'));
   const props = LibPropsFromParsedFile(lib);
