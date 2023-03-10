@@ -2120,10 +2120,20 @@ ifdef LIB_ADAFRUIT_NEOPIXEL
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Adafruit_NeoPixel
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Adafruit_NeoPixel
 endif
+ifdef LIB_ADAFRUIT_NRF8001
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Adafruit_nRF8001/Adafruit_BLE_UART.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Adafruit_nRF8001
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Adafruit_nRF8001
+endif
 ifdef LIB_ADAFRUIT_STMPE610
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Adafruit_STMPE610/Adafruit_STMPE610.cpp
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Adafruit_STMPE610
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Adafruit_STMPE610
+endif
+ifdef LIB_ADAFRUIT_VS1053
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Adafruit_VS1053/Adafruit_VS1053.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Adafruit_VS1053
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Adafruit_VS1053
 endif
 ifdef LIB_ADC
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ADC/ADC.cpp \
@@ -2134,19 +2144,20 @@ ifdef LIB_ADC
 endif
 ifdef LIB_ALTSOFTSERIAL
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/AltSoftSerial/AltSoftSerial.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/AltSoftSerial \
-    -Isrc/__test__/hardware/teensy/avr/libraries/AltSoftSerial/config
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/AltSoftSerial
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/AltSoftSerial
+endif
+ifdef LIB_ARTNET
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Artnet/Artnet.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Artnet
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Artnet
 endif
 ifdef LIB_AUDIO
   C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Audio/data_bandlimit_step.c \
     src/__test__/hardware/teensy/avr/libraries/Audio/data_spdif.c \
     src/__test__/hardware/teensy/avr/libraries/Audio/data_ulaw.c \
     src/__test__/hardware/teensy/avr/libraries/Audio/data_waveforms.c \
-    src/__test__/hardware/teensy/avr/libraries/Audio/data_windows.c \
-    src/__test__/hardware/teensy/avr/libraries/Audio/extras/miditones/miditones.c \
-    src/__test__/hardware/teensy/avr/libraries/Audio/extras/wav2sketch/wav2sketch.c \
-    src/__test__/hardware/teensy/avr/libraries/Audio/utility/sqrt_integer.c
+    src/__test__/hardware/teensy/avr/libraries/Audio/data_windows.c
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Audio/analyze_fft1024.cpp \
     src/__test__/hardware/teensy/avr/libraries/Audio/analyze_fft256.cpp \
     src/__test__/hardware/teensy/avr/libraries/Audio/analyze_notefreq.cpp \
@@ -2229,12 +2240,15 @@ ifdef LIB_AUDIO
     src/__test__/hardware/teensy/avr/libraries/Audio/synth_tonesweep.cpp \
     src/__test__/hardware/teensy/avr/libraries/Audio/synth_waveform.cpp \
     src/__test__/hardware/teensy/avr/libraries/Audio/synth_wavetable.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/synth_whitenoise.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/utility/imxrt_hw.cpp
+    src/__test__/hardware/teensy/avr/libraries/Audio/synth_whitenoise.cpp
   S_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Audio/memcpy_audio.S
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Audio \
-    -Isrc/__test__/hardware/teensy/avr/libraries/Audio/utility
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Audio src/__test__/hardware/teensy/avr/libraries/Audio/extras/miditones src/__test__/hardware/teensy/avr/libraries/Audio/extras/wav2sketch src/__test__/hardware/teensy/avr/libraries/Audio/utility
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Audio
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Audio
+endif
+ifdef LIB_BOUNCE
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Bounce/Bounce.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Bounce
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Bounce
 endif
 ifdef LIB_BOUNCE2
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Bounce2/src/Bounce2.cpp
@@ -2260,6 +2274,11 @@ ifdef LIB_DMXSIMPLE
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/DmxSimple
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/DmxSimple
 endif
+ifdef LIB_DOGLCD
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/DogLcd/DogLcd.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/DogLcd
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/DogLcd
+endif
 ifdef LIB_DS1307RTC
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/DS1307RTC/DS1307RTC.cpp
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/DS1307RTC
@@ -2282,9 +2301,13 @@ ifdef LIB_EEPROM
 endif
 ifdef LIB_ENCODER
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Encoder/Encoder.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Encoder \
-    -Isrc/__test__/hardware/teensy/avr/libraries/Encoder/utility
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Encoder
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Encoder
+endif
+ifdef LIB_ENTROPY
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Entropy/Entropy.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Entropy
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Entropy
 endif
 ifdef LIB_ETHERNET
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Ethernet/src/Dhcp.cpp \
@@ -2300,11 +2323,10 @@ ifdef LIB_ETHERNET
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Ethernet/src src/__test__/hardware/teensy/avr/libraries/Ethernet/src/utility
 endif
 ifdef LIB_FASTCRC
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FastCRC/examples_PC/test.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastCRC/FastCRChw.cpp \
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FastCRC/FastCRChw.cpp \
     src/__test__/hardware/teensy/avr/libraries/FastCRC/FastCRCsw.cpp
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FastCRC
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FastCRC/examples_PC src/__test__/hardware/teensy/avr/libraries/FastCRC
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FastCRC
 endif
 ifdef LIB_FASTLED
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FastLED/src/bitswap.cpp \
@@ -2337,6 +2359,14 @@ ifdef LIB_FASTLED
     -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/esp/8266 \
     -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FastLED/src src/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/esp/32
+endif
+ifdef LIB_FLEXCAN
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FlexCAN/FlexCAN.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FlexCAN
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FlexCAN
+endif
+ifdef LIB_FLEXCAN_T4
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FlexCAN_T4
 endif
 ifdef LIB_FLEXIO_T4
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FlexIO_t4/src/FlexIOSPI.cpp \
@@ -2537,14 +2567,12 @@ ifdef LIB_FNET
 endif
 ifdef LIB_FREQCOUNT
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FreqCount/FreqCount.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FreqCount \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FreqCount/util
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FreqCount
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FreqCount
 endif
 ifdef LIB_FREQMEASURE
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FreqMeasure/FreqMeasure.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FreqMeasure \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FreqMeasure/util
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FreqMeasure
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FreqMeasure
 endif
 ifdef LIB_FREQMEASUREMULTI
@@ -2558,14 +2586,18 @@ ifdef LIB_FREQUENCYTIMER2
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FrequencyTimer2
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FrequencyTimer2
 endif
+ifdef LIB_I2C_T3
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/i2c_t3/i2c_t3.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/i2c_t3
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/i2c_t3
+endif
 ifdef LIB_ILI9341_T3
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ILI9341_t3/extras/bdf_to_ili9341.c \
-    src/__test__/hardware/teensy/avr/libraries/ILI9341_t3/font_Arial.c \
+  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ILI9341_t3/font_Arial.c \
     src/__test__/hardware/teensy/avr/libraries/ILI9341_t3/font_ArialBold.c \
     src/__test__/hardware/teensy/avr/libraries/ILI9341_t3/glcdfont.c
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ILI9341_t3/ILI9341_t3.cpp
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ILI9341_t3
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ILI9341_t3/extras src/__test__/hardware/teensy/avr/libraries/ILI9341_t3
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ILI9341_t3
 endif
 ifdef LIB_ILI9488_T3
   C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ILI9488_t3/src/glcdfont.c \
@@ -2586,6 +2618,11 @@ ifdef LIB_KEYPAD
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Keypad/src
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Keypad/src
 endif
+ifdef LIB_KS0108
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ks0108/ks0108.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ks0108
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ks0108
+endif
 ifdef LIB_LEDCONTROL
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/LedControl/src/LedControl.cpp
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/LedControl/src
@@ -2601,6 +2638,11 @@ ifdef LIB_LIQUIDCRYSTAL
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/LiquidCrystal/src
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/LiquidCrystal/src
 endif
+ifdef LIB_LIQUIDCRYSTALFAST
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/LiquidCrystalFast/LiquidCrystalFast.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/LiquidCrystalFast
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/LiquidCrystalFast
+endif
 ifdef LIB_LITTLEFS
   C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/LittleFS/src/littlefs/lfs.c \
     src/__test__/hardware/teensy/avr/libraries/LittleFS/src/littlefs/lfs_util.c
@@ -2609,6 +2651,16 @@ ifdef LIB_LITTLEFS
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/LittleFS/src/littlefs \
     -Isrc/__test__/hardware/teensy/avr/libraries/LittleFS/src
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/LittleFS/src/littlefs src/__test__/hardware/teensy/avr/libraries/LittleFS/src
+endif
+ifdef LIB_LOWPOWER
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/LowPower/LowPower.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/LowPower
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/LowPower
+endif
+ifdef LIB_METRO
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Metro/Metro.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Metro
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Metro
 endif
 ifdef LIB_MFRC522
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/MFRC522/src/MFRC522.cpp \
@@ -2644,21 +2696,18 @@ ifdef LIB_NXPMOTIONSENSE
   C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/NXPMotionSense/matrix.c
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/NXPMotionSense/NXPMotionSense.cpp \
     src/__test__/hardware/teensy/avr/libraries/NXPMotionSense/SensorFusion.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/NXPMotionSense \
-    -Isrc/__test__/hardware/teensy/avr/libraries/NXPMotionSense/utility
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/NXPMotionSense
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/NXPMotionSense
 endif
 ifdef LIB_OCTOWS2811
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/OctoWS2811/extras/VideoSDcard/addaudio/addaudio.c
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/OctoWS2811/OctoWS2811.cpp \
     src/__test__/hardware/teensy/avr/libraries/OctoWS2811/OctoWS2811_imxrt.cpp
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/OctoWS2811
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/OctoWS2811/extras/VideoSDcard/addaudio src/__test__/hardware/teensy/avr/libraries/OctoWS2811
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/OctoWS2811
 endif
 ifdef LIB_ONEWIRE
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/OneWire/OneWire.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/OneWire \
-    -Isrc/__test__/hardware/teensy/avr/libraries/OneWire/util
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/OneWire
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/OneWire
 endif
 ifdef LIB_OSC
@@ -2669,15 +2718,17 @@ ifdef LIB_OSC
     src/__test__/hardware/teensy/avr/libraries/OSC/OSCTiming.cpp \
     src/__test__/hardware/teensy/avr/libraries/OSC/SLIPEncodedSerial.cpp \
     src/__test__/hardware/teensy/avr/libraries/OSC/SLIPEncodedUSBSerial.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/OSC \
-    -Isrc/__test__/hardware/teensy/avr/libraries/OSC/test/OSCBundle_test \
-    -Isrc/__test__/hardware/teensy/avr/libraries/OSC/test/OSCMessage_encode_decode_test
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/OSC
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/OSC
+endif
+ifdef LIB_PING
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Ping/Ping.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Ping
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Ping
 endif
 ifdef LIB_PS2KEYBOARD
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/PS2Keyboard/PS2Keyboard.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/PS2Keyboard \
-    -Isrc/__test__/hardware/teensy/avr/libraries/PS2Keyboard/utility
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/PS2Keyboard
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/PS2Keyboard
 endif
 ifdef LIB_PULSEPOSITION
@@ -2697,31 +2748,10 @@ ifdef LIB_QUADENCODER
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/QuadEncoder
 endif
 ifdef LIB_RA8875
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/aerial_22.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/aerial_48.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/akashiSquared_36.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/akashi_36.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/bin_22.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/block_22.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/designerBlock_36.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/dubstreptix_14.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/genow_22.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/heydings_36.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/indieutka_22.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/minipixel_24.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/modo_36.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/orbitron_16.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/Rubic_36.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/squarefont_14.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/squarefuture_20.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/SquareOne_14.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/fonts/SquareOne_24.c \
-    src/__test__/hardware/teensy/avr/libraries/RA8875/glcdfont.c
+  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/RA8875/glcdfont.c
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/RA8875/RA8875.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/RA8875 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/RA8875/_includes \
-    -Isrc/__test__/hardware/teensy/avr/libraries/RA8875/_settings
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/RA8875/fonts src/__test__/hardware/teensy/avr/libraries/RA8875
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/RA8875
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/RA8875
 endif
 ifdef LIB_RADIOHEAD
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/RadioHead/RHCRC.cpp \
@@ -2738,9 +2768,6 @@ ifdef LIB_RADIOHEAD
     src/__test__/hardware/teensy/avr/libraries/RadioHead/RHRouter.cpp \
     src/__test__/hardware/teensy/avr/libraries/RadioHead/RHSoftwareSPI.cpp \
     src/__test__/hardware/teensy/avr/libraries/RadioHead/RHSPIDriver.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHutil/HardwareSerial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHutil/RasPi.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHutil_pigpio/RasPi.cpp \
     src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_ABZ.cpp \
     src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_ASK.cpp \
     src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_CC110.cpp \
@@ -2754,17 +2781,9 @@ ifdef LIB_RADIOHEAD
     src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_RF69.cpp \
     src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_RF95.cpp \
     src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_Serial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_TCP.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/STM32ArduinoCompat/HardwareSerial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/STM32ArduinoCompat/HardwareSPI.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/STM32ArduinoCompat/wirish.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/tools/simMain.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/RadioHead \
-    -Isrc/__test__/hardware/teensy/avr/libraries/RadioHead/RF24configs \
-    -Isrc/__test__/hardware/teensy/avr/libraries/RadioHead/RHutil \
-    -Isrc/__test__/hardware/teensy/avr/libraries/RadioHead/RHutil_pigpio \
-    -Isrc/__test__/hardware/teensy/avr/libraries/RadioHead/STM32ArduinoCompat
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/RadioHead src/__test__/hardware/teensy/avr/libraries/RadioHead/RHutil src/__test__/hardware/teensy/avr/libraries/RadioHead/RHutil_pigpio src/__test__/hardware/teensy/avr/libraries/RadioHead/STM32ArduinoCompat src/__test__/hardware/teensy/avr/libraries/RadioHead/tools
+    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_TCP.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/RadioHead
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/RadioHead
 endif
 ifdef LIB_RESPONSIVEANALOGREAD
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ResponsiveAnalogRead/src/ResponsiveAnalogRead.cpp
@@ -2839,14 +2858,18 @@ endif
 ifdef LIB_SERIALFLASH
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/SerialFlash/SerialFlashChip.cpp \
     src/__test__/hardware/teensy/avr/libraries/SerialFlash/SerialFlashDirectory.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SerialFlash \
-    -Isrc/__test__/hardware/teensy/avr/libraries/SerialFlash/util
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SerialFlash
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SerialFlash
 endif
 ifdef LIB_SERVO
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Servo/Servo.cpp
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Servo
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Servo
+endif
+ifdef LIB_SHIFTPWM
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ShiftPWM/CShiftPWM.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ShiftPWM
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ShiftPWM
 endif
 ifdef LIB_SNOOZE
   C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32/hal.c \
@@ -2916,12 +2939,15 @@ ifdef LIB_SPI
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SPI
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SPI
 endif
+ifdef LIB_SPIFLASH
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/SPIFlash/SPIFlash.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SPIFlash
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SPIFlash
+endif
 ifdef LIB_SSD1351
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ssd1351/fontconvert/fontconvert.c \
-    src/__test__/hardware/teensy/avr/libraries/ssd1351/glcdfont.c
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ssd1351 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/ssd1351/Fonts
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ssd1351/fontconvert src/__test__/hardware/teensy/avr/libraries/ssd1351
+  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ssd1351/glcdfont.c
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ssd1351
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ssd1351
 endif
 ifdef LIB_ST7735_T3
   C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ST7735_t3/glcdfont.c \
@@ -2945,8 +2971,7 @@ ifdef LIB_TEENSYTHREADS
 endif
 ifdef LIB_TFT_ILI9163C
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TFT_ILI9163C/TFT_ILI9163C.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TFT_ILI9163C \
-    -Isrc/__test__/hardware/teensy/avr/libraries/TFT_ILI9163C/_settings
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TFT_ILI9163C
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TFT_ILI9163C
 endif
 ifdef LIB_TIME
@@ -2962,21 +2987,28 @@ ifdef LIB_TIMEALARMS
 endif
 ifdef LIB_TIMERONE
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TimerOne/TimerOne.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TimerOne/config \
-    -Isrc/__test__/hardware/teensy/avr/libraries/TimerOne
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TimerOne
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TimerOne
 endif
 ifdef LIB_TIMERTHREE
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TimerThree/TimerThree.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TimerThree/config \
-    -Isrc/__test__/hardware/teensy/avr/libraries/TimerThree
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TimerThree
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TimerThree
+endif
+ifdef LIB_TINYGPS
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TinyGPS/TinyGPS.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TinyGPS
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TinyGPS
 endif
 ifdef LIB_TLC5940
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Tlc5940/Tlc5940.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Tlc5940/pinouts \
-    -Isrc/__test__/hardware/teensy/avr/libraries/Tlc5940
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Tlc5940
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Tlc5940
+endif
+ifdef LIB_TOUCHSCREEN
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TouchScreen/TouchScreen.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TouchScreen
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TouchScreen
 endif
 ifdef LIB_USBHOST_T36
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/USBHost_t36/adk.cpp \
@@ -2999,18 +3031,41 @@ ifdef LIB_USBHOST_T36
     src/__test__/hardware/teensy/avr/libraries/USBHost_t36/SerEMU.cpp \
     src/__test__/hardware/teensy/avr/libraries/USBHost_t36/serial.cpp \
     src/__test__/hardware/teensy/avr/libraries/USBHost_t36/USBFilesystemFormatter.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/USBHost_t36 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/USBHost_t36/utility
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/USBHost_t36
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/USBHost_t36
 endif
+ifdef LIB_UTFT
+  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/UTFT/DefaultFonts.c
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/UTFT/UTFT.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/UTFT
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/UTFT
+endif
+ifdef LIB_VIRTUALWIRE
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/VirtualWire/VirtualWire.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/VirtualWire
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/VirtualWire
+endif
 ifdef LIB_WIRE
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Wire/utility/twi.c
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Wire/Wire.cpp \
     src/__test__/hardware/teensy/avr/libraries/Wire/WireIMXRT.cpp \
     src/__test__/hardware/teensy/avr/libraries/Wire/WireKinetis.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Wire/utility \
-    -Isrc/__test__/hardware/teensy/avr/libraries/Wire
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Wire/utility src/__test__/hardware/teensy/avr/libraries/Wire
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Wire
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Wire
+endif
+ifdef LIB_WS2812SERIAL
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/WS2812Serial/WS2812Serial.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/WS2812Serial
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/WS2812Serial
+endif
+ifdef LIB_X10
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/x10/x10.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/x10
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/x10
+endif
+ifdef LIB_XBEE
+  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/XBee/XBee.cpp
+  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/XBee
+  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/XBee
 endif
 ifdef LIB_XPT2046_TOUCHSCREEN
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/XPT2046_Touchscreen/XPT2046_Touchscreen.cpp
@@ -3018,27 +3073,9 @@ ifdef LIB_XPT2046_TOUCHSCREEN
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/XPT2046_Touchscreen
 endif
 ifdef LIB_ADAFRUIT_CIRCUIT_PLAYGROUND
-  CPP_SYS_SRCS+=src/__test__/libraries/Adafruit_Circuit_Playground/Adafruit_CircuitPlayground.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_CPlay_FreeTouch.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_CPlay_LIS3DH.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_CPlay_Mic.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_CPlay_NeoPixel.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_CPlay_Speaker.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/Adafruit_ZeroPDM.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/CPlay_CapacitiveSensor.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/CP_Firmata.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibDecodeBase.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibHardware.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibProtocols.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibRecvBase.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibRecvPCI.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibSAMD21.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/IRLibSendBase.cpp \
-    src/__test__/libraries/Adafruit_Circuit_Playground/utility/talkie.cpp
-  S_SYS_SRCS+=src/__test__/libraries/Adafruit_Circuit_Playground/utility/ffft.S
-  SYS_INCLUDES+=-Isrc/__test__/libraries/Adafruit_Circuit_Playground \
-    -Isrc/__test__/libraries/Adafruit_Circuit_Playground/utility
-  VPATH_MORE+=src/__test__/libraries/Adafruit_Circuit_Playground src/__test__/libraries/Adafruit_Circuit_Playground/utility
+  CPP_SYS_SRCS+=src/__test__/libraries/Adafruit_Circuit_Playground/Adafruit_CircuitPlayground.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Adafruit_Circuit_Playground
+  VPATH_MORE+=src/__test__/libraries/Adafruit_Circuit_Playground
 endif
 ifdef LIB_BRIDGE
   CPP_SYS_SRCS+=src/__test__/libraries/Bridge/src/Bridge.cpp \
@@ -3075,16 +3112,9 @@ endif
 ifdef LIB_FIRMATA
   CPP_SYS_SRCS+=src/__test__/libraries/Firmata/Firmata.cpp \
     src/__test__/libraries/Firmata/FirmataMarshaller.cpp \
-    src/__test__/libraries/Firmata/FirmataParser.cpp \
-    src/__test__/libraries/Firmata/utility/BLEStream.cpp \
-    src/__test__/libraries/Firmata/utility/BluefruitLE_SPI_Stream.cpp \
-    src/__test__/libraries/Firmata/utility/EthernetClientStream.cpp \
-    src/__test__/libraries/Firmata/utility/EthernetServerStream.cpp \
-    src/__test__/libraries/Firmata/utility/SerialFirmata.cpp \
-    src/__test__/libraries/Firmata/utility/WiFiStream.cpp
-  SYS_INCLUDES+=-Isrc/__test__/libraries/Firmata \
-    -Isrc/__test__/libraries/Firmata/utility
-  VPATH_MORE+=src/__test__/libraries/Firmata src/__test__/libraries/Firmata/utility
+    src/__test__/libraries/Firmata/FirmataParser.cpp
+  SYS_INCLUDES+=-Isrc/__test__/libraries/Firmata
+  VPATH_MORE+=src/__test__/libraries/Firmata
 endif
 ifdef LIB_GSM
   CPP_SYS_SRCS+=src/__test__/libraries/GSM/src/GSM3CircularBuffer.cpp \

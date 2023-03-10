@@ -3,7 +3,7 @@ import { promises as fsp } from 'fs';
 import * as path from 'path';
 import { Filter } from './config.js';
 import { MakeAppend, QuoteIfNeeded, Unquote } from './mkutil.js';
-import { Condition, Definition } from './types.js';
+import { Condition, Definition, Files } from './types.js';
 
 // Use this to keep things in a predictable order...
 export async function ReadDir(root: string): Promise<string[]> {
@@ -51,7 +51,10 @@ function endsWithNoExamples(paths: string[], suffix: string): string[] {
 
 // Collect all .c, .cpp. .S files, and get the unique paths for VPATH and
 // for includes, as applicable
-export async function GetFileList(filePath: string, allFiles?: string[]) {
+export async function GetFileList(
+  filePath: string,
+  allFiles?: string[],
+): Promise<Files> {
   allFiles = allFiles || (await EnumerateFiles(filePath));
   const c = endsWithNoExamples(allFiles, '.c');
   const cpp = endsWithNoExamples(allFiles, '.cpp');

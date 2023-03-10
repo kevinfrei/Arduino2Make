@@ -93,8 +93,8 @@ export type Files = {
   c: string[];
   cpp: string[];
   s: string[];
-  h: string[];
-  path: string[];
+  inc: string[];
+  paths: string[];
 };
 
 export type LibraryFile = {

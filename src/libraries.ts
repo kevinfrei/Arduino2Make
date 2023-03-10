@@ -5,7 +5,6 @@ import {
   EnumerateDirectory,
   EnumerateFiles,
   GetFileList,
-  GetPath,
   MakeSrcList,
   ReadDir,
 } from './files.js';
@@ -26,42 +25,49 @@ import type {
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/
 
-// Given a set of locations, get all the defs & rules for libraries under them
-export async function EnumerateLibraries(locs: string[]): Promise<Library[]> {
-  const libData: Library[] = [];
-  for (const loc of locs) {
-    // First, find any 'library.properties' files for v1.5 libraries
-    const allFiles = await EnumerateFiles(loc);
-    const libRoots = allFiles.filter(
-      (fn) => path.basename(fn) === 'library.properties',
+// From the given root, create a library
+export async function MakeLibrary(root: string): Promise<Library> {
+  const files = await ReadDir(root);
+  const lcfiles = files.map((f) => f.toLocaleLowerCase());
+  const uqr = Unquote(root);
+  if (!lcfiles.includes('library.properties')) {
+    // This is a dumb v1.0 library: No recursion, just add the flat files
+    const fileTypes = await GetFileList(
+      root,
+      files.map((f) => path.join(uqr, f)),
     );
-    for (const libRoot of libRoots) {
-      const libPath = GetPath(libRoot);
-      const srcLibFiles = allFiles.filter((f) =>
-        f.startsWith(path.join(libPath, 'src')),
-      );
-      if (srcLibFiles.length === 0) {
-        // Make sure that the filter includes the trailing slash,
-        // otherwise Time and Timer path allLibFiles
-        const withEnd = libPath.endsWith(path.sep)
-          ? libPath
-          : libPath + path.sep;
-        const allLibFiles = allFiles.filter((f) => f.startsWith(withEnd));
-        libData.push(await getLibInfo(libPath, allLibFiles));
-      } else {
-        libData.push(await getLibInfo(libPath, srcLibFiles));
-      }
-    }
+    const libName = path.basename(root);
+    const defsAndFiles = getDefsAndFiles(libName, fileTypes, {}, files);
+    return { ...defsAndFiles, props: { name: libName } };
   }
-  return libData;
+  // The rest is for v1.5+ libraries
+  let libFiles: string[] = [];
+  if (lcfiles.includes('src')) {
+    // Recurse into the src directory for v1.5 libraries
+    libFiles = await EnumerateFiles(path.join(uqr, 'src'));
+  } else {
+    // No src directory, not recursion
+    libFiles = files.map((f) => path.join(uqr, f));
+  }
+  return getLibInfo(root, libFiles);
 }
 
-// TODO: Be more explicit about handling V1.0 vs. V1.5+ libs
+// This is strictly for handling v1.5 libraries
 async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
   const lib = await ParseFile(path.join(Unquote(root), 'library.properties'));
   const props = libPropsFromParsedFile(lib);
-  const { c, cpp, s, paths, inc } = await GetFileList(root, libFiles);
+  const files = await GetFileList(root, libFiles);
   const libName = path.basename(root);
+  const defsAndFiles = getDefsAndFiles(libName, files, props, libFiles);
+  return { ...defsAndFiles, props };
+}
+
+function getDefsAndFiles(
+  libName: string,
+  { c, cpp, s, inc, paths }: Files,
+  props: Partial<LibProps>,
+  libFiles: string[],
+): { defs: Definition[]; files: Files } {
   const libDefName = 'LIB_' + libName.toUpperCase();
   const libCond = MakeIfdef(libDefName);
   // I need to define a source list, include list
@@ -74,7 +80,7 @@ async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
     VPATH:=${VPATH}:../libLocation/.../Wire/
     endif
   */
-  const files: Files = { c: [], cpp: [], s: [], h: [], path: [] };
+  const files: Files = { c: [], cpp: [], s: [], inc: [], paths: [] };
   const defs: Definition[] = [];
   if (c.length) {
     files.c = c;
@@ -91,10 +97,10 @@ async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
     // TODO: Move to Make
     defs.push(MakeSrcList('S_SYS_SRCS', s, [], [libCond]));
   }
-  files.h = inc;
+  files.inc = inc;
   // TODO: Move to Make
   defs.push(MakeSrcList('SYS_INCLUDES', inc, [], [libCond]));
-  files.path = paths;
+  files.paths = paths;
   // TODO: Move to Make
   if (paths.length > 0) {
     defs.push(
@@ -124,7 +130,7 @@ async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
         ),
       );
   }
-  return { defs, files, props };
+  return { defs, files };
 }
 
 function getSemanticVersion(verstr?: string): SemVer {
@@ -141,7 +147,8 @@ function getSemanticVersion(verstr?: string): SemVer {
   return { major, minor, patch };
 }
 
-function getDepenencies(deps?: string): Dependency[] {
+// TODO: Handle version stuff
+function getDependencies(deps?: string): Dependency[] {
   if (!Type.isString(deps)) return [];
   return [
     ...deps
@@ -205,7 +212,7 @@ function libPropsFromParsedFile(file: ParsedFile): Partial<LibProps> {
   const version = getSemanticVersion(getString('version', tbl));
   const ldflags = getString('ldflags', tbl);
   const architecture = getString('architectures', tbl);
-  const depends = getDepenencies(getString('depends', tbl));
+  const depends = getDependencies(getString('depends', tbl));
   const staticLink = getString('dot_a_linkage', tbl) === 'true';
   const includes = getList(getString('includes', tbl));
   const precompiled = getPrecomp(getString('precompiled', tbl));

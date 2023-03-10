@@ -1,7 +1,7 @@
 import { Type } from '@freik/core-utils';
 import * as path from 'path';
 import { EnumerateDirectory, GetFileList, MakeSrcList } from './files.js';
-import { EnumerateLibraries, GetLibraryLocations } from './libraries.js';
+import { GetLibraryLocations, MakeLibrary } from './libraries.js';
 import {
   GetPlainValue,
   MakeAppend,
@@ -441,7 +441,10 @@ export async function BuildPlatform(
     path.join(rootpath, 'libraries'),
   );
   const userLibs = await GetLibraryLocations(libLocs);
-  const libs = await EnumerateLibraries([...platformLibs, ...libLocs]);
+  const libs = await Promise.all(
+    [...platformLibs, ...userLibs].map(MakeLibrary),
+  );
+  // const libs = await EnumerateLibraries([...platformLibs, ...libLocs]);
   libs.forEach((val: Library) => {
     fileDefs.push(...val.defs);
   });
