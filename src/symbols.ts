@@ -1,8 +1,8 @@
 import { Type } from '@freik/core-utils';
-import { dump } from './main.js';
+import { Dump } from './main.js';
 import type { ScopedName, SimpleSymbol, SymbolTable } from './types.js';
 
-export function getScopedName(fullName: string): ScopedName {
+export function GetScopedName(fullName: string): ScopedName {
   const names = fullName.split('.');
   const getElement: (index: number) => string = (index: number) => {
     if (index >= 0 && index < names.length) {
@@ -25,7 +25,7 @@ function makeSimpleSymbol(
 ): SimpleSymbol | undefined {
   index = index || 0;
   if (index >= pieces.length()) {
-    dump('err')('Duplicate symbol definition: ' + pieces.getFullName());
+    Dump('err')('Duplicate symbol definition: ' + pieces.getFullName());
     return parent;
   }
   const nm = pieces.getElement(index);
@@ -48,13 +48,13 @@ function makeSimpleSymbol(
 }
 
 // Make a symbol in the given symbol table
-export function makeSymbol(
+export function MakeSymbol(
   piecesOrName: string,
   value: string | (() => string),
   table: SymbolTable,
 ): SimpleSymbol | undefined {
   return makeSimpleSymbol(
-    getScopedName(piecesOrName),
+    GetScopedName(piecesOrName),
     value,
     table,
     0,
@@ -63,11 +63,11 @@ export function makeSymbol(
 }
 
 // Lookup the (flat or split) symbol in the table
-export function lookupSymbol(
+export function LookupSymbol(
   fullName: string | ScopedName,
   table: SymbolTable,
 ): string | (() => string) | undefined {
-  const pieces = Type.isString(fullName) ? getScopedName(fullName) : fullName;
+  const pieces = Type.isString(fullName) ? GetScopedName(fullName) : fullName;
   for (let i = 0; i < pieces.length(); i++) {
     const sym = table.get(pieces.getElement(i));
     if (Type.isUndefined(sym)) {

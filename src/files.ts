@@ -2,17 +2,22 @@ import { pathCompare } from '@freik/node-utils';
 import { promises as fsp } from 'fs';
 import * as path from 'path';
 import { Filter } from './config.js';
-import { makeAppend, spacey, trimq } from './mkutil.js';
-import { Condition, Definition } from './types.js';
+import { MakeAppend, QuoteIfNeeded, Unquote } from './mkutil.js';
+import { Condition, Definition, Files } from './types.js';
+
+// Use this to keep things in a predictable order...
+export async function ReadDir(root: string): Promise<string[]> {
+  const files: string[] = await fsp.readdir(root);
+  files.sort(pathCompare);
+  return files;
+}
 
 // Gets all the files under a given directory
-export async function enumerateFiles(root: string): Promise<string[]> {
+export async function EnumerateFiles(root: string): Promise<string[]> {
   if ((await fsp.stat(root)).isDirectory()) {
-    const dirs: string[] = await fsp.readdir(root);
-    dirs.sort(pathCompare);
     const res = [];
-    for (const f of dirs) {
-      res.push(...(await enumerateFiles(path.join(trimq(root), f))));
+    for (const f of await ReadDir(root)) {
+      res.push(...(await EnumerateFiles(path.join(Unquote(root), f))));
     }
     return res;
   } else {
@@ -20,7 +25,18 @@ export async function enumerateFiles(root: string): Promise<string[]> {
   }
 }
 
-export const getPath = (n: string) => path.dirname(trimq(n));
+export async function EnumerateDirectory(root: string): Promise<string[]> {
+  if ((await fsp.stat(root)).isDirectory()) {
+    const r = Unquote(root);
+    return (await ReadDir(root)).map((n) => path.join(r, n));
+  } else {
+    return [];
+  }
+}
+
+export function GetPath(n: string): string {
+  return path.dirname(Unquote(n));
+}
 
 function endsWithNoExamples(paths: string[], suffix: string): string[] {
   return paths
@@ -30,35 +46,38 @@ function endsWithNoExamples(paths: string[], suffix: string): string[] {
         fn.indexOf('/examples/') < 0 &&
         fn.indexOf('\\examples\\') < 0,
     )
-    .map((fn) => spacey(fn).replaceAll('\\', '/'));
+    .map((fn) => QuoteIfNeeded(fn).replaceAll('\\', '/'));
 }
 
 // Collect all .c, .cpp. .S files, and get the unique paths for VPATH and
 // for includes, as applicable
-export async function getFileList(filePath: string, allFiles?: string[]) {
-  allFiles = allFiles || (await enumerateFiles(filePath));
+export async function GetFileList(
+  filePath: string,
+  allFiles?: string[],
+): Promise<Files> {
+  allFiles = allFiles || (await EnumerateFiles(filePath));
   const c = endsWithNoExamples(allFiles, '.c');
   const cpp = endsWithNoExamples(allFiles, '.cpp');
   const s = endsWithNoExamples(allFiles, '.S');
-  const paths = [...new Set([...c, ...cpp, ...s].map(getPath))];
+  const paths = [...new Set([...c, ...cpp, ...s].map(GetPath))];
   const inc = [
     ...new Set(
       endsWithNoExamples(allFiles, '.h').map((fn) =>
-        spacey('-I' + getPath(fn)),
+        QuoteIfNeeded('-I' + GetPath(fn)),
       ),
     ),
   ];
   return { c, cpp, s, paths, inc };
 }
 
-export function mkSrcList(
+export function MakeSrcList(
   name: string,
   files: string[],
   depend: string | string[],
   cnd: Condition[],
 ): Definition {
   const filteredFiles = Filter(name, files);
-  return makeAppend(
+  return MakeAppend(
     name,
     filteredFiles.join(' \\\n    '),
     typeof depend === 'string' ? [depend] : depend,

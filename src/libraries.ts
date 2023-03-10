@@ -1,8 +1,15 @@
 import { Type } from '@freik/core-utils';
+import { promises as fsp } from 'fs';
 import * as path from 'path';
-import { enumerateFiles, getFileList, getPath, mkSrcList } from './files.js';
-import { makeAppend, makeIfdef, spacey, trimq } from './mkutil.js';
-import { parseFile } from './parser.js';
+import {
+  EnumerateDirectory,
+  EnumerateFiles,
+  GetFileList,
+  MakeSrcList,
+  ReadDir,
+} from './files.js';
+import { MakeAppend, MakeIfdef, QuoteIfNeeded, Unquote } from './mkutil.js';
+import { ParseFile } from './parser.js';
 import type {
   Categories,
   Definition,
@@ -18,42 +25,24 @@ import type {
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/
 
-// Given a set of locations, get all the defs & rules for libraries under them
-export async function addLibs(locs: string[]): Promise<Library[]> {
-  const libData: Library[] = [];
-  for (const loc of locs) {
-    // First, find any 'library.properties' files
-    const allFiles = await enumerateFiles(loc);
-    const libRoots = allFiles.filter(
-      (fn) => path.basename(fn) === 'library.properties',
-    );
-    for (const libRoot of libRoots) {
-      const libPath = getPath(libRoot);
-      const srcLibFiles = allFiles.filter((f) =>
-        f.startsWith(path.join(libPath, 'src')),
-      );
-      if (srcLibFiles.length === 0) {
-        // Make sure that the filter includes the trailing slash,
-        // otherwise Time and Timer path allLibFiles
-        const withEnd = libPath.endsWith(path.sep)
-          ? libPath
-          : libPath + path.sep;
-        const allLibFiles = allFiles.filter((f) => f.startsWith(withEnd));
-        libData.push(await getLibInfo(libPath, allLibFiles));
-      } else {
-        libData.push(await getLibInfo(libPath, srcLibFiles));
-      }
-    }
-  }
-  return libData;
+// This is strictly for handling v1.5 libraries
+async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
+  const lib = await ParseFile(path.join(Unquote(root), 'library.properties'));
+  const props = libPropsFromParsedFile(lib);
+  const files = await GetFileList(root, libFiles);
+  const libName = path.basename(root);
+  const defsAndFiles = getDefsAndFiles(libName, files, props, libFiles);
+  return { ...defsAndFiles, props };
 }
 
-// TODO: Be more explicit about handling V1.5+ libs (src dir only, no examples)
-async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
-  const { c, cpp, s, paths, inc } = await getFileList(root, libFiles);
-  const libName = path.basename(root);
+function getDefsAndFiles(
+  libName: string,
+  { c, cpp, s, inc, paths }: Files,
+  props: Partial<LibProps>,
+  libFiles: string[],
+): { defs: Definition[]; files: Files } {
   const libDefName = 'LIB_' + libName.toUpperCase();
-  const libCond = makeIfdef(libDefName);
+  const libCond = MakeIfdef(libDefName);
   // I need to define a source list, include list
   // In addition, I need to define a variable that the user can include on
   // a lib list to be linked against
@@ -64,46 +53,48 @@ async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
     VPATH:=${VPATH}:../libLocation/.../Wire/
     endif
   */
-  const files: Files = { c: [], cpp: [], s: [], h: [], path: [] };
+  const files: Files = { c: [], cpp: [], s: [], inc: [], paths: [] };
   const defs: Definition[] = [];
   if (c.length) {
     files.c = c;
     // TODO: Move to Make
-    defs.push(mkSrcList('C_SYS_SRCS', c, [], [libCond]));
+    defs.push(MakeSrcList('C_SYS_SRCS', c, [], [libCond]));
   }
   if (cpp.length) {
     files.cpp = cpp;
     // TODO: Move to Make
-    defs.push(mkSrcList('CPP_SYS_SRCS', cpp, [], [libCond]));
+    defs.push(MakeSrcList('CPP_SYS_SRCS', cpp, [], [libCond]));
   }
   if (s.length) {
     files.s = s;
     // TODO: Move to Make
-    defs.push(mkSrcList('S_SYS_SRCS', s, [], [libCond]));
+    defs.push(MakeSrcList('S_SYS_SRCS', s, [], [libCond]));
   }
-  files.h = inc;
+  files.inc = inc;
   // TODO: Move to Make
-  defs.push(mkSrcList('SYS_INCLUDES', inc, [], [libCond]));
-  files.path = paths;
+  defs.push(MakeSrcList('SYS_INCLUDES', inc, [], [libCond]));
+  files.paths = paths;
   // TODO: Move to Make
   if (paths.length > 0) {
     defs.push(
-      makeAppend('VPATH_MORE', paths.map(spacey).join(' '), [], [libCond]),
+      MakeAppend(
+        'VPATH_MORE',
+        paths.map(QuoteIfNeeded).join(' '),
+        [],
+        [libCond],
+      ),
     );
   }
-  // This is only sort of work for the Adafruit nRFCrypto library
-  const lib = await parseFile(path.join(trimq(root), 'library.properties'));
-  const props = LibPropsFromParsedFile(lib);
   // TODO: Move to Make
   if (Type.hasStr(props, 'ldflags')) {
     const flgVal = props.ldflags;
-    defs.push(makeAppend('COMPILER_LIBRARIES_LDFLAGS', flgVal, [], [libCond]));
+    defs.push(MakeAppend('COMPILER_LIBRARIES_LDFLAGS', flgVal, [], [libCond]));
     // Probably not right, but this works for nRFCrypto
     libFiles
       .filter((f) => f.endsWith('.a'))
       .forEach((val) =>
         defs.push(
-          makeAppend(
+          MakeAppend(
             'COMPILER_LIBRARIES_LDFLAGS',
             '-L' + path.dirname(val),
             [],
@@ -112,14 +103,14 @@ async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
         ),
       );
   }
-  return { defs, files, props };
+  return { defs, files };
 }
 
-function GetSemanticVersion(verstr?: string): SemVer {
+function getSemanticVersion(verstr?: string): SemVer {
   if (Type.isUndefined(verstr)) {
     return '';
   }
-  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(verstr);
+  const match = /^(\d+)(?:\.(\d+)(?:\.(\d+))?)?$/.exec(verstr);
   if (match === null) {
     return verstr;
   }
@@ -129,7 +120,8 @@ function GetSemanticVersion(verstr?: string): SemVer {
   return { major, minor, patch };
 }
 
-function GetDepenencies(deps?: string): Dependency[] {
+// TODO: Handle version stuff
+function getDependencies(deps?: string): Dependency[] {
   if (!Type.isString(deps)) return [];
   return [
     ...deps
@@ -148,12 +140,12 @@ function GetDepenencies(deps?: string): Dependency[] {
   ];
 }
 
-function GetList(str?: string): string[] | undefined {
+function getList(str?: string): string[] | undefined {
   if (!Type.isString(str)) return;
   return [...str.split(',').map((v) => v.trim())];
 }
 
-function GetPrecomp(pre?: string): boolean | 'full' {
+function getPrecomp(pre?: string): boolean | 'full' {
   if (!Type.isString(pre)) {
     return false;
   } else if (pre === 'full') {
@@ -163,7 +155,7 @@ function GetPrecomp(pre?: string): boolean | 'full' {
   }
 }
 
-function GetCategory(str?: string): Categories {
+function getCategory(str?: string): Categories {
   switch (str) {
     case 'Uncategorized':
     case 'Display':
@@ -187,22 +179,22 @@ function getString(name: string, tbl: SymbolTable): string | undefined {
   }
 }
 
-function LibPropsFromParsedFile(file: ParsedFile): Partial<LibProps> {
+function libPropsFromParsedFile(file: ParsedFile): Partial<LibProps> {
   const tbl = file.scopedTable;
   const name = getString('name', tbl);
-  const version = GetSemanticVersion(getString('version', tbl));
+  const version = getSemanticVersion(getString('version', tbl));
   const ldflags = getString('ldflags', tbl);
   const architecture = getString('architectures', tbl);
-  const depends = GetDepenencies(getString('depends', tbl));
+  const depends = getDependencies(getString('depends', tbl));
   const staticLink = getString('dot_a_linkage', tbl) === 'true';
-  const includes = GetList(getString('includes', tbl));
-  const precompiled = GetPrecomp(getString('precompiled', tbl));
-  const author = GetList(getString('author', tbl));
+  const includes = getList(getString('includes', tbl));
+  const precompiled = getPrecomp(getString('precompiled', tbl));
+  const author = getList(getString('author', tbl));
   const maintainer = getString('maintainer', tbl);
   const sentence = getString('sentence', tbl);
   const paragraph = getString('paragraph', tbl);
   const url = getString('url', tbl);
-  const category = GetCategory(getString('category', tbl));
+  const category = getCategory(getString('category', tbl));
   return {
     name,
     version,
@@ -219,4 +211,75 @@ function LibPropsFromParsedFile(file: ParsedFile): Partial<LibProps> {
     precompiled,
     ldflags,
   };
+}
+
+async function isLibrary(loc: string): Promise<boolean> {
+  // If the folder contains a 'library.properties' file, it's a library
+  // If it contains a 'keywords.txt' file, it's a library
+  // If it contains any .h, .cpp, .c files, it's a library
+  for (const file of (await ReadDir(loc)).map((v) => v.toLocaleLowerCase())) {
+    if (file === 'library.properties') {
+      return true;
+    }
+    /* 
+    // A src folder requires a library.properties file, so don't handle this:
+    if (file === 'src'){
+      // TODO: Check if it's a dir...
+      return true;
+    }
+    */
+    if (file === 'keywords.txt') {
+      return true;
+    }
+    if (file.endsWith('.h') || file.endsWith('.c') || file.endsWith('.cpp')) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// From the given root, create a library
+export async function MakeLibrary(root: string): Promise<Library> {
+  const files = await ReadDir(root);
+  const lcfiles = files.map((f) => f.toLocaleLowerCase());
+  const uqr = Unquote(root);
+  if (!lcfiles.includes('library.properties')) {
+    // This is a dumb v1.0 library: No recursion, just add the flat files
+    const fileTypes = await GetFileList(
+      root,
+      files.map((f) => path.join(uqr, f)),
+    );
+    const libName = path.basename(root);
+    const defsAndFiles = getDefsAndFiles(libName, fileTypes, {}, files);
+    return { ...defsAndFiles, props: { name: libName } };
+  }
+  // The rest is for v1.5+ libraries
+  let libFiles: string[] = [];
+  if (lcfiles.includes('src')) {
+    // Recurse into the src directory for v1.5 libraries
+    libFiles = await EnumerateFiles(path.join(uqr, 'src'));
+  } else {
+    // No src directory, not recursion
+    libFiles = files.map((f) => path.join(uqr, f));
+  }
+  return getLibInfo(root, libFiles);
+}
+
+// We may have individual library locations, or a folder that contains a number
+// of *singly nested* library locations.
+// This turns them into the former (a list of library locations)
+export async function GetLibraryLocations(locs: string[]): Promise<string[]> {
+  const libLocs: string[] = [];
+  for (const lib of locs) {
+    if (await isLibrary(lib)) {
+      libLocs.push(lib);
+    } else {
+      for (const sub of await EnumerateDirectory(lib)) {
+        if ((await fsp.stat(sub)).isDirectory() && (await isLibrary(sub))) {
+          libLocs.push(sub);
+        }
+      }
+    }
+  }
+  return libLocs;
 }
