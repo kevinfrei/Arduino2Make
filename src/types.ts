@@ -97,9 +97,24 @@ export type Files = {
   path: string[];
 };
 
-export type Library = {
+export type LibraryFile = {
   props: Partial<LibProps>;
   files: Files;
-  // TODO: Move to Make
+};
+
+export type Library = LibraryFile & {
+  // TODO: Move to target
   defs: Definition[];
+};
+
+export type Board = {
+  symbols: SymbolTable;
+  menuSelections: SymbolTable;
+};
+
+export type BoardFile = {
+  // Each board gets an item in here:
+  boards: Map<string, Board>;
+  // The list of menu items (with their pleasant names)
+  menus: SymbolTable;
 };

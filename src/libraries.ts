@@ -19,7 +19,7 @@ import type {
 // https://arduino.github.io/arduino-cli/library-specification/
 
 // Given a set of locations, get all the defs & rules for libraries under them
-export async function addLibs(locs: string[]): Promise<Library[]> {
+export async function EnumerateLibraries(locs: string[]): Promise<Library[]> {
   const libData: Library[] = [];
   for (const loc of locs) {
     // First, find any 'library.properties' files
@@ -48,8 +48,10 @@ export async function addLibs(locs: string[]): Promise<Library[]> {
   return libData;
 }
 
-// TODO: Be more explicit about handling V1.5+ libs (src dir only, no examples)
+// TODO: Be more explicit about handling V1.0 vs. V1.5+ libs
 async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
+  const lib = await parseFile(path.join(trimq(root), 'library.properties'));
+  const props = LibPropsFromParsedFile(lib);
   const { c, cpp, s, paths, inc } = await getFileList(root, libFiles);
   const libName = path.basename(root);
   const libDefName = 'LIB_' + libName.toUpperCase();
@@ -91,9 +93,6 @@ async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
       makeAppend('VPATH_MORE', paths.map(spacey).join(' '), [], [libCond]),
     );
   }
-  // This is only sort of work for the Adafruit nRFCrypto library
-  const lib = await parseFile(path.join(trimq(root), 'library.properties'));
-  const props = LibPropsFromParsedFile(lib);
   // TODO: Move to Make
   if (Type.hasStr(props, 'ldflags')) {
     const flgVal = props.ldflags;
