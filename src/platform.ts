@@ -444,7 +444,6 @@ export async function BuildPlatform(
   const libs = await Promise.all(
     [...platformLibs, ...userLibs].map(MakeLibrary),
   );
-  // const libs = await EnumerateLibraries([...platformLibs, ...libLocs]);
   libs.forEach((val: Library) => {
     fileDefs.push(...val.defs);
   });
