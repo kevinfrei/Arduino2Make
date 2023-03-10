@@ -1,10 +1,10 @@
 import { Type } from '@freik/core-utils';
 import {
-  getPlainValue,
-  makeDeclDef,
-  makeDefinitions,
-  makeIfeq,
-  makeMenuOptions,
+  GetPlainValue,
+  MakeDeclDef,
+  MakeDefinitions,
+  MakeIfeq,
+  MakeMenuOptions,
 } from './mkutil.js';
 import type {
   Board,
@@ -18,10 +18,10 @@ import type {
 
 // This spits out the board configuration data in Makefile format
 // It returns the set of *probably* defined variables, for use later
-export function buildBoard(board: ParsedFile): Definition[] {
+export function BuildBoard(board: ParsedFile): Definition[] {
   let menus: Set<string> = new Set();
   let defined: Definition[] = [
-    makeDeclDef('BUILD_PROJECT_NAME', '${PROJ_NAME}', ['PROJ_NAME'], []),
+    MakeDeclDef('BUILD_PROJECT_NAME', '${PROJ_NAME}', ['PROJ_NAME'], []),
   ];
   for (const item of board.scopedTable.values()) {
     if (item.name === 'menu') {
@@ -29,11 +29,11 @@ export function buildBoard(board: ParsedFile): Definition[] {
       const children = item.children;
       menus = new Set([...menus, ...children.keys()]);
     } else {
-      const brd = makeIfeq('${BOARD_NAME}', item.name);
+      const brd = MakeIfeq('${BOARD_NAME}', item.name);
       const notMenu: FilterFunc = (a) => a.name !== 'menu';
-      const defVars = makeDefinitions(
+      const defVars = MakeDefinitions(
         item,
-        getPlainValue,
+        GetPlainValue,
         board,
         [brd],
         notMenu,
@@ -41,7 +41,7 @@ export function buildBoard(board: ParsedFile): Definition[] {
       defVars.forEach((def: Definition) => {
         def.dependsOn.push('BOARD_NAME');
       });
-      const defMore = makeMenuOptions(item, board, menus, [brd]);
+      const defMore = MakeMenuOptions(item, board, menus, [brd]);
       defined = [...defined, ...defVars, ...defMore];
     }
   }
@@ -58,7 +58,7 @@ function getMenus(parsedFile: ParsedFile): SymbolTable {
 }
 
 // Create an individual board from the symbols we've got.
-function MakeBoard(val: SimpleSymbol, menus: SymbolTable): Board {
+function makeBoard(val: SimpleSymbol, menus: SymbolTable): Board {
   const menuSelections =
     val.children.get('menu')?.children || new Map<string, SimpleSymbol>();
   // Validate that the menu selections are available in the menu options enumerated
@@ -85,7 +85,7 @@ export function EnumerateBoards(board: ParsedFile): BoardFile {
   board.scopedTable.forEach((val: SimpleSymbol, key: string) => {
     if (key !== 'menu') {
       const boardId = key;
-      boards.set(boardId, MakeBoard(val, menus));
+      boards.set(boardId, makeBoard(val, menus));
     }
   });
   return { menus, boards };

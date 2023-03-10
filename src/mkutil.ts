@@ -1,5 +1,5 @@
 import { Type } from '@freik/core-utils';
-import { lookupSymbol } from './symbols.js';
+import { LookupSymbol } from './symbols.js';
 import type {
   Condition,
   Definition,
@@ -12,7 +12,7 @@ import type {
 
 // Utilities for doing Makefile stuff
 
-export function makeIfeq(variable: string, value: string): Condition {
+export function MakeIfeq(variable: string, value: string): Condition {
   return {
     op: 'eq',
     variable,
@@ -20,7 +20,7 @@ export function makeIfeq(variable: string, value: string): Condition {
   };
 }
 
-export function makeIfneq(variable: string, value: string): Condition {
+export function MakeIfneq(variable: string, value: string): Condition {
   return {
     op: 'neq',
     variable,
@@ -28,25 +28,25 @@ export function makeIfneq(variable: string, value: string): Condition {
   };
 }
 
-export function makeIfdef(variable: string): Condition {
+export function MakeIfdef(variable: string): Condition {
   return {
     op: 'def',
     variable,
   };
 }
 
-export function makeIfndef(variable: string): Condition {
+export function MakeIfndef(variable: string): Condition {
   return {
     op: 'ndef',
     variable,
   };
 }
 
-export function makeIf(variable: string): Condition {
+export function MakeIf(variable: string): Condition {
   return { op: 'raw', variable };
 }
 
-export function makeDeclDef(
+export function MakeDeclDef(
   name: string,
   value: string,
   dependsOn?: string[],
@@ -61,7 +61,7 @@ export function makeDeclDef(
   };
 }
 
-export function makeSeqDef(
+export function MakeSeqDef(
   name: string,
   value: string,
   dependsOn?: string[],
@@ -76,7 +76,7 @@ export function makeSeqDef(
   };
 }
 
-export function makeAppend(
+export function MakeAppend(
   name: string,
   value: string,
   dependsOn?: string[],
@@ -91,7 +91,7 @@ export function makeAppend(
   };
 }
 
-export function makeUnDecl(
+export function MakeUnDecl(
   name: string,
   value: string,
   dependsOn?: string[],
@@ -123,7 +123,7 @@ function resolveValue(value: string, parsedFile: ParsedFile): DependentValue {
       }
       const nextSym = value.substring(newloc + 1, close);
       // Get the value of that symbol
-      const symVal = lookupSymbol(nextSym, parsedFile.scopedTable);
+      const symVal = LookupSymbol(nextSym, parsedFile.scopedTable);
       if (Type.isUndefined(symVal)) {
         unresolved.add(nextSym);
         res = `${res}{${nextSym}}`;
@@ -160,7 +160,7 @@ function getMakeName(vrbl: SimpleSymbol, top: SimpleSymbol) {
 }
 
 // TODO: This should handle any escaping necessary
-export function resolvedValue(
+export function ResolvedValue(
   vrbl: SimpleSymbol,
   parsedFile: ParsedFile,
 ): string {
@@ -198,7 +198,7 @@ function unresolvedValue(value: string): DependentValue {
   return { value: res, unresolved };
 }
 
-export function getPlainValue(
+export function GetPlainValue(
   vrbl: SimpleSymbol,
   _parsedFile: ParsedFile,
 ): DependentValue {
@@ -211,7 +211,7 @@ export function getPlainValue(
   }
 }
 
-export function makeDefinitions(
+export function MakeDefinitions(
   top: SimpleSymbol,
   valueMaker: ValueMakerFunc,
   parsedFile: ParsedFile,
@@ -229,7 +229,7 @@ export function makeDefinitions(
       if (vrbl.value) {
         const varName = getMakeName(vrbl, top);
         const { value, unresolved: deps } = valueMaker(vrbl, parsedFile);
-        const def = makeDeclDef(varName, value, [...deps], condition || []);
+        const def = MakeDeclDef(varName, value, [...deps], condition || []);
         defined.push(def);
       }
     }
@@ -237,7 +237,7 @@ export function makeDefinitions(
   return defined;
 }
 
-export function makeMenuOptions(
+export function MakeMenuOptions(
   top: SimpleSymbol,
   parsedFile: ParsedFile,
   _menus: Set<string>,
@@ -251,8 +251,8 @@ export function makeMenuOptions(
   for (const toDump of menu.children.values()) {
     const makeVarName = 'IN_' + toDump.name.toUpperCase();
     for (const item of toDump.children.values()) {
-      const cn = makeIfeq('${' + makeVarName + '}', item.name);
-      const subDef = makeDefinitions(item, getPlainValue, parsedFile, [
+      const cn = MakeIfeq('${' + makeVarName + '}', item.name);
+      const subDef = MakeDefinitions(item, GetPlainValue, parsedFile, [
         ...initConds,
         cn,
       ]);
@@ -265,7 +265,7 @@ export function makeMenuOptions(
   return defined;
 }
 
-export function spacey(inv: string): string {
+export function QuoteIfNeeded(inv: string): string {
   if (inv.indexOf(' ') < 0) {
     return inv;
   } else {
@@ -274,7 +274,7 @@ export function spacey(inv: string): string {
 }
 
 // Trim off quotation marks
-export function trimq(inv: string): string {
+export function Unquote(inv: string): string {
   if (inv.length < 2 || inv[0] !== '"' || inv[inv.length - 1] !== '"') {
     return inv;
   }

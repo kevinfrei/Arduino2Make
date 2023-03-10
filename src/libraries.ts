@@ -3,14 +3,14 @@ import { promises as fsp } from 'fs';
 import * as path from 'path';
 import {
   EnumerateDirectory,
-  enumerateFiles,
-  getFileList,
-  getPath,
-  mkSrcList,
+  EnumerateFiles,
+  GetFileList,
+  GetPath,
+  MakeSrcList,
   ReadDir,
 } from './files.js';
-import { makeAppend, makeIfdef, spacey, trimq } from './mkutil.js';
-import { parseFile } from './parser.js';
+import { MakeAppend, MakeIfdef, QuoteIfNeeded, Unquote } from './mkutil.js';
+import { ParseFile } from './parser.js';
 import type {
   Categories,
   Definition,
@@ -31,12 +31,12 @@ export async function EnumerateLibraries(locs: string[]): Promise<Library[]> {
   const libData: Library[] = [];
   for (const loc of locs) {
     // First, find any 'library.properties' files for v1.5 libraries
-    const allFiles = await enumerateFiles(loc);
+    const allFiles = await EnumerateFiles(loc);
     const libRoots = allFiles.filter(
       (fn) => path.basename(fn) === 'library.properties',
     );
     for (const libRoot of libRoots) {
-      const libPath = getPath(libRoot);
+      const libPath = GetPath(libRoot);
       const srcLibFiles = allFiles.filter((f) =>
         f.startsWith(path.join(libPath, 'src')),
       );
@@ -58,12 +58,12 @@ export async function EnumerateLibraries(locs: string[]): Promise<Library[]> {
 
 // TODO: Be more explicit about handling V1.0 vs. V1.5+ libs
 async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
-  const lib = await parseFile(path.join(trimq(root), 'library.properties'));
-  const props = LibPropsFromParsedFile(lib);
-  const { c, cpp, s, paths, inc } = await getFileList(root, libFiles);
+  const lib = await ParseFile(path.join(Unquote(root), 'library.properties'));
+  const props = libPropsFromParsedFile(lib);
+  const { c, cpp, s, paths, inc } = await GetFileList(root, libFiles);
   const libName = path.basename(root);
   const libDefName = 'LIB_' + libName.toUpperCase();
-  const libCond = makeIfdef(libDefName);
+  const libCond = MakeIfdef(libDefName);
   // I need to define a source list, include list
   // In addition, I need to define a variable that the user can include on
   // a lib list to be linked against
@@ -79,38 +79,43 @@ async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
   if (c.length) {
     files.c = c;
     // TODO: Move to Make
-    defs.push(mkSrcList('C_SYS_SRCS', c, [], [libCond]));
+    defs.push(MakeSrcList('C_SYS_SRCS', c, [], [libCond]));
   }
   if (cpp.length) {
     files.cpp = cpp;
     // TODO: Move to Make
-    defs.push(mkSrcList('CPP_SYS_SRCS', cpp, [], [libCond]));
+    defs.push(MakeSrcList('CPP_SYS_SRCS', cpp, [], [libCond]));
   }
   if (s.length) {
     files.s = s;
     // TODO: Move to Make
-    defs.push(mkSrcList('S_SYS_SRCS', s, [], [libCond]));
+    defs.push(MakeSrcList('S_SYS_SRCS', s, [], [libCond]));
   }
   files.h = inc;
   // TODO: Move to Make
-  defs.push(mkSrcList('SYS_INCLUDES', inc, [], [libCond]));
+  defs.push(MakeSrcList('SYS_INCLUDES', inc, [], [libCond]));
   files.path = paths;
   // TODO: Move to Make
   if (paths.length > 0) {
     defs.push(
-      makeAppend('VPATH_MORE', paths.map(spacey).join(' '), [], [libCond]),
+      MakeAppend(
+        'VPATH_MORE',
+        paths.map(QuoteIfNeeded).join(' '),
+        [],
+        [libCond],
+      ),
     );
   }
   // TODO: Move to Make
   if (Type.hasStr(props, 'ldflags')) {
     const flgVal = props.ldflags;
-    defs.push(makeAppend('COMPILER_LIBRARIES_LDFLAGS', flgVal, [], [libCond]));
+    defs.push(MakeAppend('COMPILER_LIBRARIES_LDFLAGS', flgVal, [], [libCond]));
     // Probably not right, but this works for nRFCrypto
     libFiles
       .filter((f) => f.endsWith('.a'))
       .forEach((val) =>
         defs.push(
-          makeAppend(
+          MakeAppend(
             'COMPILER_LIBRARIES_LDFLAGS',
             '-L' + path.dirname(val),
             [],
@@ -122,7 +127,7 @@ async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
   return { defs, files, props };
 }
 
-function GetSemanticVersion(verstr?: string): SemVer {
+function getSemanticVersion(verstr?: string): SemVer {
   if (Type.isUndefined(verstr)) {
     return '';
   }
@@ -136,7 +141,7 @@ function GetSemanticVersion(verstr?: string): SemVer {
   return { major, minor, patch };
 }
 
-function GetDepenencies(deps?: string): Dependency[] {
+function getDepenencies(deps?: string): Dependency[] {
   if (!Type.isString(deps)) return [];
   return [
     ...deps
@@ -155,12 +160,12 @@ function GetDepenencies(deps?: string): Dependency[] {
   ];
 }
 
-function GetList(str?: string): string[] | undefined {
+function getList(str?: string): string[] | undefined {
   if (!Type.isString(str)) return;
   return [...str.split(',').map((v) => v.trim())];
 }
 
-function GetPrecomp(pre?: string): boolean | 'full' {
+function getPrecomp(pre?: string): boolean | 'full' {
   if (!Type.isString(pre)) {
     return false;
   } else if (pre === 'full') {
@@ -170,7 +175,7 @@ function GetPrecomp(pre?: string): boolean | 'full' {
   }
 }
 
-function GetCategory(str?: string): Categories {
+function getCategory(str?: string): Categories {
   switch (str) {
     case 'Uncategorized':
     case 'Display':
@@ -194,22 +199,22 @@ function getString(name: string, tbl: SymbolTable): string | undefined {
   }
 }
 
-function LibPropsFromParsedFile(file: ParsedFile): Partial<LibProps> {
+function libPropsFromParsedFile(file: ParsedFile): Partial<LibProps> {
   const tbl = file.scopedTable;
   const name = getString('name', tbl);
-  const version = GetSemanticVersion(getString('version', tbl));
+  const version = getSemanticVersion(getString('version', tbl));
   const ldflags = getString('ldflags', tbl);
   const architecture = getString('architectures', tbl);
-  const depends = GetDepenencies(getString('depends', tbl));
+  const depends = getDepenencies(getString('depends', tbl));
   const staticLink = getString('dot_a_linkage', tbl) === 'true';
-  const includes = GetList(getString('includes', tbl));
-  const precompiled = GetPrecomp(getString('precompiled', tbl));
-  const author = GetList(getString('author', tbl));
+  const includes = getList(getString('includes', tbl));
+  const precompiled = getPrecomp(getString('precompiled', tbl));
+  const author = getList(getString('author', tbl));
   const maintainer = getString('maintainer', tbl);
   const sentence = getString('sentence', tbl);
   const paragraph = getString('paragraph', tbl);
   const url = getString('url', tbl);
-  const category = GetCategory(getString('category', tbl));
+  const category = getCategory(getString('category', tbl));
   return {
     name,
     version,

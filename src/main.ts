@@ -1,11 +1,11 @@
 import { Type } from '@freik/core-utils';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { buildBoard, EnumerateBoards } from './board.js';
-import { configPresent, readConfig } from './config.js';
-import { makeGlobals } from './globals.js';
-import { parseFile } from './parser.js';
-import { buildPlatform } from './platform.js';
+import { BuildBoard, EnumerateBoards } from './board.js';
+import { IsConfigPresent, ReadConfig } from './config.js';
+import { MakeGlobals } from './globals.js';
+import { ParseFile } from './parser.js';
+import { BuildPlatform } from './platform.js';
 import { Emit } from './targets/makefile.js';
 import { Definition, Recipe } from './types.js';
 
@@ -29,7 +29,7 @@ function dumpToFile(message: unknown): void {
 }
 
 // Eventually, we can dump stuff into different files, right?
-export function dump(which?: string): (message: unknown) => void {
+export function Dump(which?: string): (message: unknown) => void {
   switch (which) {
     case undefined:
     case 'log':
@@ -59,14 +59,14 @@ export function dump(which?: string): (message: unknown) => void {
 
 export default async function main(...args: string[]): Promise<void> {
   const noConfig = args.filter((val) => !val.startsWith('--config:'));
-  await readConfig(args.filter((val) => val.startsWith('--config:')));
+  await ReadConfig(args.filter((val) => val.startsWith('--config:')));
   const normalArgs = openOutputFile(noConfig);
 
-  if (normalArgs.length === 0 && !configPresent()) {
-    dump('err')(
+  if (normalArgs.length === 0 && !IsConfigPresent()) {
+    Dump('err')(
       'Usage: {--config:file.json} {--out:<filename>} rootDir {lib1Dir lib2Dir lib3Dir}',
     );
-    dump('err')(
+    Dump('err')(
       "  rootDir is where you can find 'boards.txt' and 'platform.txt'",
     );
     return;
@@ -75,14 +75,14 @@ export default async function main(...args: string[]): Promise<void> {
   const libLocs = normalArgs.slice(1);
   const board = path.join(root, 'boards.txt');
   const platform = path.join(root, 'platform.txt');
-  const globals = makeGlobals();
-  const boardSyms = await parseFile(board);
-  const platSyms = await parseFile(platform);
+  const globals = MakeGlobals();
+  const boardSyms = await ParseFile(board);
+  const platSyms = await ParseFile(platform);
   const boards = EnumerateBoards(boardSyms);
-  const boardDefined = buildBoard(boardSyms);
+  const boardDefined = BuildBoard(boardSyms);
 
   // TODO: Don't have recipes & tools fully handled in the platform yet
-  const { defs: platDefs, rules } = await buildPlatform(
+  const { defs: platDefs, rules } = await BuildPlatform(
     boardDefined,
     platSyms,
     path.dirname(platform),

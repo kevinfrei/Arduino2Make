@@ -2,8 +2,8 @@
 
 import path from 'path';
 import { Transform } from '../config.js';
-import { CalculateChecksAndOrderDefinitions, dump } from '../main.js';
-import { makeDeclDef, makeIfeq, makeIfneq, makeUnDecl } from '../mkutil.js';
+import { CalculateChecksAndOrderDefinitions, Dump } from '../main.js';
+import { MakeDeclDef, MakeIfeq, MakeIfneq, MakeUnDecl } from '../mkutil.js';
 import type { Condition, Definition, Recipe } from '../types.js';
 
 const optionalDefs: string[] = [
@@ -22,13 +22,13 @@ const optionalDefs: string[] = [
 ];
 
 function emitChecks(checks: string[]) {
-  dump()('# First, add some errors for undefined values');
+  Dump()('# First, add some errors for undefined values');
   checks.forEach((val: string) => {
-    dump()(`ifndef ${val}`);
-    dump()(`  $(error ${val} is not defined!)`);
-    dump()('endif');
+    Dump()(`ifndef ${val}`);
+    Dump()(`  $(error ${val} is not defined!)`);
+    Dump()('endif');
   });
-  dump()(`
+  Dump()(`
 # Check for some source files
 ifeq ($\{USER_C_SRCS}$\{USER_CPP_SRCS}$\{USER_S_SRCS},)
   $(error You must define USER_C_SRCS, USER_CPP_SRCS, or USER_S_SRCS)
@@ -47,18 +47,18 @@ function openConditions(conds: Condition[], begin: number) {
     const cond = conds[i];
     const sp = getSpaces(i);
     if (cond.op === 'neq' || cond.op === 'eq') {
-      dump()(`${sp}if${cond.op} (${cond.variable}, ${cond.value || ''})`);
+      Dump()(`${sp}if${cond.op} (${cond.variable}, ${cond.value || ''})`);
     } else if (cond.op !== 'raw') {
-      dump()(`${sp}if${cond.op} ${cond.variable}`);
+      Dump()(`${sp}if${cond.op} ${cond.variable}`);
     } else {
-      dump()(`${sp}if ${cond.variable}`);
+      Dump()(`${sp}if ${cond.variable}`);
     }
   }
 }
 
 function closeConditions(indent: number, count: number) {
   while (count--) {
-    dump()(`${getSpaces(--indent)}endif`);
+    Dump()(`${getSpaces(--indent)}endif`);
   }
 }
 
@@ -113,7 +113,7 @@ function handleCondition(
       // First close out prevConds,
       closeConditions(prevCond.length, prevCond.length - index - 1);
       // then a plain 'else'
-      dump()(`${getSpaces(index)}else`);
+      Dump()(`${getSpaces(index)}else`);
       // then open the newConds
       openConditions(newCond, index + 1);
     } else {
@@ -129,7 +129,7 @@ function handleCondition(
     // First close out prevConds,
     closeConditions(prevCond.length, prevCond.length - index - 1);
     // Spit out the else-if
-    dump()(
+    Dump()(
       `${getSpaces(index)}else ifeq (${nCnd.variable}, ${nCnd.value || ''})`,
     );
     // then open the newConds
@@ -152,7 +152,7 @@ const opMap: Map<string, string> = new Map([
 ]);
 
 function emitDefs(defs: Definition[]) {
-  dump()('# And here are all the definitions');
+  Dump()('# And here are all the definitions');
   let prevCond: Condition[] = [];
   //  let depth = '';
   defs.forEach((def: Definition) => {
@@ -162,7 +162,7 @@ function emitDefs(defs: Definition[]) {
     const assign = opMap.get(def.type);
     if (assign) {
       const { name, value } = Transform(def.name, def.value);
-      dump()(`${indent}${name}${assign}${value}`);
+      Dump()(`${indent}${name}${assign}${value}`);
     }
     prevCond = curCond;
   });
@@ -180,7 +180,7 @@ function emitRules(rules: Recipe[]) {
   const flashRules = rules.filter((r: Recipe) => r.dst === 'flash');
   const tmp = flashRules.pop();
   const targetSuffix: string = tmp ? tmp.src : 'unk';
-  dump()(`
+  Dump()(`
 # And now the build rules!
 
 # First, the phony rules that don't produce things
@@ -220,48 +220,48 @@ endif
 # Now, on to the actual rules`);
   // const jsonFiles: string[] = [];
   rules.forEach((rule: Recipe) => {
-    dump()('');
+    Dump()('');
     if (rule.dst === 'o') {
-      dump()(`$\{BUILD_PATH\}/%.${rule.src}.o : %.${rule.src}`);
+      Dump()(`$\{BUILD_PATH\}/%.${rule.src}.o : %.${rule.src}`);
       const sfx = rule.src.toUpperCase();
       const cmd = tryToAddUserExtraFlag(sfx, '"$<"', rule.command);
-      dump()(`\t${cmd}\n`);
+      Dump()(`\t${cmd}\n`);
       // Also, let's make the .json compile_commands target
-      dump()(`$\{BUILD_PATH\}/%.${rule.src}.json : %.${rule.src}`);
-      dump()('ifeq ($(OS),Windows_NT)');
+      Dump()(`$\{BUILD_PATH\}/%.${rule.src}.json : %.${rule.src}`);
+      Dump()('ifeq ($(OS),Windows_NT)');
       // Windows Specific for loop and echo here
-      dump()('\t@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@');
-      dump()(`\t@echo "${cmd.replaceAll('"', '\\"')}" >> $@`);
-      dump()('\t@echo }, >> $@');
-      dump()('else');
+      Dump()('\t@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@');
+      Dump()(`\t@echo "${cmd.replaceAll('"', '\\"')}" >> $@`);
+      Dump()('\t@echo }, >> $@');
+      Dump()('else');
       // *nix Shell for loop/echo here
-      dump()(
+      Dump()(
         '\t@echo "{ \\"directory\\": \\"$(<D)\\",\\"file\\":\\"$(<F)\\"," > $@',
       );
-      dump()('\t@echo "\\"command\\":\\"' + slashify(cmd) + '\\"}," >> $@');
-      dump()('endif');
+      Dump()('\t@echo "\\"command\\":\\"' + slashify(cmd) + '\\"}," >> $@');
+      Dump()('endif');
     } else if (rule.dst === 'a') {
-      dump()('${BUILD_PATH}/system.a : ${SYS_OBJS}');
+      Dump()('${BUILD_PATH}/system.a : ${SYS_OBJS}');
       const cmd = tryToAddUserExtraFlag('AR', 'rcs "$@"', rule.command);
-      dump()(`\t${cmd}\n`);
+      Dump()(`\t${cmd}\n`);
     } else if (rule.dst === 'elf') {
-      dump()(
+      Dump()(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf : ' +
           '${BUILD_PATH}/system.a ${USER_OBJS}',
       );
       const cmd = tryToAddUserExtraFlag('ELF', '-o "$@"', rule.command);
-      dump()(`\t${cmd}\n`);
+      Dump()(`\t${cmd}\n`);
     } else {
-      dump()(
+      Dump()(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
           rule.dst +
           ' : ${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
           rule.src,
       );
-      dump()(`\t${rule.command}`);
+      Dump()(`\t${rule.command}`);
     }
   });
-  dump()(`\n
+  Dump()(`\n
 $\{BUILD_PATH}/compile_commands.json: $\{USER_JSON} $\{SYS_JSON}
 ifeq ($(OS),Windows_NT)
 \t@echo [ > $@
@@ -291,21 +291,21 @@ export function Emit(
   platDefs: Definition[],
   rules: Recipe[],
 ): void {
-  const isWin = makeIfeq('$(OS)', 'Windows_NT');
-  const notWin = makeIfneq('$(OS)', 'Windows_NT');
-  const isMac = makeIfeq('$(uname)', 'Darwin');
+  const isWin = MakeIfeq('$(OS)', 'Windows_NT');
+  const notWin = MakeIfneq('$(OS)', 'Windows_NT');
+  const isMac = MakeIfeq('$(uname)', 'Darwin');
   // const notMac = makeIfneq('$(uname)', 'Darwin');
   const initial = [
-    makeDeclDef('RUNTIME_OS', 'windows', [], [isWin]),
-    makeDeclDef('uname', '$(shell uname -s)', [], [notWin]),
-    makeDeclDef('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
-    makeUnDecl('RUNTIME_OS', 'linux'),
-    makeDeclDef(
+    MakeDeclDef('RUNTIME_OS', 'windows', [], [isWin]),
+    MakeDeclDef('uname', '$(shell uname -s)', [], [notWin]),
+    MakeDeclDef('RUNTIME_OS', 'macosx', ['uname'], [notWin, isMac]),
+    MakeUnDecl('RUNTIME_OS', 'linux'),
+    MakeDeclDef(
       'RUNTIME_PLATFORM_PATH',
       path.dirname(platform).replaceAll('\\', '/'),
     ),
-    makeDeclDef('RUNTIME_IDE_VERSION', '10819'),
-    makeDeclDef('IDE_VERSION', '10819'),
+    MakeDeclDef('RUNTIME_IDE_VERSION', '10819'),
+    MakeDeclDef('IDE_VERSION', '10819'),
   ];
 
   // Make definitions dependent on their condition values, so that I can

@@ -1,17 +1,17 @@
 import { Type } from '@freik/core-utils';
 import * as path from 'path';
-import { EnumerateDirectory, getFileList, mkSrcList } from './files.js';
+import { EnumerateDirectory, GetFileList, MakeSrcList } from './files.js';
 import { EnumerateLibraries, GetLibraryLocations } from './libraries.js';
 import {
-  getPlainValue,
-  makeAppend,
-  makeDeclDef,
-  makeDefinitions,
-  makeIfeq,
-  makeSeqDef,
-  makeUnDecl,
-  spacey,
-  trimq,
+  GetPlainValue,
+  MakeAppend,
+  MakeDeclDef,
+  MakeDefinitions,
+  MakeIfeq,
+  MakeSeqDef,
+  MakeUnDecl,
+  QuoteIfNeeded,
+  Unquote,
 } from './mkutil.js';
 import type {
   Definition,
@@ -82,7 +82,7 @@ function makeRecipes(recipes: SimpleSymbol, plat: ParsedFile): Recipe[] {
       ...location,
     );
     if (pattern) {
-      const res = getPlainValue(pattern, plat);
+      const res = GetPlainValue(pattern, plat);
       if (res.value.length > 0) {
         return res;
       }
@@ -206,14 +206,14 @@ function makeRecipes(recipes: SimpleSymbol, plat: ParsedFile): Recipe[] {
 // This is the 'meat' of the whole thing, as recipes generate very different
 // Makefile code.
 // It also returns the set of probably defined values generated from this code
-export async function buildPlatform(
+export async function BuildPlatform(
   boardDefs: Definition[],
   platform: ParsedFile,
   rootpath: string,
   libLocs: string[],
 ): Promise<{ defs: Definition[]; rules: Recipe[] }> {
   const defs: Definition[] = [
-    makeDeclDef(
+    MakeDeclDef(
       'BUILD_CORE_PATH',
       '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}',
       ['RUNTIME_PLATFORM_PATH', 'BUILD_CORE'],
@@ -226,8 +226,8 @@ export async function buildPlatform(
     children: platform.scopedTable,
   };
   const skip: FilterFunc = (a) => a.name !== 'recipe' && a.name !== 'tools';
-  const plain = getPlainValue;
-  const defined = makeDefinitions(fakeTop, plain, platform, null, skip);
+  const plain = GetPlainValue;
+  const defined = MakeDefinitions(fakeTop, plain, platform, null, skip);
 
   function parentTool(a: SimpleSymbol): boolean {
     for (; a.parent; a = a.parent) {
@@ -237,7 +237,7 @@ export async function buildPlatform(
     }
     return a.name === 'tools';
   }
-  const tmpToolDefs = makeDefinitions(
+  const tmpToolDefs = MakeDefinitions(
     fakeTop,
     plain,
     platform,
@@ -250,20 +250,20 @@ export async function buildPlatform(
   const cmds = tmpToolDefs.filter((fn) => fn.name.endsWith('_CMD'));
   const osxTools = tmpToolDefs.filter((fn) => fn.name.endsWith('_MACOSX'));
   const winTools = tmpToolDefs.filter((fn) => fn.name.endsWith('_WINDOWS'));
-  const osxCnd = makeIfeq('${RUNTIME_OS}', 'macosx');
+  const osxCnd = MakeIfeq('${RUNTIME_OS}', 'macosx');
   const toolDefs: Definition[] = [];
   for (const osxt of osxTools) {
     const name = osxt.name.substring(0, osxt.name.lastIndexOf('_MACOSX'));
-    toolDefs.push(makeDeclDef(name, osxt.value, osxt.dependsOn, [osxCnd]));
+    toolDefs.push(MakeDeclDef(name, osxt.value, osxt.dependsOn, [osxCnd]));
   }
-  const winCnd = makeIfeq('${RUNTIME_OS}', 'windows');
+  const winCnd = MakeIfeq('${RUNTIME_OS}', 'windows');
   for (const wint of winTools) {
     const name = wint.name.substring(0, wint.name.lastIndexOf('_WINDOWS'));
-    toolDefs.push(makeDeclDef(name, wint.value, wint.dependsOn, [winCnd]));
+    toolDefs.push(MakeDeclDef(name, wint.value, wint.dependsOn, [winCnd]));
   }
   toolDefs.push(
     ...cmds.map((def: Definition) => {
-      return makeUnDecl(def.name, def.value, def.dependsOn);
+      return MakeUnDecl(def.name, def.value, def.dependsOn);
     }),
   );
 
@@ -292,17 +292,17 @@ export async function buildPlatform(
       if (!patt) continue;
       // TODO: Add support for UPLOAD_WAIT_FOR_UPLOAD_PORT
       // TODO: Add support for UPLOAD_USE_1200BPS_TOUCH
-      const chup = makeIfeq('${UPLOAD_USE_1200BPS_TOUCH}', 'true');
-      const uef = makeDeclDef('UPLOAD_EXTRA_FLAGS', '--touch 1200', [], [chup]);
+      const chup = MakeIfeq('${UPLOAD_USE_1200BPS_TOUCH}', 'true');
+      const uef = MakeDeclDef('UPLOAD_EXTRA_FLAGS', '--touch 1200', [], [chup]);
       toolDefs.push(uef);
-      const ucnd = makeIfeq('${UPLOAD_TOOL}', key);
-      const patdval = getPlainValue(patt, platform);
+      const ucnd = MakeIfeq('${UPLOAD_TOOL}', key);
+      const patdval = GetPlainValue(patt, platform);
       const flashTool = patdval.value.replace(
         '${CMD}',
         '${TOOLS_' + key.toUpperCase() + '_CMD}',
       );
       patdval.unresolved.delete('CMD');
-      const tldef = makeDeclDef(
+      const tldef = MakeDeclDef(
         'UPLOAD_PATTERN',
         flashTool.replace('${BUILD_PATH}', '$(abspath ${BUILD_PATH})'),
         [...patdval.unresolved, uef.name],
@@ -371,26 +371,26 @@ export async function buildPlatform(
   const fileDefs: Definition[] = [];
   // Get the full file list & include path for each core & variant
   for (const core of cores) {
-    const { c, cpp, s, paths } = await getFileList(
-      path.join(trimq(rootpath), 'cores', core),
+    const { c, cpp, s, paths } = await GetFileList(
+      path.join(Unquote(rootpath), 'cores', core),
     );
-    const cnd = [makeIfeq('${BUILD_CORE}', core)];
+    const cnd = [MakeIfeq('${BUILD_CORE}', core)];
     if (c.length) {
-      fileDefs.push(mkSrcList('C_SYS_SRCS', c, 'BUILD_CORE', cnd));
+      fileDefs.push(MakeSrcList('C_SYS_SRCS', c, 'BUILD_CORE', cnd));
     }
     if (cpp.length) {
-      fileDefs.push(mkSrcList('CPP_SYS_SRCS', cpp, 'BUILD_CORE', cnd));
+      fileDefs.push(MakeSrcList('CPP_SYS_SRCS', cpp, 'BUILD_CORE', cnd));
     }
     if (s.length) {
-      fileDefs.push(mkSrcList('S_SYS_SRCS', s, 'BUILD_CORE', cnd));
+      fileDefs.push(MakeSrcList('S_SYS_SRCS', s, 'BUILD_CORE', cnd));
     }
     fileDefs.push(
-      makeAppend(
+      MakeAppend(
         'SYS_INCLUDES',
         ' ' +
-          spacey(
+          QuoteIfNeeded(
             `-I${path
-              .join(trimq(rootpath), 'cores', core)
+              .join(Unquote(rootpath), 'cores', core)
               .replaceAll('\\', '/')}`,
           ),
         ['BUILD_CORE'],
@@ -402,35 +402,35 @@ export async function buildPlatform(
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
     fileDefs.push(
-      makeAppend(
+      MakeAppend(
         'VPATH_CORE',
-        paths.map(spacey).join(' '),
+        paths.map(QuoteIfNeeded).join(' '),
         ['BUILD_CORE'],
         cnd,
       ),
     );
   }
   for (const vrn of variants) {
-    const { c, cpp, s, paths, inc } = await getFileList(
-      path.join(trimq(rootpath), 'variants', vrn),
+    const { c, cpp, s, paths, inc } = await GetFileList(
+      path.join(Unquote(rootpath), 'variants', vrn),
     );
-    const cnd = [makeIfeq('${BUILD_VARIANT}', vrn)];
+    const cnd = [MakeIfeq('${BUILD_VARIANT}', vrn)];
     if (c.length) {
-      fileDefs.push(mkSrcList('C_SYS_SRCS', c, 'BUILD_VARIANT', cnd));
+      fileDefs.push(MakeSrcList('C_SYS_SRCS', c, 'BUILD_VARIANT', cnd));
     }
     if (cpp.length) {
-      fileDefs.push(mkSrcList('CPP_SYS_SRCS', cpp, 'BUILD_VARIANT', cnd));
+      fileDefs.push(MakeSrcList('CPP_SYS_SRCS', cpp, 'BUILD_VARIANT', cnd));
     }
     if (s.length) {
-      fileDefs.push(mkSrcList('S_SYS_SRCS', s, 'BUILD_VARIANT', cnd));
+      fileDefs.push(MakeSrcList('S_SYS_SRCS', s, 'BUILD_VARIANT', cnd));
     }
-    fileDefs.push(mkSrcList('SYS_INCLUDES', inc, 'BUILD_VARIANT', cnd));
+    fileDefs.push(MakeSrcList('SYS_INCLUDES', inc, 'BUILD_VARIANT', cnd));
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
     fileDefs.push(
-      makeAppend(
+      MakeAppend(
         'VPATH_CORE',
-        paths.map(spacey).join(' '),
+        paths.map(QuoteIfNeeded).join(' '),
         ['BUILD_VARIANT'],
         cnd,
       ),
@@ -448,20 +448,20 @@ export async function buildPlatform(
 
   const sycSrcVal = '${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}';
   const usrSrcVal = '${USER_C_SRCS} ${USER_CPP_SRCS} ${USER_S_SRCS}';
-  fileDefs.push(makeDeclDef('SYS_SRC', sycSrcVal));
-  fileDefs.push(makeDeclDef('USER_SRC', usrSrcVal));
+  fileDefs.push(MakeDeclDef('SYS_SRC', sycSrcVal));
+  fileDefs.push(MakeDeclDef('USER_SRC', usrSrcVal));
 
   // Add the transformations for source files to obj's
-  fileDefs.push(makeDeclDef('ALL_SRC', '${SYS_SRC} ${USER_SRC}'));
+  fileDefs.push(MakeDeclDef('ALL_SRC', '${SYS_SRC} ${USER_SRC}'));
   fileDefs.push(
-    makeSeqDef('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}'),
+    MakeSeqDef('VPATH', '${VPATH}:${VPATH_MORE}:${VPATH_CORE}:${VPATH_VAR}'),
   );
   const mkObjList = (
     name: string,
     varname: string,
     suffix: string,
   ): Definition =>
-    makeDeclDef(
+    MakeDeclDef(
       name,
       `\\
   $(addprefix $\{BUILD_PATH}/, \\
@@ -474,7 +474,7 @@ export async function buildPlatform(
     );
   fileDefs.push(mkObjList('SYS_OBJS', 'SYS_SRC', 'o'));
   fileDefs.push(mkObjList('USER_OBJS', 'USER_SRC', 'o'));
-  fileDefs.push(makeDeclDef('ALL_OBJS', '${USER_OBJS} ${SYS_OBJS}'));
+  fileDefs.push(MakeDeclDef('ALL_OBJS', '${USER_OBJS} ${SYS_OBJS}'));
   fileDefs.push(mkObjList('SYS_JSON', 'SYS_SRC', 'json'));
   fileDefs.push(mkObjList('USER_JSON', 'USER_SRC', 'json'));
   // ALL_OBJS = \
