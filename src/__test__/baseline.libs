@@ -2579,7 +2579,6 @@ endif
 ifdef LIB_IRREMOTE
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/IRremote/src \
     -Isrc/__test__/hardware/teensy/avr/libraries/IRremote/src/private
-  VPATH_MORE+=
 endif
 ifdef LIB_KEYPAD
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Keypad/src/Key.cpp \

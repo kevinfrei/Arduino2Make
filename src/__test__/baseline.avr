@@ -986,7 +986,6 @@ else ifeq (${BUILD_VARIANT}, circuitplay32u4)
 endif
 ifdef LIB_EEPROM
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/EEPROM/src
-  VPATH_MORE+=
 endif
 ifdef LIB_HID
   CPP_SYS_SRCS+=src/__test__/hardware/arduino/avr/libraries/HID/src/HID.cpp
