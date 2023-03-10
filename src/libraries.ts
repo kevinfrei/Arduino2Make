@@ -25,33 +25,6 @@ import type {
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/
 
-// From the given root, create a library
-export async function MakeLibrary(root: string): Promise<Library> {
-  const files = await ReadDir(root);
-  const lcfiles = files.map((f) => f.toLocaleLowerCase());
-  const uqr = Unquote(root);
-  if (!lcfiles.includes('library.properties')) {
-    // This is a dumb v1.0 library: No recursion, just add the flat files
-    const fileTypes = await GetFileList(
-      root,
-      files.map((f) => path.join(uqr, f)),
-    );
-    const libName = path.basename(root);
-    const defsAndFiles = getDefsAndFiles(libName, fileTypes, {}, files);
-    return { ...defsAndFiles, props: { name: libName } };
-  }
-  // The rest is for v1.5+ libraries
-  let libFiles: string[] = [];
-  if (lcfiles.includes('src')) {
-    // Recurse into the src directory for v1.5 libraries
-    libFiles = await EnumerateFiles(path.join(uqr, 'src'));
-  } else {
-    // No src directory, not recursion
-    libFiles = files.map((f) => path.join(uqr, f));
-  }
-  return getLibInfo(root, libFiles);
-}
-
 // This is strictly for handling v1.5 libraries
 async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
   const lib = await ParseFile(path.join(Unquote(root), 'library.properties'));
@@ -263,6 +236,33 @@ async function isLibrary(loc: string): Promise<boolean> {
     }
   }
   return false;
+}
+
+// From the given root, create a library
+export async function MakeLibrary(root: string): Promise<Library> {
+  const files = await ReadDir(root);
+  const lcfiles = files.map((f) => f.toLocaleLowerCase());
+  const uqr = Unquote(root);
+  if (!lcfiles.includes('library.properties')) {
+    // This is a dumb v1.0 library: No recursion, just add the flat files
+    const fileTypes = await GetFileList(
+      root,
+      files.map((f) => path.join(uqr, f)),
+    );
+    const libName = path.basename(root);
+    const defsAndFiles = getDefsAndFiles(libName, fileTypes, {}, files);
+    return { ...defsAndFiles, props: { name: libName } };
+  }
+  // The rest is for v1.5+ libraries
+  let libFiles: string[] = [];
+  if (lcfiles.includes('src')) {
+    // Recurse into the src directory for v1.5 libraries
+    libFiles = await EnumerateFiles(path.join(uqr, 'src'));
+  } else {
+    // No src directory, not recursion
+    libFiles = files.map((f) => path.join(uqr, f));
+  }
+  return getLibInfo(root, libFiles);
 }
 
 // We may have individual library locations, or a folder that contains a number
