@@ -133,6 +133,9 @@ async function isLibrary(loc: string): Promise<boolean> {
   // If the folder contains a 'library.properties' file, it's a library
   // If it contains a 'keywords.txt' file, it's a library
   // If it contains any .h, .cpp, .c files, it's a library
+  if (!(await fsp.stat(loc)).isDirectory()) {
+    return false;
+  }
   for (const file of (await ReadDir(loc)).map((v) => v.toLocaleLowerCase())) {
     if (file === 'library.properties') {
       return true;
@@ -218,12 +221,10 @@ export async function GetLibraries(
   libLocs: string[],
 ): Promise<LibraryFile[]> {
   // Get the library list from the platform
-  const platformLibs = await EnumerateDirectory(
+  const realLibLocs = await getLibraryLocations([
     path.join(rootpath, 'libraries'),
-  );
-  const userLibs = await getLibraryLocations(libLocs);
-  const libs = await Promise.all(
-    [...platformLibs, ...userLibs].map(makeLibrary),
-  );
+    ...libLocs,
+  ]);
+  const libs = await Promise.all(realLibLocs.map(makeLibrary));
   return libs;
 }
