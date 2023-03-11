@@ -2,16 +2,14 @@ import { Type } from '@freik/core-utils';
 import * as path from 'path';
 import { MakeSrcList } from '../files.js';
 import { MakeAppend, MakeIfdef, makifyName, QuoteIfNeeded } from '../mkutil.js';
-import type { Definition, Files, LibProps } from '../types.js';
+import type { Definition, LibraryFile } from '../types.js';
 
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/
 
 // TODO: Move to Make
-export function GetLibDefs(
-  { c, cpp, s, inc, paths, a }: Files,
-  props: LibProps,
-): Definition[] {
+export function GetLibDefs({ files, props }: LibraryFile): Definition[] {
+  const { c, cpp, s, paths, inc, a } = files;
   const libDefName = 'LIB_' + makifyName(props.name);
   const libCond = MakeIfdef(libDefName);
   // I need to define a source list, include list

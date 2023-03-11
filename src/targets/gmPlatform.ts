@@ -16,11 +16,12 @@ import type {
   Definition,
   DependentValue,
   FilterFunc,
-  Library,
+  LibraryFile,
   ParsedFile,
   Recipe,
   SimpleSymbol,
 } from '../types.js';
+import { GetLibDefs } from './gmLibs.js';
 
 function getNestedChild(
   vrbl: SimpleSymbol,
@@ -209,7 +210,7 @@ export async function BuildPlatform(
   boardDefs: Definition[],
   platform: ParsedFile,
   rootpath: string,
-  libs: Library[],
+  libs: LibraryFile[],
 ): Promise<{ defs: Definition[]; rules: Recipe[] }> {
   const defs: Definition[] = [
     MakeDeclDef(
@@ -435,8 +436,8 @@ export async function BuildPlatform(
       ),
     );
   }
-  libs.forEach((val: Library) => {
-    fileDefs.push(...val.defs);
+  libs.forEach((val: LibraryFile) => {
+    fileDefs.push(...GetLibDefs(val));
   });
 
   const sycSrcVal = '${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}';

@@ -105,11 +105,6 @@ export type LibraryFile = {
   files: Files;
 };
 
-export type Library = LibraryFile & {
-  // TODO: Move to target
-  defs: Definition[];
-};
-
 export type Board = {
   symbols: SymbolTable;
   menuSelections: SymbolTable;
@@ -127,7 +122,7 @@ export type PlatformTarget = {
     platformPath: string,
     platSyms: ParsedFile,
     boardSyms: ParsedFile,
-    libraries: Library[],
+    libraries: LibraryFile[],
   ) => Promise<void>;
   getRuntimePlatformPath: SFn;
   getRuntimeHardwarePath: SFn;

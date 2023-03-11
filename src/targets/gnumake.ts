@@ -6,7 +6,7 @@ import { MakeDeclDef, MakeIfeq, MakeIfneq, MakeUnDecl } from '../mkutil.js';
 import type {
   Condition,
   Definition,
-  Library,
+  LibraryFile,
   ParsedFile,
   PlatformTarget,
   Recipe,
@@ -405,7 +405,7 @@ async function emit(
   platformPath: string,
   platSyms: ParsedFile,
   boardSyms: ParsedFile,
-  libraries: Library[],
+  libraries: LibraryFile[],
 ): Promise<void> {
   const boardDefined = GenBoardDefs(boardSyms);
 
