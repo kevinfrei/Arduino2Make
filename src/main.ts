@@ -7,7 +7,7 @@ import { IsConfigPresent, ReadConfig } from './config.js';
 import { MakeGlobals } from './globals.js';
 import { GetLibraries } from './libraries.js';
 import { ParseFile } from './parser.js';
-import { GetGnuMakeTarget } from './targets/makefile.js';
+import { GetGnuMakeTarget } from './targets/gnumake.js';
 import { Definition, PlatformTarget, Recipe } from './types.js';
 
 let outputFile: string[] | undefined;
@@ -99,22 +99,30 @@ async function parseCommandLine(args: string[]): Promise<string[]> {
 
 export default async function main(...args: string[]): Promise<void> {
   try {
+    // Get command line
     const normalArgs = await parseCommandLine(args);
     if (normalArgs.length === 0 && !IsConfigPresent()) {
       ShowHelp('Missing command line or configuration');
     }
     const root = normalArgs[0];
     const libLocs = normalArgs.slice(1);
+    // Parse the input files
     const boardPath = path.join(root, 'boards.txt');
-    const platformPath = path.join(root, 'platform.txt');
     const boardSyms = await ParseFile(boardPath);
+    const platformPath = path.join(root, 'platform.txt');
     const platSyms = await ParseFile(platformPath);
+
+    // Scan the libraries:
     // TODO: Move Defs from Library into platformtTarget
     const libraries = await GetLibraries(root, libLocs);
+
     const globals = MakeGlobals(platformTarget);
     const boards = EnumerateBoards(boardSyms);
+
+    // Emit the build stuff:
     await platformTarget.emit(platformPath, platSyms, boardSyms, libraries);
 
+    // Flush the output to disk...
     if (!Type.isUndefined(outputFile) && Type.isString(outputName)) {
       await fs.writeFile(outputName, outputFile.join('\n'), 'utf-8');
     }

@@ -3,7 +3,6 @@ import path from 'path';
 import { Transform } from '../config.js';
 import { CalculateChecksAndOrderDefinitions, Dump } from '../main.js';
 import { MakeDeclDef, MakeIfeq, MakeIfneq, MakeUnDecl } from '../mkutil.js';
-import { BuildPlatform } from '../platform.js';
 import type {
   Condition,
   Definition,
@@ -12,7 +11,8 @@ import type {
   PlatformTarget,
   Recipe,
 } from '../types.js';
-import { GenBoardDefs } from './makeBoard.js';
+import { GenBoardDefs } from './gmBoard.js';
+import { BuildPlatform } from './gmPlatform.js';
 
 // Utilities for doing Makefile stuff
 
@@ -47,9 +47,7 @@ endif
 }
 
 function getSpaces(len: number): string {
-  let str = '';
-  while (--len >= 0) str += '  ';
-  return str;
+  return '  '.repeat(len);
 }
 
 function openConditions(conds: Condition[], begin: number) {

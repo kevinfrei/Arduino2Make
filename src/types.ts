@@ -97,6 +97,7 @@ export type Files = {
   s: string[];
   inc: string[];
   paths: string[];
+  a: string[];
 };
 
 export type LibraryFile = {

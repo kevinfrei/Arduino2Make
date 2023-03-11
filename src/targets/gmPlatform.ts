@@ -1,6 +1,6 @@
 import { Type } from '@freik/core-utils';
 import * as path from 'path';
-import { GetFileList, MakeSrcList } from './files.js';
+import { GetFileList, MakeSrcList } from '../files.js';
 import {
   GetPlainValue,
   MakeAppend,
@@ -11,7 +11,7 @@ import {
   MakeUnDecl,
   QuoteIfNeeded,
   Unquote,
-} from './mkutil.js';
+} from '../mkutil.js';
 import type {
   Definition,
   DependentValue,
@@ -20,7 +20,7 @@ import type {
   ParsedFile,
   Recipe,
   SimpleSymbol,
-} from './types.js';
+} from '../types.js';
 
 function getNestedChild(
   vrbl: SimpleSymbol,

@@ -67,7 +67,8 @@ export async function GetFileList(
       ),
     ),
   ];
-  return { c, cpp, s, paths, inc };
+  const a = endsWithNoExamples(allFiles, '.a');
+  return { c, cpp, s, paths, inc, a };
 }
 
 export function MakeSrcList(

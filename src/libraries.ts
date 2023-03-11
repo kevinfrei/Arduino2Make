@@ -31,32 +31,10 @@ import type {
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/
 
-function getFiles({ c, cpp, s, inc, paths }: Files): Files {
-  const files: Files = { c: [], cpp: [], s: [], inc: [], paths: [] };
-  if (c.length) {
-    files.c = c;
-    // TODO: Move to Make
-  }
-  if (cpp.length) {
-    files.cpp = cpp;
-    // TODO: Move to Make
-  }
-  if (s.length) {
-    files.s = s;
-    // TODO: Move to Make
-  }
-  files.inc = inc;
-  // TODO: Move to Make
-  files.paths = paths;
-  // TODO: Move to Make
-  return files;
-}
-
 // TODO: Move to Make
 function getDefs(
-  { c, cpp, s, inc, paths }: Files,
+  { c, cpp, s, inc, paths, a }: Files,
   props: LibProps,
-  libFiles: string[],
 ): Definition[] {
   const libDefName = 'LIB_' + makifyName(props.name);
   const libCond = MakeIfdef(libDefName);
@@ -91,23 +69,19 @@ function getDefs(
       ),
     );
   }
+  // Definitely not right, but this works for nRFCrypto
+  // I need something about the target architecture to to it right...
+  const libpaths = new Set(a.map((lib) => path.dirname(lib)));
+  if (libpaths.size > 0) {
+    [...libpaths].forEach((val) =>
+      defs.push(
+        MakeAppend('COMPILER_LIBRARIES_LDFLAGS', '-L' + val, [], [libCond]),
+      ),
+    );
+  }
   if (Type.hasStr(props, 'ldflags')) {
     const flgVal = props.ldflags;
     defs.push(MakeAppend('COMPILER_LIBRARIES_LDFLAGS', flgVal, [], [libCond]));
-    // TODO: Do this right
-    // Probably not right, but this works for nRFCrypto
-    libFiles
-      .filter((f) => f.endsWith('.a'))
-      .forEach((val) =>
-        defs.push(
-          MakeAppend(
-            'COMPILER_LIBRARIES_LDFLAGS',
-            '-L' + path.dirname(val),
-            [],
-            [libCond],
-          ),
-        ),
-      );
   }
   return defs;
 }
@@ -278,9 +252,8 @@ async function makeV15Library(
   }
   const lib = await ParseFile(path.join(uqr, 'library.properties'));
   const props = libPropsFromParsedFile(lib);
-  const allFiles = await GetFileList(root, libFiles);
-  const files = getFiles(allFiles);
-  const defs = getDefs(allFiles, props, libFiles);
+  const files = await GetFileList(root, libFiles);
+  const defs = getDefs(files, props);
   return { defs, files, props };
 }
 
@@ -289,14 +262,13 @@ async function makeV10Library(
   flatFiles: string[],
 ): Promise<Library> {
   const uqr = Unquote(root);
-  const fileTypes = await GetFileList(
+  const files = await GetFileList(
     root,
     flatFiles.map((f) => path.join(uqr, f)),
   );
   const libName = path.basename(root);
-  const files = getFiles(fileTypes);
   const props: LibProps = { name: libName };
-  const defs = getDefs(fileTypes, props, flatFiles);
+  const defs = getDefs(files, props);
   return { defs, files, props: { name: libName } };
 }
 
