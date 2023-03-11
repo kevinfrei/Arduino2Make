@@ -1,5 +1,6 @@
 import { Type } from '@freik/core-utils';
 import { promises as fs } from 'fs';
+import minimist from 'minimist';
 import path from 'path';
 import { EnumerateBoards } from './board.js';
 import { IsConfigPresent, ReadConfig } from './config.js';
@@ -8,20 +9,17 @@ import { GetLibraries } from './libraries.js';
 import { ParseFile } from './parser.js';
 import { BuildPlatform } from './platform.js';
 import { GenBoardDefs } from './targets/makeBoard.js';
-import { Emit } from './targets/makefile.js';
-import { Definition, Recipe } from './types.js';
+import { GetMakeTarget } from './targets/selector.js';
+import { Definition, PlatformTarget, Recipe } from './types.js';
 
 let outputFile: string[] | undefined;
 let outputName: string | undefined;
 
-function openOutputFile(args: string[]): string[] {
-  const res = args.filter((val) => !val.startsWith('--out:'));
-  if (res.length !== args.length) {
-    const outName = args.find((val) => val.startsWith('--out:'));
-    outputName = outName?.substring(6);
+function setOutputFile(dest: unknown) {
+  if (Type.isString(dest)) {
+    outputName = dest;
     outputFile = [];
   }
-  return res;
 }
 
 function dumpToFile(message: unknown): void {
@@ -59,43 +57,87 @@ export function Dump(which?: string): (message: unknown) => void {
 // Once that's done, then restructre the resulting makefile to be more
 // configurable
 
-export default async function main(...args: string[]): Promise<void> {
-  const noConfig = args.filter((val) => !val.startsWith('--config:'));
-  await ReadConfig(args.filter((val) => val.startsWith('--config:')));
-  const normalArgs = openOutputFile(noConfig);
-
-  if (normalArgs.length === 0 && !IsConfigPresent()) {
-    Dump('err')(
-      'Usage: {--config:file.json} {--out:<filename>} rootDir {lib1Dir lib2Dir lib3Dir}',
-    );
-    Dump('err')(
-      "  rootDir is where you can find 'boards.txt' and 'platform.txt'",
-    );
-    return;
+export function ShowHelp(message?: string | string[]) {
+  if (!Type.isUndefined(message)) {
+    const msg = Type.isString(message) ? [message] : message;
+    msg.forEach(Dump('err'));
+    Dump('err')('');
   }
-  const root = normalArgs[0];
-  const libLocs = normalArgs.slice(1);
-  const board = path.join(root, 'boards.txt');
-  const platform = path.join(root, 'platform.txt');
-  const globals = MakeGlobals();
-  const boardSyms = await ParseFile(board);
-  const platSyms = await ParseFile(platform);
-  const boards = EnumerateBoards(boardSyms);
-  const boardDefined = GenBoardDefs(boardSyms);
-  const libraries = await GetLibraries(root, libLocs);
+  Dump('err')(`
+Usage: {flags} rootDir {lib1Dir lib2Dir lib3Dir}
+  rootDir is where you can find 'boards.txt' and 'platform.txt'
+  flags:
+    --config|-c <file.json> Read the config from the json file
+    --out|-o <filename> Spit the output into filename
+    --target|-t <gnumake> Generate a project for the given target (only GNUMake currently...)
+`);
+  process.exit(0);
+}
 
-  // TODO: Don't have recipes & tools fully handled in the platform yet
-  const { defs: platDefs, rules } = await BuildPlatform(
-    boardDefined,
-    platSyms,
-    path.dirname(platform),
-    libraries,
-  );
+const platformTarget: PlatformTarget = GetMakeTarget();
 
-  Emit(platform, boardDefined, platDefs, rules);
+async function parseCommandLine(args: string[]): Promise<string[]> {
+  const argv = minimist(args, {
+    // eslint-disable-next-line id-blacklist
+    string: ['config', 'target', 'out', 'help'],
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    alias: { c: 'config', t: 'target', o: 'out', h: 'help', '?': 'help' },
+    default: { target: 'gnumake' },
+  });
+  if (Type.hasStr(argv, 'help')) {
+    ShowHelp();
+  }
+  if (Type.hasStr(argv, 'config')) {
+    await ReadConfig(argv.config);
+  }
+  setOutputFile(argv?.out);
+  if (Type.hasStr(argv, 'target')) {
+    if (argv.target.toLocaleLowerCase() !== 'gnumake') {
+      throw Error(`Command line error: Unsupported target ${argv.target}`);
+    }
+  }
+  return argv._;
+}
 
-  if (!Type.isUndefined(outputFile) && Type.isString(outputName)) {
-    await fs.writeFile(outputName, outputFile.join('\n'), 'utf-8');
+export default async function main(...args: string[]): Promise<void> {
+  try {
+    const normalArgs = await parseCommandLine(args);
+    if (normalArgs.length === 0 && !IsConfigPresent()) {
+      ShowHelp('Missing command line or configuration');
+    }
+    const root = normalArgs[0];
+    const libLocs = normalArgs.slice(1);
+    const board = path.join(root, 'boards.txt');
+    const platform = path.join(root, 'platform.txt');
+    const globals = MakeGlobals();
+    const boardSyms = await ParseFile(board);
+    const platSyms = await ParseFile(platform);
+    const boards = EnumerateBoards(boardSyms);
+    const boardDefined = GenBoardDefs(boardSyms);
+    const libraries = await GetLibraries(root, libLocs);
+
+    // TODO: Don't have recipes & tools fully handled in the platform yet
+    const { defs: platDefs, rules } = await BuildPlatform(
+      boardDefined,
+      platSyms,
+      path.dirname(platform),
+      libraries,
+    );
+
+    platformTarget.emit(platform, boardDefined, platDefs, rules);
+
+    if (!Type.isUndefined(outputFile) && Type.isString(outputName)) {
+      await fs.writeFile(outputName, outputFile.join('\n'), 'utf-8');
+    }
+  } catch (e) {
+    const name = Type.hasStr(e, 'name') ? e.name : '<unknown>';
+    const message = Type.hasStr(e, 'message') ? e.message : '<no message>';
+    const file = Type.hasStr(e, 'fileName') ? e.fileName : '<no filename>';
+    const line =
+      Type.has(e, 'lineNumber') && Type.isNumber(e.lineNumber)
+        ? e.lineNumber
+        : -1;
+    ShowHelp(`Error: ${name} @ ${file}#${line}:\n${message}`);
   }
 }
 

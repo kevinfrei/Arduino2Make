@@ -118,3 +118,12 @@ export type BoardFile = {
   // The list of menu items (with their pleasant names)
   menus: SymbolTable;
 };
+
+export type PlatformTarget = {
+  emit: (
+    platform: string,
+    boardDefined: Definition[],
+    platDefs: Definition[],
+    rules: Recipe[],
+  ) => void;
+};

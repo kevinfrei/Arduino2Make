@@ -40,7 +40,7 @@ it('AVR basics', async () => {
   let failed = true;
   try {
     expect(
-      await main(`--out:${avrOutput}`, 'src/__test__/hardware/arduino/avr'),
+      await main('--out', avrOutput, 'src/__test__/hardware/arduino/avr'),
     ).toBeFalsy();
     expect(
       await fileCompare(avrOutput, 'src/__test__/baseline.avr'),
@@ -57,7 +57,7 @@ it('Teensy basics', async () => {
   let failed = true;
   try {
     expect(
-      await main(`--out:${teensyOutput}`, 'src/__test__/hardware/teensy/avr'),
+      await main('--out', teensyOutput, 'src/__test__/hardware/teensy/avr'),
     ).toBeFalsy();
     expect(
       await fileCompare(teensyOutput, 'src/__test__/baseline.teensy'),
@@ -75,7 +75,8 @@ it('Teensy with some libs', async () => {
   try {
     expect(
       await main(
-        `--out:${teensyLibsOutput}`,
+        '--out',
+        teensyLibsOutput,
         'src/__test__/hardware/teensy/avr',
         'src/__test__/libraries',
       ),
