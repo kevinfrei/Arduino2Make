@@ -35,12 +35,34 @@ async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
   return { ...defsAndFiles, props };
 }
 
-function getDefsAndFiles(
+function getFiles({ c, cpp, s, inc, paths }: Files): Files {
+  const files: Files = { c: [], cpp: [], s: [], inc: [], paths: [] };
+  if (c.length) {
+    files.c = c;
+    // TODO: Move to Make
+  }
+  if (cpp.length) {
+    files.cpp = cpp;
+    // TODO: Move to Make
+  }
+  if (s.length) {
+    files.s = s;
+    // TODO: Move to Make
+  }
+  files.inc = inc;
+  // TODO: Move to Make
+  files.paths = paths;
+  // TODO: Move to Make
+  return files;
+}
+
+// TODO: Move to Make
+function getDefs(
   libName: string,
   { c, cpp, s, inc, paths }: Files,
   props: Partial<LibProps>,
   libFiles: string[],
-): { defs: Definition[]; files: Files } {
+): Definition[] {
   const libDefName = 'LIB_' + libName.toUpperCase();
   const libCond = MakeIfdef(libDefName);
   // I need to define a source list, include list
@@ -53,28 +75,17 @@ function getDefsAndFiles(
     VPATH:=${VPATH}:../libLocation/.../Wire/
     endif
   */
-  const files: Files = { c: [], cpp: [], s: [], inc: [], paths: [] };
   const defs: Definition[] = [];
   if (c.length) {
-    files.c = c;
-    // TODO: Move to Make
     defs.push(MakeSrcList('C_SYS_SRCS', c, [], [libCond]));
   }
   if (cpp.length) {
-    files.cpp = cpp;
-    // TODO: Move to Make
     defs.push(MakeSrcList('CPP_SYS_SRCS', cpp, [], [libCond]));
   }
   if (s.length) {
-    files.s = s;
-    // TODO: Move to Make
     defs.push(MakeSrcList('S_SYS_SRCS', s, [], [libCond]));
   }
-  files.inc = inc;
-  // TODO: Move to Make
   defs.push(MakeSrcList('SYS_INCLUDES', inc, [], [libCond]));
-  files.paths = paths;
-  // TODO: Move to Make
   if (paths.length > 0) {
     defs.push(
       MakeAppend(
@@ -85,10 +96,10 @@ function getDefsAndFiles(
       ),
     );
   }
-  // TODO: Move to Make
   if (Type.hasStr(props, 'ldflags')) {
     const flgVal = props.ldflags;
     defs.push(MakeAppend('COMPILER_LIBRARIES_LDFLAGS', flgVal, [], [libCond]));
+    // TODO: Do this right
     // Probably not right, but this works for nRFCrypto
     libFiles
       .filter((f) => f.endsWith('.a'))
@@ -103,6 +114,17 @@ function getDefsAndFiles(
         ),
       );
   }
+  return defs;
+}
+
+function getDefsAndFiles(
+  libName: string,
+  allFiles: Files,
+  props: Partial<LibProps>,
+  libFiles: string[],
+): { defs: Definition[]; files: Files } {
+  const defs = getDefs(libName, allFiles, props, libFiles);
+  const files = getFiles(allFiles);
   return { defs, files };
 }
 

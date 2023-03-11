@@ -109,6 +109,7 @@ export default async function main(...args: string[]): Promise<void> {
     const platformPath = path.join(root, 'platform.txt');
     const boardSyms = await ParseFile(boardPath);
     const platSyms = await ParseFile(platformPath);
+    // TODO: Move Defs from Library into platformtTarget
     const libraries = await GetLibraries(root, libLocs);
     const globals = MakeGlobals(platformTarget);
     const boards = EnumerateBoards(boardSyms);
