@@ -107,17 +107,6 @@ function getDefs(
   return defs;
 }
 
-// This is strictly for handling v1.5 libraries
-async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
-  const lib = await ParseFile(path.join(Unquote(root), 'library.properties'));
-  const props = libPropsFromParsedFile(lib);
-  const allFiles = await GetFileList(root, libFiles);
-  const libName = path.basename(root);
-  const defs = getDefs(libName, allFiles, props, libFiles);
-  const files = getFiles(allFiles);
-  return { defs, files, props };
-}
-
 function getSemanticVersion(verstr?: string): SemVer {
   if (Type.isUndefined(verstr)) {
     return '';
@@ -269,32 +258,50 @@ async function getLibraryLocations(locs: string[]): Promise<string[]> {
   return libLocs;
 }
 
-// From the given root, create a library
-async function makeLibrary(root: string): Promise<Library> {
-  const flatFiles = await ReadDir(root);
-  const lcfiles = flatFiles.map((f) => f.toLocaleLowerCase());
-  const uqr = Unquote(root);
-  if (!lcfiles.includes('library.properties')) {
-    // This is a dumb v1.0 library: No recursion, just add the flat files
-    const fileTypes = await GetFileList(
-      root,
-      flatFiles.map((f) => path.join(uqr, f)),
-    );
-    const libName = path.basename(root);
-    const defs = getDefs(libName, fileTypes, {}, flatFiles);
-    const files = getFiles(fileTypes);
-    return { defs, files, props: { name: libName } };
-  }
-  // The rest is for v1.5+ libraries
+async function makeV15Library(
+  root: string,
+  flatFiles: string[],
+): Promise<Library> {
   let libFiles: string[] = [];
-  if (lcfiles.includes('src')) {
+  const uqr = Unquote(root);
+  if (flatFiles.some((v) => v.toLocaleLowerCase() === 'src')) {
     // Recurse into the src directory for v1.5 libraries
     libFiles = await EnumerateFiles(path.join(uqr, 'src'));
   } else {
     // No src directory, not recursion
     libFiles = flatFiles.map((f) => path.join(uqr, f));
   }
-  return getLibInfo(root, libFiles);
+  const lib = await ParseFile(path.join(uqr, 'library.properties'));
+  const props = libPropsFromParsedFile(lib);
+  const allFiles = await GetFileList(root, libFiles);
+  const libName = path.basename(root);
+  const files = getFiles(allFiles);
+  const defs = getDefs(libName, allFiles, props, libFiles);
+  return { defs, files, props };
+}
+
+async function makeV10Library(
+  root: string,
+  flatFiles: string[],
+): Promise<Library> {
+  const uqr = Unquote(root);
+  const fileTypes = await GetFileList(
+    root,
+    flatFiles.map((f) => path.join(uqr, f)),
+  );
+  const libName = path.basename(root);
+  const files = getFiles(fileTypes);
+  const defs = getDefs(libName, fileTypes, {}, flatFiles);
+  return { defs, files, props: { name: libName } };
+}
+
+// From the given root, create a library
+async function makeLibrary(root: string): Promise<Library> {
+  const flatFiles = await ReadDir(root);
+  const isV15 = flatFiles.some(
+    (v) => v.toLocaleLowerCase() === 'library.properties',
+  );
+  return await (isV15 ? makeV15Library : makeV10Library)(root, flatFiles);
 }
 
 export async function GetLibraries(
