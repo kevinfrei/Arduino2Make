@@ -1,7 +1,8 @@
+export type SFn = () => string;
 // The basic types for a parsed file:
 export type SimpleSymbol = {
   name: string;
-  value?: string | (() => string);
+  value?: string | SFn;
   parent?: SimpleSymbol;
   children: SymbolTable;
 };
@@ -126,4 +127,15 @@ export type PlatformTarget = {
     platDefs: Definition[],
     rules: Recipe[],
   ) => void;
+  getRuntimePlatformPath: SFn;
+  getRuntimeHardwarePath: SFn;
+  getRuntimeIdePath: SFn;
+  getRuntimeOs: SFn;
+  getVendorName: SFn;
+  getBoardId: SFn;
+  getFQBN: SFn;
+  getSourcePath: SFn;
+  getLibDiscoveryPhase: SFn;
+  getOptFlags: SFn;
+  getTimeUtc: (tzAdjust?: boolean, dstAdjust?: boolean) => SFn;
 };

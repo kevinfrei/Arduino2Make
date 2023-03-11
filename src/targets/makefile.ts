@@ -1,10 +1,16 @@
-// Utilities for doing Makefile stuff
-
+import { platform } from 'os';
 import path from 'path';
 import { Transform } from '../config.js';
 import { CalculateChecksAndOrderDefinitions, Dump } from '../main.js';
 import { MakeDeclDef, MakeIfeq, MakeIfneq, MakeUnDecl } from '../mkutil.js';
-import type { Condition, Definition, Recipe } from '../types.js';
+import type {
+  Condition,
+  Definition,
+  PlatformTarget,
+  Recipe,
+} from '../types.js';
+
+// Utilities for doing Makefile stuff
 
 const optionalDefs: string[] = [
   'INCLUDES',
@@ -285,8 +291,81 @@ function tryToAddUserExtraFlag(sfx: string, srch: string, cmd: string) {
   return cmd;
 }
 
-export function Emit(
-  platform: string,
+function getRuntimePlatformPath(): string {
+  // TODO
+  // {runtime.platform.path}: the absolute path of the board platform folder (i.e. the folder containing boards.txt)
+  return '{runtime.platform.path}';
+}
+
+function getRuntimeHardwarePath(): string {
+  // TODO
+  // {runtime.hardware.path}: the absolute path of the hardware folder (i.e. the folder containing the board platform folder)
+  return '{runtime.hardware.path}';
+}
+
+function getRuntimeIdePath(): string {
+  // TODO
+  // {runtime.ide.path}: the absolute path of the Arduino IDE or Arduino CLI folder
+  return '{runtime.ide.path}';
+}
+
+function getRuntimeOs(): string {
+  // TODO: This is assuming gen-host is also compile-host
+  // {runtime.os}: the running OS ("linux", "windows", "macosx")
+  switch (platform().toLocaleLowerCase()) {
+    case 'win32':
+      return 'windows';
+    case 'darwin':
+      return 'macosx';
+    case 'linux':
+      return 'linux';
+    default:
+      throw new Error('Unsupported platform: ' + platform());
+  }
+}
+
+function getSourcePath(): string {
+  // TODO:
+  // {build.source.path}: Path to the sketch being compiled.
+  // If the sketch is in an unsaved state, it will the path of its temporary folder.
+  return '{build.source.path}';
+}
+
+function getLibDiscoveryPhase(): string {
+  // TODO
+  // {build.library_discovery_phase}:
+  // set to 1 during library discovery and to 0 during normal build.
+  // A macro defined with this property can be used to disable the inclusion of
+  // heavyweight headers during discovery to reduce compilation time.
+  // This property was added in Arduino IDE 1.8.14/Arduino Builder 1.6.0/Arduino CLI 0.12.0.
+  // Note: with the same intent, -DARDUINO_LIB_DISCOVERY_PHASE was added to
+  // recipe.preproc.macros during library discovery in Arduino Builder 1.5.3/Arduino CLI 0.10.0.
+  // That flag was replaced by the more flexible {build.library_discovery_phase} property.
+  return '0';
+}
+
+function getOptFlags(): string {
+  // TODO:
+  // {compiler.optimization_flags}: see "Sketch debugging configuration" for details
+  return '-O2';
+}
+
+function getTimeUtc(tzAdjust?: boolean, dstAdjust?: boolean): () => string {
+  return () => {
+    // TODO:
+    // Unix time (seconds since 1970-01-01T00:00:00Z) according to the machine the build
+    // is running on
+    let unixTime = Math.floor(Date.now() / 1000);
+    if (tzAdjust || dstAdjust) {
+      // TODO: use tzAdjust and dstAdjust
+      unixTime += 3600;
+    }
+    return `${unixTime}`;
+  };
+}
+
+function emit(
+  pltfrm: string,
   boardDefined: Definition[],
   platDefs: Definition[],
   rules: Recipe[],
@@ -302,7 +381,7 @@ export function Emit(
     MakeUnDecl('RUNTIME_OS', 'linux'),
     MakeDeclDef(
       'RUNTIME_PLATFORM_PATH',
-      path.dirname(platform).replaceAll('\\', '/'),
+      path.dirname(pltfrm).replaceAll('\\', '/'),
     ),
     MakeDeclDef('RUNTIME_IDE_VERSION', '10819'),
     MakeDeclDef('IDE_VERSION', '10819'),
@@ -318,4 +397,21 @@ export function Emit(
   emitChecks(checks);
   emitDefs(defs);
   emitRules(rules);
+}
+
+export function GetGnuMakeTarget(): PlatformTarget {
+  return {
+    emit,
+    getRuntimePlatformPath,
+    getRuntimeHardwarePath,
+    getRuntimeIdePath,
+    getRuntimeOs,
+    getSourcePath,
+    getVendorName: () => 'VENDOR',
+    getBoardId: () => 'BOARD_ID',
+    getFQBN: () => 'fqbn',
+    getLibDiscoveryPhase,
+    getOptFlags,
+    getTimeUtc,
+  };
 }

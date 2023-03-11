@@ -9,7 +9,7 @@ import { GetLibraries } from './libraries.js';
 import { ParseFile } from './parser.js';
 import { BuildPlatform } from './platform.js';
 import { GenBoardDefs } from './targets/makeBoard.js';
-import { GetMakeTarget } from './targets/selector.js';
+import { GetGnuMakeTarget } from './targets/makefile.js';
 import { Definition, PlatformTarget, Recipe } from './types.js';
 
 let outputFile: string[] | undefined;
@@ -74,7 +74,7 @@ Usage: {flags} rootDir {lib1Dir lib2Dir lib3Dir}
   process.exit(0);
 }
 
-const platformTarget: PlatformTarget = GetMakeTarget();
+const platformTarget: PlatformTarget = GetGnuMakeTarget();
 
 async function parseCommandLine(args: string[]): Promise<string[]> {
   const argv = minimist(args, {
@@ -107,24 +107,24 @@ export default async function main(...args: string[]): Promise<void> {
     }
     const root = normalArgs[0];
     const libLocs = normalArgs.slice(1);
-    const board = path.join(root, 'boards.txt');
-    const platform = path.join(root, 'platform.txt');
-    const globals = MakeGlobals();
-    const boardSyms = await ParseFile(board);
-    const platSyms = await ParseFile(platform);
+    const boardPath = path.join(root, 'boards.txt');
+    const platformPath = path.join(root, 'platform.txt');
+    const boardSyms = await ParseFile(boardPath);
+    const platSyms = await ParseFile(platformPath);
+    const libraries = await GetLibraries(root, libLocs);
+    const globals = MakeGlobals(platformTarget);
     const boards = EnumerateBoards(boardSyms);
     const boardDefined = GenBoardDefs(boardSyms);
-    const libraries = await GetLibraries(root, libLocs);
 
     // TODO: Don't have recipes & tools fully handled in the platform yet
     const { defs: platDefs, rules } = await BuildPlatform(
       boardDefined,
       platSyms,
-      path.dirname(platform),
+      path.dirname(platformPath),
       libraries,
     );
 
-    platformTarget.emit(platform, boardDefined, platDefs, rules);
+    platformTarget.emit(platformPath, boardDefined, platDefs, rules);
 
     if (!Type.isUndefined(outputFile) && Type.isString(outputName)) {
       await fs.writeFile(outputName, outputFile.join('\n'), 'utf-8');
