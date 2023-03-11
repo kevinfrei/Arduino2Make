@@ -1,11 +1,12 @@
 import { Type } from '@freik/core-utils';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { BuildBoard, EnumerateBoards } from './board.js';
+import { EnumerateBoards } from './board.js';
 import { IsConfigPresent, ReadConfig } from './config.js';
 import { MakeGlobals } from './globals.js';
 import { ParseFile } from './parser.js';
 import { BuildPlatform } from './platform.js';
+import { GenBoardDefs } from './targets/makeBoard.js';
 import { Emit } from './targets/makefile.js';
 import { Definition, Recipe } from './types.js';
 
@@ -79,7 +80,7 @@ export default async function main(...args: string[]): Promise<void> {
   const boardSyms = await ParseFile(board);
   const platSyms = await ParseFile(platform);
   const boards = EnumerateBoards(boardSyms);
-  const boardDefined = BuildBoard(boardSyms);
+  const boardDefined = GenBoardDefs(boardSyms);
 
   // TODO: Don't have recipes & tools fully handled in the platform yet
   const { defs: platDefs, rules } = await BuildPlatform(
