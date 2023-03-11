@@ -1,5 +1,5 @@
-import { MakeSymbol } from './symbols';
-import { ParsedFile, PlatformTarget, SymbolTable } from './types';
+import { MakeSymbol } from './symbols.js';
+import { ParsedFile, PlatformTarget, SymbolTable } from './types.js';
 
 /*
 These are all the pre-defined symbols, per the specification:

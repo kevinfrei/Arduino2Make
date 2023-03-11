@@ -1,4 +1,4 @@
-import { Filter } from '../config';
+import { Filter } from '../config.js';
 import {
   Condition,
   Definition,
@@ -6,8 +6,8 @@ import {
   ParsedFile,
   SimpleSymbol,
   ValueMakerFunc,
-} from '../types';
-import { GetPlainValue } from '../utils';
+} from '../types.js';
+import { GetPlainValue } from '../utils.js';
 
 // Utilities for doing Makefile stuff
 
