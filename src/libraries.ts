@@ -7,7 +7,6 @@ import {
   GetFileList,
   ReadDir,
 } from './files.js';
-import { Unquote } from './mkutil.js';
 import { ParseFile } from './parser.js';
 import type {
   Categories,
@@ -18,6 +17,7 @@ import type {
   SemVer,
   SymbolTable,
 } from './types.js';
+import { Unquote } from './utils.js';
 
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/

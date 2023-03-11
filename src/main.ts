@@ -74,6 +74,10 @@ Usage: {flags} rootDir {lib1Dir lib2Dir lib3Dir}
 
 const platformTarget: PlatformTarget = GetGnuMakeTarget();
 
+export function GetTarget(): PlatformTarget {
+  return platformTarget;
+}
+
 async function parseCommandLine(args: string[]): Promise<string[]> {
   const argv = minimist(args, {
     // eslint-disable-next-line id-blacklist

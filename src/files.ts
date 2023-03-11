@@ -1,9 +1,8 @@
 import { pathCompare } from '@freik/node-utils';
 import { promises as fsp } from 'fs';
 import * as path from 'path';
-import { Filter } from './config.js';
-import { MakeAppend, QuoteIfNeeded, Unquote } from './mkutil.js';
-import { Condition, Definition, Files } from './types.js';
+import { Files } from './types.js';
+import { QuoteIfNeeded, Unquote } from './utils.js';
 
 // Use this to keep things in a predictable order...
 export async function ReadDir(root: string): Promise<string[]> {
@@ -69,19 +68,4 @@ export async function GetFileList(
   ];
   const a = endsWithNoExamples(allFiles, '.a');
   return { c, cpp, s, paths, inc, a };
-}
-
-export function MakeSrcList(
-  name: string,
-  files: string[],
-  depend: string | string[],
-  cnd: Condition[],
-): Definition {
-  const filteredFiles = Filter(name, files);
-  return MakeAppend(
-    name,
-    filteredFiles.join(' \\\n    '),
-    typeof depend === 'string' ? [depend] : depend,
-    cnd,
-  );
 }

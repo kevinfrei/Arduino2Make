@@ -1,11 +1,11 @@
+import type { Definition, FilterFunc, ParsedFile } from '../types.js';
+import { GetPlainValue } from '../utils.js';
 import {
-  GetPlainValue,
   MakeDeclDef,
   MakeDefinitions,
   MakeIfeq,
   MakeMenuOptions,
-} from '../mkutil.js';
-import type { Definition, FilterFunc, ParsedFile } from '../types.js';
+} from './gmUtils.js';
 
 // This spits out the board configuration data in Makefile format
 // It returns the set of *probably* defined variables, for use later

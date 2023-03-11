@@ -124,6 +124,7 @@ export type PlatformTarget = {
     boardSyms: ParsedFile,
     libraries: LibraryFile[],
   ) => Promise<void>;
+  expandName: (nm: string) => { name: string; expansion: string };
   getRuntimePlatformPath: SFn;
   getRuntimeHardwarePath: SFn;
   getRuntimeIdePath: SFn;

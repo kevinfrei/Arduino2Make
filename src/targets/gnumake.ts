@@ -2,7 +2,6 @@ import { platform } from 'os';
 import path from 'path';
 import { Transform } from '../config.js';
 import { CalculateChecksAndOrderDefinitions, Dump } from '../main.js';
-import { MakeDeclDef, MakeIfeq, MakeIfneq, MakeUnDecl } from '../mkutil.js';
 import type {
   Condition,
   Definition,
@@ -13,6 +12,13 @@ import type {
 } from '../types.js';
 import { GenBoardDefs } from './gmBoard.js';
 import { BuildPlatform } from './gmPlatform.js';
+import {
+  MakeDeclDef,
+  MakeIfeq,
+  MakeIfneq,
+  MakeUnDecl,
+  MakifyName,
+} from './gmUtils.js';
 
 // Utilities for doing Makefile stuff
 
@@ -420,9 +426,16 @@ async function emit(
   emitPlatform(platformPath, boardDefined, platDefs, rules);
 }
 
+function expandName(nm: string): { name: string; expansion: string } {
+  const name = MakifyName(nm);
+  const expansion = '${' + name + '}';
+  return { name, expansion };
+}
+
 export function GetGnuMakeTarget(): PlatformTarget {
   return {
     emit,
+    expandName,
     getRuntimePlatformPath,
     getRuntimeHardwarePath,
     getRuntimeIdePath,

@@ -1,8 +1,8 @@
 import { Type } from '@freik/core-utils';
 import * as path from 'path';
-import { MakeSrcList } from '../files.js';
-import { MakeAppend, MakeIfdef, makifyName, QuoteIfNeeded } from '../mkutil.js';
 import type { Definition, LibraryFile } from '../types.js';
+import { QuoteIfNeeded } from '../utils.js';
+import { MakeAppend, MakeIfdef, MakeSrcList, MakifyName } from './gmUtils.js';
 
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/
@@ -10,7 +10,7 @@ import type { Definition, LibraryFile } from '../types.js';
 // TODO: Move to Make
 export function GetLibDefs({ files, props }: LibraryFile): Definition[] {
   const { c, cpp, s, paths, inc, a } = files;
-  const libDefName = 'LIB_' + makifyName(props.name);
+  const libDefName = 'LIB_' + MakifyName(props.name);
   const libCond = MakeIfdef(libDefName);
   // I need to define a source list, include list
   // In addition, I need to define a variable that the user can include on
