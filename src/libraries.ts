@@ -25,16 +25,6 @@ import type {
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/
 
-// This is strictly for handling v1.5 libraries
-async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
-  const lib = await ParseFile(path.join(Unquote(root), 'library.properties'));
-  const props = libPropsFromParsedFile(lib);
-  const files = await GetFileList(root, libFiles);
-  const libName = path.basename(root);
-  const defsAndFiles = getDefsAndFiles(libName, files, props, libFiles);
-  return { ...defsAndFiles, props };
-}
-
 function getFiles({ c, cpp, s, inc, paths }: Files): Files {
   const files: Files = { c: [], cpp: [], s: [], inc: [], paths: [] };
   if (c.length) {
@@ -117,15 +107,15 @@ function getDefs(
   return defs;
 }
 
-function getDefsAndFiles(
-  libName: string,
-  allFiles: Files,
-  props: Partial<LibProps>,
-  libFiles: string[],
-): { defs: Definition[]; files: Files } {
+// This is strictly for handling v1.5 libraries
+async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
+  const lib = await ParseFile(path.join(Unquote(root), 'library.properties'));
+  const props = libPropsFromParsedFile(lib);
+  const allFiles = await GetFileList(root, libFiles);
+  const libName = path.basename(root);
   const defs = getDefs(libName, allFiles, props, libFiles);
   const files = getFiles(allFiles);
-  return { defs, files };
+  return { defs, files, props };
 }
 
 function getSemanticVersion(verstr?: string): SemVer {
@@ -281,18 +271,19 @@ async function getLibraryLocations(locs: string[]): Promise<string[]> {
 
 // From the given root, create a library
 async function makeLibrary(root: string): Promise<Library> {
-  const files = await ReadDir(root);
-  const lcfiles = files.map((f) => f.toLocaleLowerCase());
+  const flatFiles = await ReadDir(root);
+  const lcfiles = flatFiles.map((f) => f.toLocaleLowerCase());
   const uqr = Unquote(root);
   if (!lcfiles.includes('library.properties')) {
     // This is a dumb v1.0 library: No recursion, just add the flat files
     const fileTypes = await GetFileList(
       root,
-      files.map((f) => path.join(uqr, f)),
+      flatFiles.map((f) => path.join(uqr, f)),
     );
     const libName = path.basename(root);
-    const defsAndFiles = getDefsAndFiles(libName, fileTypes, {}, files);
-    return { ...defsAndFiles, props: { name: libName } };
+    const defs = getDefs(libName, fileTypes, {}, flatFiles);
+    const files = getFiles(fileTypes);
+    return { defs, files, props: { name: libName } };
   }
   // The rest is for v1.5+ libraries
   let libFiles: string[] = [];
@@ -301,7 +292,7 @@ async function makeLibrary(root: string): Promise<Library> {
     libFiles = await EnumerateFiles(path.join(uqr, 'src'));
   } else {
     // No src directory, not recursion
-    libFiles = files.map((f) => path.join(uqr, f));
+    libFiles = flatFiles.map((f) => path.join(uqr, f));
   }
   return getLibInfo(root, libFiles);
 }
