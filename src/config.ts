@@ -1,6 +1,6 @@
 import { SafelyUnpickle, Type } from '@freik/core-utils';
 import { promises as fs } from 'fs';
-import { Dump } from './main';
+import { Dump } from './dump.js';
 
 // Var def to match, substr to find, string to replace substr with
 type TransformItem = { defmatch: string; text: string; replace: string };

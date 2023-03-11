@@ -1,7 +1,7 @@
 import { Type } from '@freik/core-utils';
 import * as fs from 'fs';
 import * as rl from 'readline';
-import { Dump } from './main.js';
+import { Dump } from './dump.js';
 import { MakeSymbol } from './symbols.js';
 import type { ParsedFile, SymbolTable } from './types.js';
 

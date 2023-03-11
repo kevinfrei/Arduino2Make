@@ -1,7 +1,7 @@
 import { platform } from 'os';
 import path from 'path';
 import { Transform } from '../config.js';
-import { CalculateChecksAndOrderDefinitions, Dump } from '../main.js';
+import { Dump } from '../dump.js';
 import type {
   Condition,
   Definition,
@@ -10,6 +10,7 @@ import type {
   PlatformTarget,
   Recipe,
 } from '../types.js';
+import { CalculateChecksAndOrderDefinitions } from '../utils.js';
 import { GenBoardDefs } from './gmBoard.js';
 import { BuildPlatform } from './gmPlatform.js';
 import {
