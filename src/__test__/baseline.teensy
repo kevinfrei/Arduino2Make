@@ -2670,7 +2670,7 @@ ifdef LIB_MFRC522
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/MFRC522/src
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/MFRC522/src
 endif
-ifdef LIB_MIDI
+ifdef LIB_MIDI_LIBRARY
   CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/MIDI/src/MIDI.cpp
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/MIDI/src
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/MIDI/src
@@ -2944,7 +2944,7 @@ ifdef LIB_SPIFLASH
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SPIFlash
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SPIFlash
 endif
-ifdef LIB_SSD1351
+ifdef LIB_TEENSY_SSD1351
   C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ssd1351/glcdfont.c
   SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ssd1351
   VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ssd1351

@@ -8,7 +8,13 @@ import {
   MakeSrcList,
   ReadDir,
 } from './files.js';
-import { MakeAppend, MakeIfdef, QuoteIfNeeded, Unquote } from './mkutil.js';
+import {
+  MakeAppend,
+  MakeIfdef,
+  makifyName,
+  QuoteIfNeeded,
+  Unquote,
+} from './mkutil.js';
 import { ParseFile } from './parser.js';
 import type {
   Categories,
@@ -48,12 +54,11 @@ function getFiles({ c, cpp, s, inc, paths }: Files): Files {
 
 // TODO: Move to Make
 function getDefs(
-  libName: string,
   { c, cpp, s, inc, paths }: Files,
-  props: Partial<LibProps>,
+  props: LibProps,
   libFiles: string[],
 ): Definition[] {
-  const libDefName = 'LIB_' + libName.toUpperCase();
+  const libDefName = 'LIB_' + makifyName(props.name);
   const libCond = MakeIfdef(libDefName);
   // I need to define a source list, include list
   // In addition, I need to define a variable that the user can include on
@@ -180,9 +185,9 @@ function getString(name: string, tbl: SymbolTable): string | undefined {
   }
 }
 
-function libPropsFromParsedFile(file: ParsedFile): Partial<LibProps> {
+function libPropsFromParsedFile(file: ParsedFile): LibProps {
   const tbl = file.scopedTable;
-  const name = getString('name', tbl);
+  const name = getString('name', tbl) || ''; // Yeah, this better be there...
   const version = getSemanticVersion(getString('version', tbl));
   const ldflags = getString('ldflags', tbl);
   const architecture = getString('architectures', tbl);
@@ -274,9 +279,8 @@ async function makeV15Library(
   const lib = await ParseFile(path.join(uqr, 'library.properties'));
   const props = libPropsFromParsedFile(lib);
   const allFiles = await GetFileList(root, libFiles);
-  const libName = path.basename(root);
   const files = getFiles(allFiles);
-  const defs = getDefs(libName, allFiles, props, libFiles);
+  const defs = getDefs(allFiles, props, libFiles);
   return { defs, files, props };
 }
 
@@ -291,7 +295,8 @@ async function makeV10Library(
   );
   const libName = path.basename(root);
   const files = getFiles(fileTypes);
-  const defs = getDefs(libName, fileTypes, {}, flatFiles);
+  const props: LibProps = { name: libName };
+  const defs = getDefs(fileTypes, props, flatFiles);
   return { defs, files, props: { name: libName } };
 }
 

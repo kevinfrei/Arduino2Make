@@ -73,8 +73,7 @@ export type Categories =
   | 'Data Processing'
   | 'Other';
 
-export type LibProps = {
-  name: string;
+export type OptionalLibProps = {
   version: SemVer;
   author: string[];
   maintainer: string;
@@ -90,6 +89,8 @@ export type LibProps = {
   ldflags: string;
 };
 
+export type LibProps = Partial<OptionalLibProps> & { name: string };
+
 export type Files = {
   c: string[];
   cpp: string[];
@@ -99,7 +100,7 @@ export type Files = {
 };
 
 export type LibraryFile = {
-  props: Partial<LibProps>;
+  props: LibProps;
   files: Files;
 };
 

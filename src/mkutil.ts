@@ -145,7 +145,7 @@ function resolveValue(value: string, parsedFile: ParsedFile): DependentValue {
   return { value: res, unresolved };
 }
 
-function makifyName(nm: string): string {
+export function makifyName(nm: string): string {
   return nm.toUpperCase().replace(/[^A-Z0-9]/g, '_');
 }
 
