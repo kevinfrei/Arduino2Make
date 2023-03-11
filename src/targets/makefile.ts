@@ -3,12 +3,16 @@ import path from 'path';
 import { Transform } from '../config.js';
 import { CalculateChecksAndOrderDefinitions, Dump } from '../main.js';
 import { MakeDeclDef, MakeIfeq, MakeIfneq, MakeUnDecl } from '../mkutil.js';
+import { BuildPlatform } from '../platform.js';
 import type {
   Condition,
   Definition,
+  Library,
+  ParsedFile,
   PlatformTarget,
   Recipe,
 } from '../types.js';
+import { GenBoardDefs } from './makeBoard.js';
 
 // Utilities for doing Makefile stuff
 
@@ -364,8 +368,8 @@ function getTimeUtc(tzAdjust?: boolean, dstAdjust?: boolean): () => string {
   };
 }
 
-function emit(
-  pltfrm: string,
+function emitPlatform(
+  platformPath: string,
   boardDefined: Definition[],
   platDefs: Definition[],
   rules: Recipe[],
@@ -381,7 +385,7 @@ function emit(
     MakeUnDecl('RUNTIME_OS', 'linux'),
     MakeDeclDef(
       'RUNTIME_PLATFORM_PATH',
-      path.dirname(pltfrm).replaceAll('\\', '/'),
+      path.dirname(platformPath).replaceAll('\\', '/'),
     ),
     MakeDeclDef('RUNTIME_IDE_VERSION', '10819'),
     MakeDeclDef('IDE_VERSION', '10819'),
@@ -397,6 +401,25 @@ function emit(
   emitChecks(checks);
   emitDefs(defs);
   emitRules(rules);
+}
+
+async function emit(
+  platformPath: string,
+  platSyms: ParsedFile,
+  boardSyms: ParsedFile,
+  libraries: Library[],
+): Promise<void> {
+  const boardDefined = GenBoardDefs(boardSyms);
+
+  // TODO: Don't have recipes & tools fully handled in the platform yet
+  const { defs: platDefs, rules } = await BuildPlatform(
+    boardDefined,
+    platSyms,
+    path.dirname(platformPath),
+    libraries,
+  );
+
+  emitPlatform(platformPath, boardDefined, platDefs, rules);
 }
 
 export function GetGnuMakeTarget(): PlatformTarget {

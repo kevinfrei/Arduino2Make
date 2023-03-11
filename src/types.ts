@@ -122,11 +122,11 @@ export type BoardFile = {
 
 export type PlatformTarget = {
   emit: (
-    platform: string,
-    boardDefined: Definition[],
-    platDefs: Definition[],
-    rules: Recipe[],
-  ) => void;
+    platformPath: string,
+    platSyms: ParsedFile,
+    boardSyms: ParsedFile,
+    libraries: Library[],
+  ) => Promise<void>;
   getRuntimePlatformPath: SFn;
   getRuntimeHardwarePath: SFn;
   getRuntimeIdePath: SFn;

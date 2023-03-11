@@ -7,8 +7,6 @@ import { IsConfigPresent, ReadConfig } from './config.js';
 import { MakeGlobals } from './globals.js';
 import { GetLibraries } from './libraries.js';
 import { ParseFile } from './parser.js';
-import { BuildPlatform } from './platform.js';
-import { GenBoardDefs } from './targets/makeBoard.js';
 import { GetGnuMakeTarget } from './targets/makefile.js';
 import { Definition, PlatformTarget, Recipe } from './types.js';
 
@@ -114,17 +112,7 @@ export default async function main(...args: string[]): Promise<void> {
     const libraries = await GetLibraries(root, libLocs);
     const globals = MakeGlobals(platformTarget);
     const boards = EnumerateBoards(boardSyms);
-    const boardDefined = GenBoardDefs(boardSyms);
-
-    // TODO: Don't have recipes & tools fully handled in the platform yet
-    const { defs: platDefs, rules } = await BuildPlatform(
-      boardDefined,
-      platSyms,
-      path.dirname(platformPath),
-      libraries,
-    );
-
-    platformTarget.emit(platformPath, boardDefined, platDefs, rules);
+    await platformTarget.emit(platformPath, platSyms, boardSyms, libraries);
 
     if (!Type.isUndefined(outputFile) && Type.isString(outputName)) {
       await fs.writeFile(outputName, outputFile.join('\n'), 'utf-8');
