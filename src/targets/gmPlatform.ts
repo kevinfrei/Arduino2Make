@@ -1,27 +1,26 @@
 import { Type } from '@freik/core-utils';
 import * as path from 'path';
-import { EnumerateDirectory, GetFileList, MakeSrcList } from './files.js';
-import { GetLibraryLocations, MakeLibrary } from './libraries.js';
+import { GetFileList } from '../files.js';
+import type {
+  Definition,
+  DependentValue,
+  FilterFunc,
+  LibraryFile,
+  ParsedFile,
+  Recipe,
+  SimpleSymbol,
+} from '../types.js';
+import { GetPlainValue, QuoteIfNeeded, Unquote } from '../utils.js';
+import { GetLibDefs } from './gmLibs.js';
 import {
-  GetPlainValue,
   MakeAppend,
   MakeDeclDef,
   MakeDefinitions,
   MakeIfeq,
   MakeSeqDef,
+  MakeSrcList,
   MakeUnDecl,
-  QuoteIfNeeded,
-  Unquote,
-} from './mkutil.js';
-import type {
-  Definition,
-  DependentValue,
-  FilterFunc,
-  Library,
-  ParsedFile,
-  Recipe,
-  SimpleSymbol,
-} from './types.js';
+} from './gmUtils.js';
 
 function getNestedChild(
   vrbl: SimpleSymbol,
@@ -210,7 +209,7 @@ export async function BuildPlatform(
   boardDefs: Definition[],
   platform: ParsedFile,
   rootpath: string,
-  libLocs: string[],
+  libs: LibraryFile[],
 ): Promise<{ defs: Definition[]; rules: Recipe[] }> {
   const defs: Definition[] = [
     MakeDeclDef(
@@ -436,16 +435,8 @@ export async function BuildPlatform(
       ),
     );
   }
-  // Get the library list from the platform
-  const platformLibs = await EnumerateDirectory(
-    path.join(rootpath, 'libraries'),
-  );
-  const userLibs = await GetLibraryLocations(libLocs);
-  const libs = await Promise.all(
-    [...platformLibs, ...userLibs].map(MakeLibrary),
-  );
-  libs.forEach((val: Library) => {
-    fileDefs.push(...val.defs);
+  libs.forEach((val: LibraryFile) => {
+    fileDefs.push(...GetLibDefs(val));
   });
 
   const sycSrcVal = '${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}';

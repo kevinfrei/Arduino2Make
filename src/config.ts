@@ -1,6 +1,6 @@
 import { SafelyUnpickle, Type } from '@freik/core-utils';
 import { promises as fs } from 'fs';
-import { Dump } from './main';
+import { Dump } from './dump.js';
 
 // Var def to match, substr to find, string to replace substr with
 type TransformItem = { defmatch: string; text: string; replace: string };
@@ -42,21 +42,19 @@ export function IsConfigPresent(): boolean {
 }
 
 export async function ReadConfig(
-  configs: string[],
+  cfgPath: string,
 ): Promise<Partial<Config> | undefined> {
-  if (configs.length === 1) {
-    try {
-      const cfg = await fs.readFile(configs[0].substring(9), 'utf-8');
-      const json = SafelyUnpickle(cfg, isConfig);
-      if (Type.isUndefined(json)) {
-        Dump('err')('Invalid type for config file:');
-        Dump('err')(json);
-      }
-      return json;
-    } catch (e) {
-      Dump('err')('Unable to read config file:');
-      Dump('err')(e);
+  try {
+    const cfg = await fs.readFile(cfgPath, 'utf-8');
+    const json = SafelyUnpickle(cfg, isConfig);
+    if (Type.isUndefined(json)) {
+      Dump('err')('Invalid type for config file:');
+      Dump('err')(json);
     }
+    return json;
+  } catch (e) {
+    Dump('err')('Unable to read config file:');
+    Dump('err')(e);
   }
 }
 

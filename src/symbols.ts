@@ -1,5 +1,5 @@
 import { Type } from '@freik/core-utils';
-import { Dump } from './main.js';
+import { Dump } from './dump.js';
 import type { ScopedName, SimpleSymbol, SymbolTable } from './types.js';
 
 export function GetScopedName(fullName: string): ScopedName {

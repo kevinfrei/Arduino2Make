@@ -1,7 +1,8 @@
+export type SFn = () => string;
 // The basic types for a parsed file:
 export type SimpleSymbol = {
   name: string;
-  value?: string | (() => string);
+  value?: string | SFn;
   parent?: SimpleSymbol;
   children: SymbolTable;
 };
@@ -72,8 +73,7 @@ export type Categories =
   | 'Data Processing'
   | 'Other';
 
-export type LibProps = {
-  name: string;
+export type OptionalLibProps = {
   version: SemVer;
   author: string[];
   maintainer: string;
@@ -89,22 +89,20 @@ export type LibProps = {
   ldflags: string;
 };
 
+export type LibProps = Partial<OptionalLibProps> & { name: string };
+
 export type Files = {
   c: string[];
   cpp: string[];
   s: string[];
   inc: string[];
   paths: string[];
+  a: string[];
 };
 
 export type LibraryFile = {
-  props: Partial<LibProps>;
+  props: LibProps;
   files: Files;
-};
-
-export type Library = LibraryFile & {
-  // TODO: Move to target
-  defs: Definition[];
 };
 
 export type Board = {
@@ -117,4 +115,25 @@ export type BoardFile = {
   boards: Map<string, Board>;
   // The list of menu items (with their pleasant names)
   menus: SymbolTable;
+};
+
+export type PlatformTarget = {
+  emit: (
+    platformPath: string,
+    platSyms: ParsedFile,
+    boardSyms: ParsedFile,
+    libraries: LibraryFile[],
+  ) => Promise<void>;
+  expandName: (nm: string) => { name: string; expansion: string };
+  getRuntimePlatformPath: SFn;
+  getRuntimeHardwarePath: SFn;
+  getRuntimeIdePath: SFn;
+  getRuntimeOs: SFn;
+  getVendorName: SFn;
+  getBoardId: SFn;
+  getFQBN: SFn;
+  getSourcePath: SFn;
+  getLibDiscoveryPhase: SFn;
+  getOptFlags: SFn;
+  getTimeUtc: (tzAdjust?: boolean, dstAdjust?: boolean) => SFn;
 };

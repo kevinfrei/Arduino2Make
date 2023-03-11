@@ -5,106 +5,22 @@ import {
   EnumerateDirectory,
   EnumerateFiles,
   GetFileList,
-  MakeSrcList,
   ReadDir,
 } from './files.js';
-import { MakeAppend, MakeIfdef, QuoteIfNeeded, Unquote } from './mkutil.js';
 import { ParseFile } from './parser.js';
 import type {
   Categories,
-  Definition,
   Dependency,
-  Files,
   LibProps,
-  Library,
+  LibraryFile,
   ParsedFile,
   SemVer,
   SymbolTable,
 } from './types.js';
+import { Unquote } from './utils.js';
 
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/
-
-// This is strictly for handling v1.5 libraries
-async function getLibInfo(root: string, libFiles: string[]): Promise<Library> {
-  const lib = await ParseFile(path.join(Unquote(root), 'library.properties'));
-  const props = libPropsFromParsedFile(lib);
-  const files = await GetFileList(root, libFiles);
-  const libName = path.basename(root);
-  const defsAndFiles = getDefsAndFiles(libName, files, props, libFiles);
-  return { ...defsAndFiles, props };
-}
-
-function getDefsAndFiles(
-  libName: string,
-  { c, cpp, s, inc, paths }: Files,
-  props: Partial<LibProps>,
-  libFiles: string[],
-): { defs: Definition[]; files: Files } {
-  const libDefName = 'LIB_' + libName.toUpperCase();
-  const libCond = MakeIfdef(libDefName);
-  // I need to define a source list, include list
-  // In addition, I need to define a variable that the user can include on
-  // a lib list to be linked against
-  /*
-    ifdef LIB_WIRE => ifneq (${LIBWIRE},)
-    CPP_SYS_CORE_SRC := ${CPP_SYS_CORE_SRC} Wire.cpp
-    SYS_VAR_INCLUDES := ${SYS_VAR_INCLUDES} -I../libLocation/.../Wire/
-    VPATH:=${VPATH}:../libLocation/.../Wire/
-    endif
-  */
-  const files: Files = { c: [], cpp: [], s: [], inc: [], paths: [] };
-  const defs: Definition[] = [];
-  if (c.length) {
-    files.c = c;
-    // TODO: Move to Make
-    defs.push(MakeSrcList('C_SYS_SRCS', c, [], [libCond]));
-  }
-  if (cpp.length) {
-    files.cpp = cpp;
-    // TODO: Move to Make
-    defs.push(MakeSrcList('CPP_SYS_SRCS', cpp, [], [libCond]));
-  }
-  if (s.length) {
-    files.s = s;
-    // TODO: Move to Make
-    defs.push(MakeSrcList('S_SYS_SRCS', s, [], [libCond]));
-  }
-  files.inc = inc;
-  // TODO: Move to Make
-  defs.push(MakeSrcList('SYS_INCLUDES', inc, [], [libCond]));
-  files.paths = paths;
-  // TODO: Move to Make
-  if (paths.length > 0) {
-    defs.push(
-      MakeAppend(
-        'VPATH_MORE',
-        paths.map(QuoteIfNeeded).join(' '),
-        [],
-        [libCond],
-      ),
-    );
-  }
-  // TODO: Move to Make
-  if (Type.hasStr(props, 'ldflags')) {
-    const flgVal = props.ldflags;
-    defs.push(MakeAppend('COMPILER_LIBRARIES_LDFLAGS', flgVal, [], [libCond]));
-    // Probably not right, but this works for nRFCrypto
-    libFiles
-      .filter((f) => f.endsWith('.a'))
-      .forEach((val) =>
-        defs.push(
-          MakeAppend(
-            'COMPILER_LIBRARIES_LDFLAGS',
-            '-L' + path.dirname(val),
-            [],
-            [libCond],
-          ),
-        ),
-      );
-  }
-  return { defs, files };
-}
 
 function getSemanticVersion(verstr?: string): SemVer {
   if (Type.isUndefined(verstr)) {
@@ -179,9 +95,9 @@ function getString(name: string, tbl: SymbolTable): string | undefined {
   }
 }
 
-function libPropsFromParsedFile(file: ParsedFile): Partial<LibProps> {
+function libPropsFromParsedFile(file: ParsedFile): LibProps {
   const tbl = file.scopedTable;
-  const name = getString('name', tbl);
+  const name = getString('name', tbl) || ''; // Yeah, this better be there...
   const version = getSemanticVersion(getString('version', tbl));
   const ldflags = getString('ldflags', tbl);
   const architecture = getString('architectures', tbl);
@@ -238,37 +154,10 @@ async function isLibrary(loc: string): Promise<boolean> {
   return false;
 }
 
-// From the given root, create a library
-export async function MakeLibrary(root: string): Promise<Library> {
-  const files = await ReadDir(root);
-  const lcfiles = files.map((f) => f.toLocaleLowerCase());
-  const uqr = Unquote(root);
-  if (!lcfiles.includes('library.properties')) {
-    // This is a dumb v1.0 library: No recursion, just add the flat files
-    const fileTypes = await GetFileList(
-      root,
-      files.map((f) => path.join(uqr, f)),
-    );
-    const libName = path.basename(root);
-    const defsAndFiles = getDefsAndFiles(libName, fileTypes, {}, files);
-    return { ...defsAndFiles, props: { name: libName } };
-  }
-  // The rest is for v1.5+ libraries
-  let libFiles: string[] = [];
-  if (lcfiles.includes('src')) {
-    // Recurse into the src directory for v1.5 libraries
-    libFiles = await EnumerateFiles(path.join(uqr, 'src'));
-  } else {
-    // No src directory, not recursion
-    libFiles = files.map((f) => path.join(uqr, f));
-  }
-  return getLibInfo(root, libFiles);
-}
-
 // We may have individual library locations, or a folder that contains a number
 // of *singly nested* library locations.
 // This turns them into the former (a list of library locations)
-export async function GetLibraryLocations(locs: string[]): Promise<string[]> {
+async function getLibraryLocations(locs: string[]): Promise<string[]> {
   const libLocs: string[] = [];
   for (const lib of locs) {
     if (await isLibrary(lib)) {
@@ -282,4 +171,59 @@ export async function GetLibraryLocations(locs: string[]): Promise<string[]> {
     }
   }
   return libLocs;
+}
+
+async function makeV15Library(
+  root: string,
+  flatFiles: string[],
+): Promise<LibraryFile> {
+  let libFiles: string[] = [];
+  const uqr = Unquote(root);
+  if (flatFiles.some((v) => v.toLocaleLowerCase() === 'src')) {
+    // Recurse into the src directory for v1.5 libraries
+    libFiles = await EnumerateFiles(path.join(uqr, 'src'));
+  } else {
+    // No src directory, not recursion
+    libFiles = flatFiles.map((f) => path.join(uqr, f));
+  }
+  const lib = await ParseFile(path.join(uqr, 'library.properties'));
+  const props = libPropsFromParsedFile(lib);
+  const files = await GetFileList(root, libFiles);
+  return { files, props };
+}
+
+async function makeV10Library(
+  root: string,
+  flatFiles: string[],
+): Promise<LibraryFile> {
+  const uqr = Unquote(root);
+  const files = await GetFileList(
+    root,
+    flatFiles.map((f) => path.join(uqr, f)),
+  );
+  return { files, props: { name: path.basename(root) } };
+}
+
+// From the given root, create a library
+async function makeLibrary(root: string): Promise<LibraryFile> {
+  const flatFiles = await ReadDir(root);
+  const isV15 = flatFiles.some(
+    (v) => v.toLocaleLowerCase() === 'library.properties',
+  );
+  return await (isV15 ? makeV15Library : makeV10Library)(root, flatFiles);
+}
+
+export async function GetLibraries(
+  rootpath: string,
+  libLocs: string[],
+): Promise<LibraryFile[]> {
+  // Get the library list from the platform
+  const platformLibs = await EnumerateDirectory(
+    path.join(rootpath, 'libraries'),
+  );
+  const userLibs = await getLibraryLocations(libLocs);
+  const libs = await Promise.all(
+    [...platformLibs, ...userLibs].map(makeLibrary),
+  );
+  return libs;
 }
