@@ -4,6 +4,7 @@ import path from 'path';
 import { EnumerateBoards } from './board.js';
 import { IsConfigPresent, ReadConfig } from './config.js';
 import { MakeGlobals } from './globals.js';
+import { GetLibraries } from './libraries.js';
 import { ParseFile } from './parser.js';
 import { BuildPlatform } from './platform.js';
 import { GenBoardDefs } from './targets/makeBoard.js';
@@ -81,13 +82,14 @@ export default async function main(...args: string[]): Promise<void> {
   const platSyms = await ParseFile(platform);
   const boards = EnumerateBoards(boardSyms);
   const boardDefined = GenBoardDefs(boardSyms);
+  const libraries = await GetLibraries(root, libLocs);
 
   // TODO: Don't have recipes & tools fully handled in the platform yet
   const { defs: platDefs, rules } = await BuildPlatform(
     boardDefined,
     platSyms,
     path.dirname(platform),
-    libLocs,
+    libraries,
   );
 
   Emit(platform, boardDefined, platDefs, rules);

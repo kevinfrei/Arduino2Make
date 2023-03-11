@@ -238,8 +238,27 @@ async function isLibrary(loc: string): Promise<boolean> {
   return false;
 }
 
+// We may have individual library locations, or a folder that contains a number
+// of *singly nested* library locations.
+// This turns them into the former (a list of library locations)
+async function getLibraryLocations(locs: string[]): Promise<string[]> {
+  const libLocs: string[] = [];
+  for (const lib of locs) {
+    if (await isLibrary(lib)) {
+      libLocs.push(lib);
+    } else {
+      for (const sub of await EnumerateDirectory(lib)) {
+        if ((await fsp.stat(sub)).isDirectory() && (await isLibrary(sub))) {
+          libLocs.push(sub);
+        }
+      }
+    }
+  }
+  return libLocs;
+}
+
 // From the given root, create a library
-export async function MakeLibrary(root: string): Promise<Library> {
+async function makeLibrary(root: string): Promise<Library> {
   const files = await ReadDir(root);
   const lcfiles = files.map((f) => f.toLocaleLowerCase());
   const uqr = Unquote(root);
@@ -265,21 +284,17 @@ export async function MakeLibrary(root: string): Promise<Library> {
   return getLibInfo(root, libFiles);
 }
 
-// We may have individual library locations, or a folder that contains a number
-// of *singly nested* library locations.
-// This turns them into the former (a list of library locations)
-export async function GetLibraryLocations(locs: string[]): Promise<string[]> {
-  const libLocs: string[] = [];
-  for (const lib of locs) {
-    if (await isLibrary(lib)) {
-      libLocs.push(lib);
-    } else {
-      for (const sub of await EnumerateDirectory(lib)) {
-        if ((await fsp.stat(sub)).isDirectory() && (await isLibrary(sub))) {
-          libLocs.push(sub);
-        }
-      }
-    }
-  }
-  return libLocs;
+export async function GetLibraries(
+  rootpath: string,
+  libLocs: string[],
+): Promise<Library[]> {
+  // Get the library list from the platform
+  const platformLibs = await EnumerateDirectory(
+    path.join(rootpath, 'libraries'),
+  );
+  const userLibs = await getLibraryLocations(libLocs);
+  const libs = await Promise.all(
+    [...platformLibs, ...userLibs].map(makeLibrary),
+  );
+  return libs;
 }
