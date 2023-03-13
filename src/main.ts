@@ -92,7 +92,7 @@ export default async function main(...args: string[]): Promise<void> {
     const boards = EnumerateBoards(boardSyms);
 
     // Emit the build stuff:
-    await platformTarget.emit(platformPath, platSyms, boardSyms, libraries);
+    await platformTarget.emit(platformPath, platSyms, boards, libraries);
 
     // Flush the output to disk...
     await FlushOutput();

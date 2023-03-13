@@ -3,6 +3,7 @@ import path from 'path';
 import { Transform } from '../config.js';
 import { Dump } from '../dump.js';
 import type {
+  BoardFile,
   Condition,
   Definition,
   LibraryFile,
@@ -411,10 +412,10 @@ function emitPlatform(
 async function emit(
   platformPath: string,
   platSyms: ParsedFile,
-  boardSyms: ParsedFile,
+  boards: BoardFile,
   libraries: LibraryFile[],
 ): Promise<void> {
-  const boardDefined = GenBoardDefs(boardSyms);
+  const boardDefined = GenBoardDefs(boards);
 
   // TODO: Don't have recipes & tools fully handled in the platform yet
   const { defs: platDefs, rules } = await BuildPlatform(

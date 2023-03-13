@@ -1,40 +1,36 @@
 import { Type } from '@freik/core-utils';
-import type {
-  Board,
-  BoardFile,
-  ParsedFile,
-  SimpleSymbol,
-  SymbolTable,
-} from './types.js';
+import type { Board, BoardFile, ParsedFile, SimpleSymbol } from './types.js';
 
 // Get the menu "parent" from the parsed file
-function getMenus(parsedFile: ParsedFile): SymbolTable {
+// This is a map of "ID" to the actual title of the user menu
+function getMenus(parsedFile: ParsedFile): Map<string, string> {
   const menuSym = parsedFile.scopedTable.get('menu');
   if (Type.isUndefined(menuSym)) {
-    return new Map<string, SimpleSymbol>();
+    return new Map<string, string>();
   }
-  return menuSym.children;
+  return new Map<string, string>(
+    [...menuSym.children].map(([id, sym]) => [id, sym.name]),
+  );
 }
 
 // Create an individual board from the symbols we've got.
-function makeBoard(val: SimpleSymbol, menus: SymbolTable): Board {
-  const menuSelections =
+function makeBoard(val: SimpleSymbol, menus: Map<string, string>): Board {
+  const menuSyms =
     val.children.get('menu')?.children || new Map<string, SimpleSymbol>();
   // Validate that the menu selections are available in the menu options enumerated
-  menuSelections.forEach((ss: SimpleSymbol, key: string) => {
+  const menuSelections: SimpleSymbol[] = [];
+  menuSyms.forEach((ss: SimpleSymbol, key: string) => {
     if (!menus.has(key)) {
+      // TODO: Throw an error here? Make a 'warning' level?
       // eslint-disable-next-line no-console
       console.error(
         `Boards.txt file looks malformed: Missing ${key} from the menu list`,
       );
+    } else {
+      menuSelections.push(ss);
     }
   });
-  const symbols = new Map<string, SimpleSymbol>(
-    [...val.children.entries()].filter(
-      ([key]: [key: string, sym: SimpleSymbol]) => key !== 'menu',
-    ),
-  );
-  return { menuSelections, symbols };
+  return { menuSelections, symbols: val };
 }
 
 // Create a board for each board in the parsed file

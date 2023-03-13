@@ -14,10 +14,7 @@ export type ParsedFile = { scopedTable: SymbolTable };
 export type DependentValue = { value: string; unresolved: Set<string> };
 
 export type FilterFunc = (str: SimpleSymbol) => boolean;
-export type ValueMakerFunc = (
-  vrbl: SimpleSymbol,
-  file: ParsedFile,
-) => DependentValue;
+export type ValueMakerFunc = (vrbl: SimpleSymbol) => DependentValue;
 
 export interface CondEq {
   op: 'eq' | 'neq';
@@ -106,22 +103,22 @@ export type LibraryFile = {
 };
 
 export type Board = {
-  symbols: SymbolTable;
-  menuSelections: SymbolTable;
+  symbols: SimpleSymbol;
+  menuSelections: SimpleSymbol[];
 };
 
 export type BoardFile = {
   // Each board gets an item in here:
   boards: Map<string, Board>;
   // The list of menu items (with their pleasant names)
-  menus: SymbolTable;
+  menus: Map<string, string>;
 };
 
 export type PlatformTarget = {
   emit: (
     platformPath: string,
     platSyms: ParsedFile,
-    boardSyms: ParsedFile,
+    board: BoardFile,
     libraries: LibraryFile[],
   ) => Promise<void>;
   expandName: (nm: string) => { name: string; expansion: string };

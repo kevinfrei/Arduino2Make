@@ -1,40 +1,47 @@
-import type { Definition, FilterFunc, ParsedFile } from '../types.js';
+import type {
+  Board,
+  BoardFile,
+  Condition,
+  Definition,
+  FilterFunc,
+  SimpleSymbol,
+} from '../types.js';
 import { GetPlainValue } from '../utils.js';
-import {
-  MakeDeclDef,
-  MakeDefinitions,
-  MakeIfeq,
-  MakeMenuOptions,
-} from './gmUtils.js';
+import { MakeDeclDef, MakeDefinitions, MakeIfeq } from './gmUtils.js';
+
+function makeMenuOption(toDump: SimpleSymbol, initConds: Condition[]) {
+  const defined: Definition[] = [];
+  const makeVarName = 'IN_' + toDump.name.toUpperCase();
+  for (const item of toDump.children.values()) {
+    const cn = MakeIfeq('${' + makeVarName + '}', item.name);
+    const subDef = MakeDefinitions(item, GetPlainValue, [...initConds, cn]);
+    subDef.forEach((def: Definition) => {
+      def.dependsOn.push(makeVarName);
+    });
+    defined.push(...subDef);
+  }
+  return defined;
+}
+
+const notMenu: FilterFunc = (a: SimpleSymbol): boolean => a.name !== 'menu';
 
 // This spits out the board configuration data in Makefile format
 // It returns the set of *probably* defined variables, for use later
-export function GenBoardDefs(board: ParsedFile): Definition[] {
-  let menus: Set<string> = new Set();
-  let defined: Definition[] = [
+// TODO: Hoist common IF's for the menu options (Go look at Teensy...)
+export function GenBoardDefs(board: BoardFile): Definition[] {
+  const defined: Definition[] = [
     MakeDeclDef('BUILD_PROJECT_NAME', '${PROJ_NAME}', ['PROJ_NAME'], []),
   ];
-  for (const item of board.scopedTable.values()) {
-    if (item.name === 'menu') {
-      // AFAICT, top level 'menu' items indicate later nested options
-      const children = item.children;
-      menus = new Set([...menus, ...children.keys()]);
-    } else {
-      const brd = MakeIfeq('${BOARD_NAME}', item.name);
-      const notMenu: FilterFunc = (a) => a.name !== 'menu';
-      const defVars = MakeDefinitions(
-        item,
-        GetPlainValue,
-        board,
-        [brd],
-        notMenu,
-      );
-      defVars.forEach((def: Definition) => {
-        def.dependsOn.push('BOARD_NAME');
-      });
-      const defMore = MakeMenuOptions(item, board, menus, [brd]);
-      defined = [...defined, ...defVars, ...defMore];
-    }
-  }
+  board.boards.forEach(({ symbols, menuSelections }: Board, key: string) => {
+    // Handle each board-specific definition
+    const brd = MakeIfeq('${BOARD_NAME}', key);
+    const defVars = MakeDefinitions(symbols, GetPlainValue, [brd], notMenu);
+    defVars.forEach((def: Definition) => def.dependsOn.push('BOARD_NAME'));
+    defined.push(...defVars);
+    // Now handle the menu selections for the board
+    menuSelections
+      .map((ss) => makeMenuOption(ss, [brd]))
+      .forEach((defs) => defined.push(...defs));
+  });
   return defined;
 }

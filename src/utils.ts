@@ -87,10 +87,7 @@ function unresolvedValue(value: string): DependentValue {
   return { value: res, unresolved };
 }
 
-export function GetPlainValue(
-  vrbl: SimpleSymbol,
-  _parsedFile: ParsedFile,
-): DependentValue {
+export function GetPlainValue(vrbl: SimpleSymbol): DependentValue {
   if (vrbl.value) {
     return unresolvedValue(
       Type.isString(vrbl.value) ? vrbl.value : vrbl.value(),

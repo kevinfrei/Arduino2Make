@@ -3,11 +3,9 @@ import {
   Condition,
   Definition,
   FilterFunc,
-  ParsedFile,
   SimpleSymbol,
   ValueMakerFunc,
 } from '../types.js';
-import { GetPlainValue } from '../utils.js';
 
 // Utilities for doing Makefile stuff
 
@@ -107,7 +105,6 @@ function getMakeName(vrbl: SimpleSymbol, top: SimpleSymbol) {
 export function MakeDefinitions(
   top: SimpleSymbol,
   valueMaker: ValueMakerFunc,
-  parsedFile: ParsedFile,
   condition: Condition[] | undefined | null,
   filter?: FilterFunc,
 ): Definition[] {
@@ -121,7 +118,7 @@ export function MakeDefinitions(
       toDef.push(...vrbl.children.values());
       if (vrbl.value) {
         const varName = getMakeName(vrbl, top);
-        const { value, unresolved: deps } = valueMaker(vrbl, parsedFile);
+        const { value, unresolved: deps } = valueMaker(vrbl);
         const def = MakeDeclDef(varName, value, [...deps], condition || []);
         defined.push(def);
       }
@@ -143,34 +140,6 @@ export function MakeDeclDef(
     dependsOn: dependsOn || [],
     condition: condition || [],
   };
-}
-
-export function MakeMenuOptions(
-  top: SimpleSymbol,
-  parsedFile: ParsedFile,
-  _menus: Set<string>,
-  initConds: Condition[],
-): Definition[] {
-  let defined: Definition[] = [];
-  const menu = top.children.get('menu');
-  if (!menu) {
-    return defined;
-  }
-  for (const toDump of menu.children.values()) {
-    const makeVarName = 'IN_' + toDump.name.toUpperCase();
-    for (const item of toDump.children.values()) {
-      const cn = MakeIfeq('${' + makeVarName + '}', item.name);
-      const subDef = MakeDefinitions(item, GetPlainValue, parsedFile, [
-        ...initConds,
-        cn,
-      ]);
-      subDef.forEach((def: Definition) => {
-        def.dependsOn.push(makeVarName);
-      });
-      defined = [...defined, ...subDef];
-    }
-  }
-  return defined;
 }
 
 export function MakeSrcList(

@@ -74,14 +74,14 @@ function cleanup(val: string): string {
 
 // For reference, stuff like $@, $^, and $< are called 'automatic variables'
 // in the GNU Makefile documentation
-function makeRecipes(recipes: SimpleSymbol, plat: ParsedFile): Recipe[] {
+function makeRecipes(recipes: SimpleSymbol): Recipe[] {
   function getRule(...location: string[]): DependentValue | undefined {
     const pattern: SimpleSymbol | undefined = getNestedChild(
       recipes,
       ...location,
     );
     if (pattern) {
-      const res = GetPlainValue(pattern, plat);
+      const res = GetPlainValue(pattern);
       if (res.value.length > 0) {
         return res;
       }
@@ -226,7 +226,7 @@ export async function BuildPlatform(
   };
   const skip: FilterFunc = (a) => a.name !== 'recipe' && a.name !== 'tools';
   const plain = GetPlainValue;
-  const defined = MakeDefinitions(fakeTop, plain, platform, null, skip);
+  const defined = MakeDefinitions(fakeTop, plain, null, skip);
 
   function parentTool(a: SimpleSymbol): boolean {
     for (; a.parent; a = a.parent) {
@@ -236,13 +236,7 @@ export async function BuildPlatform(
     }
     return a.name === 'tools';
   }
-  const tmpToolDefs = MakeDefinitions(
-    fakeTop,
-    plain,
-    platform,
-    null,
-    parentTool,
-  );
+  const tmpToolDefs = MakeDefinitions(fakeTop, plain, null, parentTool);
   // Handle the macosx/windows suffixed tools
   // FYI: My input tester stuff has precisely 1 of these tools, so
   // what I'm doing down here may not work properly with something with more
@@ -295,7 +289,7 @@ export async function BuildPlatform(
       const uef = MakeDeclDef('UPLOAD_EXTRA_FLAGS', '--touch 1200', [], [chup]);
       toolDefs.push(uef);
       const ucnd = MakeIfeq('${UPLOAD_TOOL}', key);
-      const patdval = GetPlainValue(patt, platform);
+      const patdval = GetPlainValue(patt);
       const flashTool = patdval.value.replace(
         '${CMD}',
         '${TOOLS_' + key.toUpperCase() + '_CMD}',
@@ -351,7 +345,7 @@ export async function BuildPlatform(
       }
     }
   }
-  const rules: Recipe[] = recipeSyms ? makeRecipes(recipeSyms, platform) : [];
+  const rules: Recipe[] = recipeSyms ? makeRecipes(recipeSyms) : [];
 
   // TODO: Get the file list together (just more definitions, I think)
   // For each build.core, create a file list
