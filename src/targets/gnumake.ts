@@ -4,11 +4,11 @@ import { Transform } from '../config.js';
 import { Dump } from '../dump.js';
 import type {
   BoardFile,
+  BuildSystemHost,
   Condition,
   Definition,
   LibraryFile,
   ParsedFile,
-  PlatformTarget,
   Recipe,
 } from '../types.js';
 import { CalculateChecksAndOrderDefinitions } from '../utils.js';
@@ -434,7 +434,7 @@ function expandName(nm: string): { name: string; expansion: string } {
   return { name, expansion };
 }
 
-export function GetGnuMakeTarget(): PlatformTarget {
+export function GetGnuMakeTarget(): BuildSystemHost {
   return {
     emit,
     expandName,

@@ -129,7 +129,7 @@ export type PlatformGlobalFuncs = {
   getTimeUtc: (tzAdjust?: boolean, dstAdjust?: boolean) => SFn;
 };
 
-export type PlatformTarget = {
+export type BuildSystemHost = {
   emit: (
     platformPath: string,
     platSyms: ParsedFile,

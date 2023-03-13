@@ -8,7 +8,7 @@ import { MakeGlobals } from './globals.js';
 import { GetLibraries } from './libraries.js';
 import { ParseFile } from './parser.js';
 import { GetGnuMakeTarget } from './targets/gnumake.js';
-import { PlatformTarget } from './types.js';
+import { BuildSystemHost } from './types.js';
 
 // Overall structure:
 // Walk the platform.txt file, documented here:
@@ -40,10 +40,10 @@ Usage: {flags} rootDir {lib1Dir lib2Dir lib3Dir}
   process.exit(0);
 }
 
-const platformTarget: PlatformTarget = GetGnuMakeTarget();
+const buildSysTarget: BuildSystemHost = GetGnuMakeTarget();
 
-export function GetTarget(): PlatformTarget {
-  return platformTarget;
+export function GetTarget(): BuildSystemHost {
+  return buildSysTarget;
 }
 
 async function parseCommandLine(args: string[]): Promise<string[]> {
@@ -88,11 +88,11 @@ export default async function main(...args: string[]): Promise<void> {
     // TODO: Move Defs from Library into platformtTarget
     const libraries = await GetLibraries(root, libLocs);
 
-    const globals = MakeGlobals(platformTarget);
+    const globals = MakeGlobals(buildSysTarget);
     const boards = EnumerateBoards(boardSyms);
 
     // Emit the build stuff:
-    await platformTarget.emit(platformPath, platSyms, boards, libraries);
+    await buildSysTarget.emit(platformPath, platSyms, boards, libraries);
 
     // Flush the output to disk...
     await FlushOutput();
