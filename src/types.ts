@@ -97,7 +97,7 @@ export type Files = {
   a: string[];
 };
 
-export type LibraryFile = {
+export type Library = {
   props: LibProps;
   files: Files;
 };
@@ -136,7 +136,7 @@ export type BuildSystemHost = {
     platformPath: string,
     platSyms: ParsedFile,
     board: BoardsList,
-    libraries: LibraryFile[],
+    libraries: Library[],
   ) => Promise<void>;
   expandName: (nm: string) => { name: string; expansion: string };
   globals: PlatformGlobalFuncs;

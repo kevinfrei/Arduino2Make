@@ -7,7 +7,7 @@ import type {
   BuildSystemHost,
   Condition,
   Definition,
-  LibraryFile,
+  Library,
   ParsedFile,
   Recipe,
 } from '../types.js';
@@ -413,7 +413,7 @@ async function emit(
   platformPath: string,
   platSyms: ParsedFile,
   boards: BoardsList,
-  libraries: LibraryFile[],
+  libraries: Library[],
 ): Promise<void> {
   const boardDefined = GenBoardDefs(boards);
 

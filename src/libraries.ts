@@ -12,7 +12,7 @@ import type {
   Categories,
   Dependency,
   LibProps,
-  LibraryFile,
+  Library,
   ParsedFile,
   SemVer,
   SymbolTable,
@@ -179,7 +179,7 @@ async function getLibraryLocations(locs: string[]): Promise<string[]> {
 async function makeV15Library(
   root: string,
   flatFiles: string[],
-): Promise<LibraryFile> {
+): Promise<Library> {
   let libFiles: string[] = [];
   const uqr = Unquote(root);
   if (flatFiles.some((v) => v.toLocaleLowerCase() === 'src')) {
@@ -198,7 +198,7 @@ async function makeV15Library(
 async function makeV10Library(
   root: string,
   flatFiles: string[],
-): Promise<LibraryFile> {
+): Promise<Library> {
   const uqr = Unquote(root);
   const files = await GetFileList(
     root,
@@ -208,7 +208,7 @@ async function makeV10Library(
 }
 
 // From the given root, create a library
-async function makeLibrary(root: string): Promise<LibraryFile> {
+async function makeLibrary(root: string): Promise<Library> {
   const flatFiles = await ReadDir(root);
   const isV15 = flatFiles.some(
     (v) => v.toLocaleLowerCase() === 'library.properties',
@@ -219,7 +219,7 @@ async function makeLibrary(root: string): Promise<LibraryFile> {
 export async function GetLibraries(
   rootpath: string,
   libLocs: string[],
-): Promise<LibraryFile[]> {
+): Promise<Library[]> {
   // Get the library list from the platform
   const realLibLocs = await getLibraryLocations([
     path.join(rootpath, 'libraries'),

@@ -1,6 +1,6 @@
 import { Type } from '@freik/core-utils';
 import * as path from 'path';
-import type { Definition, LibraryFile } from '../types.js';
+import type { Definition, Library } from '../types.js';
 import { QuoteIfNeeded } from '../utils.js';
 import { MakeAppend, MakeIfdef, MakeSrcList, MakifyName } from './gmUtils.js';
 
@@ -8,7 +8,7 @@ import { MakeAppend, MakeIfdef, MakeSrcList, MakifyName } from './gmUtils.js';
 // https://arduino.github.io/arduino-cli/library-specification/
 
 // TODO: Move to Make
-export function GetLibDefs({ files, props }: LibraryFile): Definition[] {
+export function GetLibDefs({ files, props }: Library): Definition[] {
   const { c, cpp, s, paths, inc, a } = files;
   const libDefName = 'LIB_' + MakifyName(props.name);
   const libCond = MakeIfdef(libDefName);

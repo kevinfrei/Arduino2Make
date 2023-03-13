@@ -5,7 +5,7 @@ import type {
   Definition,
   DependentValue,
   FilterFunc,
-  LibraryFile,
+  Library,
   ParsedFile,
   Recipe,
   SimpleSymbol,
@@ -209,7 +209,7 @@ export async function BuildPlatform(
   boardDefs: Definition[],
   platform: ParsedFile,
   rootpath: string,
-  libs: LibraryFile[],
+  libs: Library[],
 ): Promise<{ defs: Definition[]; rules: Recipe[] }> {
   const defs: Definition[] = [
     MakeDeclDef(
@@ -429,7 +429,7 @@ export async function BuildPlatform(
       ),
     );
   }
-  libs.forEach((val: LibraryFile) => {
+  libs.forEach((val: Library) => {
     fileDefs.push(...GetLibDefs(val));
   });
 
