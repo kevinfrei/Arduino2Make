@@ -114,14 +114,8 @@ export type BoardFile = {
   menus: Map<string, string>;
 };
 
-export type PlatformTarget = {
-  emit: (
-    platformPath: string,
-    platSyms: ParsedFile,
-    board: BoardFile,
-    libraries: LibraryFile[],
-  ) => Promise<void>;
-  expandName: (nm: string) => { name: string; expansion: string };
+// These are functions to spit out the platform implementation of global values: N[really]YI!!!
+export type PlatformGlobalFuncs = {
   getRuntimePlatformPath: SFn;
   getRuntimeHardwarePath: SFn;
   getRuntimeIdePath: SFn;
@@ -133,4 +127,15 @@ export type PlatformTarget = {
   getLibDiscoveryPhase: SFn;
   getOptFlags: SFn;
   getTimeUtc: (tzAdjust?: boolean, dstAdjust?: boolean) => SFn;
+};
+
+export type PlatformTarget = {
+  emit: (
+    platformPath: string,
+    platSyms: ParsedFile,
+    board: BoardFile,
+    libraries: LibraryFile[],
+  ) => Promise<void>;
+  expandName: (nm: string) => { name: string; expansion: string };
+  globals: PlatformGlobalFuncs;
 };
