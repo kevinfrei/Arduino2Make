@@ -33,19 +33,21 @@ export interface Condition {
   value?: string;
 }
 
-export type Definition = {
+export type DependentUpon = {
+  dependsOn: string[];
+};
+
+export type Definition = DependentUpon & {
   name: string;
   type: 'decl' | 'seq' | 'add' | '?decl';
   value: string;
-  dependsOn: string[];
   condition: Condition[];
 };
 
-export type Recipe = {
+export type GnuMakeRecipe = DependentUpon & {
   src: string;
   dst: string;
   command: string;
-  dependsOn: string[];
 };
 
 export type ScopedName = {
@@ -56,7 +58,7 @@ export type ScopedName = {
 
 // Library types:
 
-export type Dependency = { name: string; ver?: string };
+export type LibDependency = { name: string; ver?: string };
 export type SemVer = string | { major: number; minor: number; patch: number };
 export type Categories =
   | 'Uncategorized'
@@ -79,7 +81,7 @@ export type OptionalLibProps = {
   category: Categories;
   url: string;
   architecture: string;
-  depends: Dependency[];
+  depends: LibDependency[];
   staticLink: boolean;
   includes: string[];
   precompiled: boolean | 'full';

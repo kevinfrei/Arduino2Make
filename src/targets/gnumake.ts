@@ -7,9 +7,9 @@ import type {
   BuildSystemHost,
   Condition,
   Definition,
+  GnuMakeRecipe,
   Library,
   ParsedFile,
-  Recipe,
 } from '../types.js';
 import { CalculateChecksAndOrderDefinitions } from '../utils.js';
 import { GenBoardDefs } from './gmBoard.js';
@@ -190,10 +190,10 @@ function slashify(str: string): string {
   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"').replace(/'/g, '');
 }
 
-function emitRules(rules: Recipe[]) {
+function emitRules(rules: GnuMakeRecipe[]) {
   // Check to see what our flash target depends on
   // TODO: Not sure what to do if we have multiple flash targets :/
-  const flashRules = rules.filter((r: Recipe) => r.dst === 'flash');
+  const flashRules = rules.filter((r: GnuMakeRecipe) => r.dst === 'flash');
   const tmp = flashRules.pop();
   const targetSuffix: string = tmp ? tmp.src : 'unk';
   Dump()(`
@@ -235,7 +235,7 @@ endif
 
 # Now, on to the actual rules`);
   // const jsonFiles: string[] = [];
-  rules.forEach((rule: Recipe) => {
+  rules.forEach((rule: GnuMakeRecipe) => {
     Dump()('');
     if (rule.dst === 'o') {
       Dump()(`$\{BUILD_PATH\}/%.${rule.src}.o : %.${rule.src}`);
@@ -378,7 +378,7 @@ function emitPlatform(
   platformPath: string,
   boardDefined: Definition[],
   platDefs: Definition[],
-  rules: Recipe[],
+  rules: GnuMakeRecipe[],
 ): void {
   const isWin = MakeIfeq('$(OS)', 'Windows_NT');
   const notWin = MakeIfneq('$(OS)', 'Windows_NT');

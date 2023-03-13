@@ -10,7 +10,7 @@ import {
 import { ParseFile } from './parser.js';
 import type {
   Categories,
-  Dependency,
+  LibDependency,
   LibProps,
   Library,
   ParsedFile,
@@ -37,13 +37,13 @@ function getSemanticVersion(verstr?: string): SemVer {
 }
 
 // TODO: Handle version stuff
-function getDependencies(deps?: string): Dependency[] {
+function getDependencies(deps?: string): LibDependency[] {
   if (!Type.isString(deps)) return [];
   return [
     ...deps
       .split(',')
       .map((val) => val.trim())
-      .map((trimmed): Dependency => {
+      .map((trimmed): LibDependency => {
         const open = trimmed.lastIndexOf('(');
         if (open > 0 && trimmed.endsWith(')')) {
           const name = trimmed.substring(0, open).trim();

@@ -3,9 +3,9 @@ import { GetTarget } from './main.js';
 import { LookupSymbol } from './symbols.js';
 import type {
   Definition,
+  DependentUpon,
   DependentValue,
   ParsedFile,
-  Recipe,
   SimpleSymbol,
 } from './types.js';
 
@@ -115,7 +115,7 @@ export function Unquote(inv: string): string {
 
 export function CalculateChecksAndOrderDefinitions(
   defs: Definition[],
-  rules: Recipe[],
+  rules: DependentUpon[],
   optionalDefs: string[],
 ): { checks: string[]; defs: Definition[] } {
   // Don't know if I'll need the rules or not

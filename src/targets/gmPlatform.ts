@@ -5,9 +5,9 @@ import type {
   Definition,
   DependentValue,
   FilterFunc,
+  GnuMakeRecipe,
   Library,
   ParsedFile,
-  Recipe,
   SimpleSymbol,
 } from '../types.js';
 import { GetPlainValue, QuoteIfNeeded, Unquote } from '../utils.js';
@@ -74,7 +74,7 @@ function cleanup(val: string): string {
 
 // For reference, stuff like $@, $^, and $< are called 'automatic variables'
 // in the GNU Makefile documentation
-function makeRecipes(recipes: SimpleSymbol): Recipe[] {
+function makeRecipes(recipes: SimpleSymbol): GnuMakeRecipe[] {
   function getRule(...location: string[]): DependentValue | undefined {
     const pattern: SimpleSymbol | undefined = getNestedChild(
       recipes,
@@ -104,7 +104,7 @@ function makeRecipes(recipes: SimpleSymbol): Recipe[] {
     depVal.unresolved.delete(rhs);
     return { value, unresolved: depVal.unresolved };
   }
-  const result: Recipe[] = [];
+  const result: GnuMakeRecipe[] = [];
   // Produces a bunch of things like this:
   // (outdir)%.S.o: %.S
   //  ${tool} -c ${flags} -o $@ $<
@@ -210,7 +210,7 @@ export async function BuildPlatform(
   platform: ParsedFile,
   rootpath: string,
   libs: Library[],
-): Promise<{ defs: Definition[]; rules: Recipe[] }> {
+): Promise<{ defs: Definition[]; rules: GnuMakeRecipe[] }> {
   const defs: Definition[] = [
     MakeDeclDef(
       'BUILD_CORE_PATH',
@@ -345,7 +345,7 @@ export async function BuildPlatform(
       }
     }
   }
-  const rules: Recipe[] = recipeSyms ? makeRecipes(recipeSyms) : [];
+  const rules: GnuMakeRecipe[] = recipeSyms ? makeRecipes(recipeSyms) : [];
 
   // TODO: Get the file list together (just more definitions, I think)
   // For each build.core, create a file list
