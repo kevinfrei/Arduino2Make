@@ -3,7 +3,7 @@ import path from 'path';
 import { Transform } from '../config.js';
 import { Dump } from '../dump.js';
 import type {
-  BoardFile,
+  BoardsList,
   BuildSystemHost,
   Condition,
   Definition,
@@ -412,7 +412,7 @@ function emitPlatform(
 async function emit(
   platformPath: string,
   platSyms: ParsedFile,
-  boards: BoardFile,
+  boards: BoardsList,
   libraries: LibraryFile[],
 ): Promise<void> {
   const boardDefined = GenBoardDefs(boards);

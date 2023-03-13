@@ -103,11 +103,13 @@ export type LibraryFile = {
 };
 
 export type Board = {
+  // The 'top level' symbol. This includes the menu options, cuz I'm lazy
   symbols: SimpleSymbol;
+  // The list of menu options for this board
   menuSelections: SimpleSymbol[];
 };
 
-export type BoardFile = {
+export type BoardsList = {
   // Each board gets an item in here:
   boards: Map<string, Board>;
   // The list of menu items (with their pleasant names)
@@ -133,7 +135,7 @@ export type BuildSystemHost = {
   emit: (
     platformPath: string,
     platSyms: ParsedFile,
-    board: BoardFile,
+    board: BoardsList,
     libraries: LibraryFile[],
   ) => Promise<void>;
   expandName: (nm: string) => { name: string; expansion: string };

@@ -1,5 +1,5 @@
 import { Type } from '@freik/core-utils';
-import type { Board, BoardFile, ParsedFile, SimpleSymbol } from './types.js';
+import type { Board, BoardsList, ParsedFile, SimpleSymbol } from './types.js';
 
 // Get the menu "parent" from the parsed file
 // This is a map of "ID" to the actual title of the user menu
@@ -34,7 +34,7 @@ function makeBoard(val: SimpleSymbol, menus: Map<string, string>): Board {
 }
 
 // Create a board for each board in the parsed file
-export function EnumerateBoards(board: ParsedFile): BoardFile {
+export function EnumerateBoards(board: ParsedFile): BoardsList {
   const menus = getMenus(board);
   const boards = new Map<string, Board>();
   board.scopedTable.forEach((val: SimpleSymbol, key: string) => {

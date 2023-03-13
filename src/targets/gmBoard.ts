@@ -1,6 +1,6 @@
 import type {
   Board,
-  BoardFile,
+  BoardsList,
   Condition,
   Definition,
   FilterFunc,
@@ -28,7 +28,7 @@ const notMenu: FilterFunc = (a: SimpleSymbol): boolean => a.name !== 'menu';
 // This spits out the board configuration data in Makefile format
 // It returns the set of *probably* defined variables, for use later
 // TODO: Hoist common IF's for the menu options (Go look at Teensy...)
-export function GenBoardDefs(board: BoardFile): Definition[] {
+export function GenBoardDefs(board: BoardsList): Definition[] {
   const defined: Definition[] = [
     MakeDeclDef('BUILD_PROJECT_NAME', '${PROJ_NAME}', ['PROJ_NAME'], []),
   ];
