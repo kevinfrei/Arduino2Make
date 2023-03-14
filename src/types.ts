@@ -4,15 +4,15 @@ export type SimpleSymbol = {
   name: string;
   value?: string | SFn;
   parent?: SimpleSymbol;
-  children: SymbolTable;
+  children: DumbSymTbl;
 };
 // This is the scoped c(b(a)) -> "Something Here" list:
-export type SymbolTable = Map<string, SimpleSymbol>;
+export type DumbSymTbl = Map<string, SimpleSymbol>;
 // A better interface for my needs: a "get" that throws with a 'check' that doesn't
 // plus a constructor that adds a filter on top, instead of recreating the table
 
 // A parsed file as something fancier than a SymbolTable, mostly for historical reasons
-export type ParsedFile = { scopedTable: SymbolTable };
+export type ParsedFile = { scopedTable: DumbSymTbl };
 
 export type DependentValue = { value: string; unresolved: Set<string> };
 
@@ -121,12 +121,12 @@ export type BoardsList = {
   menus: Map<string, string>;
 };
 
-export type Pattern = { pattern: string; other: SymbolTable };
+export type Pattern = { pattern: string; other: DumbSymTbl };
 export type Platform = {
   name: string;
   version: string;
   tools?: SimpleSymbol;
-  misc: SymbolTable;
+  misc: DumbSymTbl;
   hooks?: SimpleSymbol;
   recipes: {
     c: Pattern;
@@ -134,7 +134,7 @@ export type Platform = {
     s: Pattern;
     ar: Pattern;
     link: Pattern;
-    others: SymbolTable;
+    others: DumbSymTbl;
   };
 };
 

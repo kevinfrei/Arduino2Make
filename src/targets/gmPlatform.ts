@@ -1,6 +1,7 @@
 import { Type } from '@freik/core-utils';
 import * as path from 'path';
 import { GetFileList } from '../files.js';
+import { GetNestedChild } from '../symbols.js';
 import type {
   Definition,
   DependentValue,
@@ -21,20 +22,6 @@ import {
   MakeSrcList,
   MakeUnDecl,
 } from './gmUtils.js';
-
-function getNestedChild(
-  vrbl: SimpleSymbol,
-  ...children: string[]
-): SimpleSymbol | undefined {
-  let v: SimpleSymbol | undefined = vrbl;
-  for (const child of children) {
-    if (!v) {
-      return;
-    }
-    v = v.children.get(child);
-  }
-  return v;
-}
 
 function cleanup(val: string): string {
   // there's a -DFOO="${VAR}" in the recipe text
@@ -76,7 +63,7 @@ function cleanup(val: string): string {
 // in the GNU Makefile documentation
 function makeRecipes(recipes: SimpleSymbol): GnuMakeRecipe[] {
   function getRule(...location: string[]): DependentValue | undefined {
-    const pattern: SimpleSymbol | undefined = getNestedChild(
+    const pattern: SimpleSymbol | undefined = GetNestedChild(
       recipes,
       ...location,
     );
@@ -280,8 +267,8 @@ export async function BuildPlatform(
   const toolsSyms = platform.scopedTable.get('tools');
   if (toolsSyms) {
     for (const [key, value] of toolsSyms.children) {
-      const patt = getNestedChild(value, 'upload', 'pattern');
-      // const params = getNestedChild(value, 'upload', 'params');
+      const patt = GetNestedChild(value, 'upload', 'pattern');
+      // const params = GetNestedChild(value, 'upload', 'params');
       if (!patt) continue;
       // TODO: Add support for UPLOAD_WAIT_FOR_UPLOAD_PORT
       // TODO: Add support for UPLOAD_USE_1200BPS_TOUCH

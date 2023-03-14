@@ -3,13 +3,13 @@ import * as fs from 'fs';
 import * as rl from 'readline';
 import { Dump } from './dump.js';
 import { MakeSymbol } from './symbols.js';
-import type { ParsedFile, SymbolTable } from './types.js';
+import type { DumbSymTbl, ParsedFile } from './types.js';
 
 function isComment(line: string): boolean {
   return line.trim().startsWith('#');
 }
 
-export function ParseVariable(line: string, table: SymbolTable): boolean {
+export function ParseVariable(line: string, table: DumbSymTbl): boolean {
   const t = line.trim();
   const eq = t.indexOf('=');
   /* istanbul ignore if */
@@ -23,7 +23,7 @@ export function ParseVariable(line: string, table: SymbolTable): boolean {
 
 // Read in the text file, and spit out the parsed file
 export async function ParseFile(filepath: string): Promise<ParsedFile> {
-  const scopedTable: SymbolTable = new Map();
+  const scopedTable: DumbSymTbl = new Map();
 
   const read = rl.createInterface({ input: fs.createReadStream(filepath) });
   let num = 0;

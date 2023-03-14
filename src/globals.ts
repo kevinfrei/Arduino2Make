@@ -1,12 +1,12 @@
 import { MakeSymbol } from './symbols.js';
-import { BuildSystemHost, ParsedFile, SymbolTable } from './types.js';
+import { BuildSystemHost, DumbSymTbl, ParsedFile } from './types.js';
 
 /*
 These are all the pre-defined symbols, per the specification:
 */
 
 export function MakeGlobals(bst: BuildSystemHost): ParsedFile {
-  const scopedTable: SymbolTable = new Map();
+  const scopedTable: DumbSymTbl = new Map();
   MakeSymbol(
     'runtime.platform.path',
     bst.globals.getRuntimePlatformPath,

@@ -1,6 +1,6 @@
 import { Type } from '@freik/core-utils';
 import { Dump } from './dump.js';
-import type { ScopedName, SimpleSymbol, SymbolTable } from './types.js';
+import type { DumbSymTbl, ScopedName, SimpleSymbol } from './types.js';
 
 export function MakeScopedName(fullName: string): ScopedName {
   const names = fullName.split('.');
@@ -20,7 +20,7 @@ export function MakeScopedName(fullName: string): ScopedName {
 function makeSimpleSymbol(
   pieces: ScopedName,
   value: string | (() => string),
-  table: SymbolTable,
+  table: DumbSymTbl,
   index: number,
   parent: SimpleSymbol | undefined,
 ): SimpleSymbol | undefined {
@@ -52,7 +52,7 @@ function makeSimpleSymbol(
 export function MakeSymbol(
   piecesOrName: string,
   value: string | (() => string),
-  table: SymbolTable,
+  table: DumbSymTbl,
 ): SimpleSymbol | undefined {
   return makeSimpleSymbol(
     MakeScopedName(piecesOrName),
@@ -66,7 +66,7 @@ export function MakeSymbol(
 // Lookup the (flat or split) symbol in the table
 export function LookupSymbol(
   fullName: string | ScopedName,
-  table: SymbolTable,
+  table: DumbSymTbl,
 ): string | (() => string) | undefined {
   const pieces = Type.isString(fullName) ? MakeScopedName(fullName) : fullName;
   for (let i = 0; i < pieces.length(); i++) {
@@ -79,4 +79,18 @@ export function LookupSymbol(
     }
     table = sym.children;
   }
+}
+
+export function GetNestedChild(
+  vrbl: SimpleSymbol,
+  ...children: string[]
+): SimpleSymbol | undefined {
+  let v: SimpleSymbol | undefined = vrbl;
+  for (const child of children) {
+    if (!v) {
+      return;
+    }
+    v = v.children.get(child);
+  }
+  return v;
 }

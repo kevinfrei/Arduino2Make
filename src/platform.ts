@@ -1,36 +1,27 @@
 import { Type } from '@freik/core-utils';
+import { GetNestedChild } from './symbols.js';
 import {
+  DumbSymTbl,
   ParsedFile,
   Pattern,
   Platform,
   SimpleSymbol,
-  SymbolTable,
 } from './types.js';
 
-function getString(syms: SymbolTable, key: string): string {
+function getString(syms: DumbSymTbl, key: string): string {
   const val = syms.get(key)?.value;
   if (!val) return '';
   return Type.isString(val) ? val : val();
 }
 
 function getRequired(tbl: SimpleSymbol, ...args: string[]): string {
-  let sym: SimpleSymbol | undefined = tbl;
-  let i = 0;
-  while (sym !== undefined && i < args.length) {
-    sym = sym.children.get(args[i]);
-    i++;
-    if (sym === undefined) {
-      throw new Error(
-        `Required symbol missing from platform.txt: ${args.join('.')}`,
-      );
-    }
+  const sym = GetNestedChild(tbl, ...args);
+  if (sym === undefined || !Type.isString(sym.value)) {
+    throw new Error(
+      `Required symbol missing from platform.txt: ${args.join('.')}`,
+    );
   }
-  if (Type.isString(sym.value)) {
-    return sym.value;
-  }
-  throw new Error(
-    `Malformed required symbol from platform.txt: ${args.join('.')}`,
-  );
+  return sym.value;
 }
 
 // TODO: Add support for the filters

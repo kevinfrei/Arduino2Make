@@ -10,12 +10,12 @@ import {
 import { ParseFile } from './parser.js';
 import type {
   Categories,
+  DumbSymTbl,
   LibDependency,
   LibProps,
   Library,
   ParsedFile,
   SemVer,
-  SymbolTable,
 } from './types.js';
 import { Unquote } from './utils.js';
 
@@ -88,7 +88,7 @@ function getCategory(str?: string): Categories {
   }
 }
 
-function getString(name: string, tbl: SymbolTable): string | undefined {
+function getString(name: string, tbl: DumbSymTbl): string | undefined {
   const val = tbl.get(name)?.value;
   if (Type.isString(val)) {
     return val;
