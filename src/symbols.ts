@@ -2,17 +2,18 @@ import { Type } from '@freik/core-utils';
 import { Dump } from './dump.js';
 import type { ScopedName, SimpleSymbol, SymbolTable } from './types.js';
 
-export function GetScopedName(fullName: string): ScopedName {
+export function MakeScopedName(fullName: string): ScopedName {
   const names = fullName.split('.');
-  const getElement: (index: number) => string = (index: number) => {
-    if (index >= 0 && index < names.length) {
-      return names[index];
-    }
-    throw Error('Invalid element index!');
+  return {
+    getElement: (index: number) => {
+      if (index >= 0 && index < names.length) {
+        return names[index];
+      }
+      throw Error('Invalid element index!');
+    },
+    getFullName: () => names.join('.'),
+    length: () => names.length,
   };
-  const getFullName: () => string = () => names.join('.');
-  const length: () => number = () => names.length;
-  return { getElement, getFullName, length };
 }
 
 // Parsing stuff goes here
@@ -54,7 +55,7 @@ export function MakeSymbol(
   table: SymbolTable,
 ): SimpleSymbol | undefined {
   return makeSimpleSymbol(
-    GetScopedName(piecesOrName),
+    MakeScopedName(piecesOrName),
     value,
     table,
     0,
@@ -67,7 +68,7 @@ export function LookupSymbol(
   fullName: string | ScopedName,
   table: SymbolTable,
 ): string | (() => string) | undefined {
-  const pieces = Type.isString(fullName) ? GetScopedName(fullName) : fullName;
+  const pieces = Type.isString(fullName) ? MakeScopedName(fullName) : fullName;
   for (let i = 0; i < pieces.length(); i++) {
     const sym = table.get(pieces.getElement(i));
     if (Type.isUndefined(sym)) {

@@ -8,6 +8,9 @@ export type SimpleSymbol = {
 };
 // This is the scoped c(b(a)) -> "Something Here" list:
 export type SymbolTable = Map<string, SimpleSymbol>;
+// A better interface for my needs: a "get" that throws with a 'check' that doesn't
+// plus a constructor that adds a filter on top, instead of recreating the table
+
 // A parsed file as something fancier than a SymbolTable, mostly for historical reasons
 export type ParsedFile = { scopedTable: SymbolTable };
 
@@ -116,6 +119,23 @@ export type BoardsList = {
   boards: Map<string, Board>;
   // The list of menu items (with their pleasant names)
   menus: Map<string, string>;
+};
+
+export type Pattern = { pattern: string; other: SymbolTable };
+export type Platform = {
+  name: string;
+  version: string;
+  tools?: SimpleSymbol;
+  misc: SymbolTable;
+  hooks?: SimpleSymbol;
+  recipes: {
+    c: Pattern;
+    cpp: Pattern;
+    s: Pattern;
+    ar: Pattern;
+    link: Pattern;
+    others: SymbolTable;
+  };
 };
 
 // These are functions to spit out the platform implementation of global values: N[really]YI!!!
