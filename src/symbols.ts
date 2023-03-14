@@ -1,6 +1,12 @@
 import { Type } from '@freik/core-utils';
 import { Dump } from './dump.js';
-import type { DumbSymTbl, ScopedName, SimpleSymbol } from './types.js';
+import type {
+  DumbSymTbl,
+  ScopedName,
+  SFn,
+  SimpleSymbol,
+  SymbolTable,
+} from './types.js';
 
 export function MakeScopedName(fullName: string): ScopedName {
   const names = fullName.split('.');
@@ -93,4 +99,27 @@ export function GetNestedChild(
     v = v.children.get(child);
   }
   return v;
+}
+
+export function MakeSymbolTable(parent?: SimpleSymbol): SymbolTable {
+  const container: SimpleSymbol | undefined = parent;
+  const nameMap = new Map<string, SymbolTable>();
+  const add = (_name: string[], _value: string | SFn): void => {
+    // TODO
+  };
+  const get = (_lkup: string | ScopedName | string[]): SimpleSymbol => {
+    // TODO
+    const tmp = MakeSymbol('lkup', '', new Map<string, SimpleSymbol>());
+    if (Type.isUndefined(tmp)) {
+      throw new Error('welp');
+    }
+    return tmp;
+  };
+  const check = (
+    _lkup: string | ScopedName | string[],
+  ): SimpleSymbol | undefined => {
+    if ((_lkup = 'dumb')) return undefined;
+  };
+  const getParent = (): SimpleSymbol | undefined => container;
+  return { add, get, check, parent: getParent };
 }
