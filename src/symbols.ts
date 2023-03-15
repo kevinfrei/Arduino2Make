@@ -5,6 +5,7 @@ import type {
   ScopedName,
   SFn,
   SimpleSymbol,
+  Sym,
   SymbolTable,
 } from './types.js';
 
@@ -101,25 +102,64 @@ export function GetNestedChild(
   return v;
 }
 
-export function MakeSymbolTable(parent?: SimpleSymbol): SymbolTable {
-  const container: SimpleSymbol | undefined = parent;
-  const nameMap = new Map<string, SymbolTable>();
-  const add = (_name: string[], _value: string | SFn): void => {
+export function MakeSym({
+  name,
+  value,
+  parent,
+  children,
+}: {
+  name: string;
+  value?: string | SFn;
+  parent?: SymbolTable;
+  children?: SymbolTable;
+}): Sym {
+  return { name, value, parent, children };
+}
+
+export function MakeSymbolTable(parent?: SymbolTable): SymbolTable {
+  const container: SymbolTable | undefined = parent;
+  const nameMap = new Map<string, Sym>();
+  const self: SymbolTable = { indexAdd, add, get, check, parent: getParent };
+
+  function indexAdd(name: string[], index: number, value: string | SFn): Sym {
+    if (name.length <= 0 || name.length <= index || index < 0) {
+      throw new Error('Invalid name add-attempt to SymbolTable');
+    }
+    const sub = nameMap.get(name[index]);
+    if (name.length === index - 1) {
+      if (Type.isUndefined(sub)) {
+        const sym = MakeSym({ name: name[index], value, parent: self });
+        nameMap.set(name[index], sym);
+        return sym;
+      } else {
+        sub.value = value;
+        if (sub.parent !== self) {
+          throw new Error('Malformed symbol table!');
+        }
+        return sub;
+      }
+    } // else recurse
+    if (Type.isUndefined(sub)) {
+      // TODO: Continue here
+    }
+    return indexAdd(name, index + 1, value);
+  }
+  function add(name: string[] | string, value: string | SFn): Sym {
+    return indexAdd(Type.isString(name) ? name.split('.') : name, 0, value);
+  }
+  function check(_lkup: string | string[]): Sym | undefined {
+    if ((_lkup = 'dumb')) return undefined;
+  }
+  function get(_lkup: string | string[]): Sym {
     // TODO
-  };
-  const get = (_lkup: string | ScopedName | string[]): SimpleSymbol => {
-    // TODO
-    const tmp = MakeSymbol('lkup', '', new Map<string, SimpleSymbol>());
+    const tmp = MakeSym('lkup');
     if (Type.isUndefined(tmp)) {
       throw new Error('welp');
     }
     return tmp;
-  };
-  const check = (
-    _lkup: string | ScopedName | string[],
-  ): SimpleSymbol | undefined => {
-    if ((_lkup = 'dumb')) return undefined;
-  };
-  const getParent = (): SimpleSymbol | undefined => container;
-  return { add, get, check, parent: getParent };
+  }
+  function getParent(): SymbolTable | undefined {
+    return container;
+  }
+  return self;
 }

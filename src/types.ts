@@ -6,16 +6,23 @@ export type SimpleSymbol = {
   parent?: SimpleSymbol;
   children: DumbSymTbl;
 };
+export type Sym = {
+  name: string;
+  value?: string | SFn;
+  parent?: SymbolTable;
+  children?: SymbolTable;
+};
 // This is the scoped c(b(a)) -> "Something Here" list:
 export type DumbSymTbl = Map<string, SimpleSymbol>;
 // A better interface for my needs: a "get" that throws with a 'check' that doesn't
 // plus a constructor that adds a filter on top, instead of recreating the table
 
 export type SymbolTable = {
-  add: (name: string[], value: string | SFn) => void;
-  get: (lkup: string | ScopedName | string[]) => SimpleSymbol;
-  check: (lkup: string | ScopedName | string[]) => SimpleSymbol | undefined;
-  parent: () => SimpleSymbol | undefined;
+  indexAdd: (name: string[], index: number, value: string | SFn) => Sym;
+  add: (name: string | string[], value: string | SFn) => Sym;
+  get: (lkup: string | string[]) => Sym;
+  check: (lkup: string | string[]) => Sym | undefined;
+  parent: () => SymbolTable | undefined;
   // TODO: Iterators
 };
 // A parsed file as something fancier than a SymbolTable, mostly for historical reasons
