@@ -41,7 +41,7 @@ export function MakePlatform(pf: ParsedFile): Platform {
   const version: string = getString(pf.scopedTable, 'version');
   const tools = pf.scopedTable.get('tools');
   const recipes = pf.scopedTable.get('recipe');
-  const hooks = recipes?.children.get('hooks');
+  const hooks = recipes?.children.get('hooks')?.children;
   if (Type.isUndefined(recipes)) {
     throw new Error('Missing any recipes from the platform.txt file');
   }
@@ -60,11 +60,10 @@ export function MakePlatform(pf: ParsedFile): Platform {
     ['combine', 'pattern'],
     ['o', 'pattern'],
   );
+  const skip = new Set(['c', 'cpp', 'S', 'ar', 'hooks']);
 
-  const others = new Map<string, SimpleSymbol>(
-    [...recipes.children.entries()].filter(
-      ([val]) => val !== 'c' && val !== 'cpp' && val !== 'S',
-    ),
+  const others = [...recipes.children.values()].filter(
+    (ss) => !skip.has(ss.name),
   );
   return {
     name,

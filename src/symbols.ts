@@ -119,44 +119,61 @@ export function MakeSym({
 export function MakeSymbolTable(parent?: SymbolTable): SymbolTable {
   const container: SymbolTable | undefined = parent;
   const nameMap = new Map<string, Sym>();
-  const self: SymbolTable = { indexAdd, add, get, check, parent: getParent };
+  const self: SymbolTable = { add, get, check, parent: getParent };
 
-  function indexAdd(name: string[], index: number, value: string | SFn): Sym {
-    if (name.length <= 0 || name.length <= index || index < 0) {
+  function add(name: string[] | string, value: string | SFn): Sym {
+    name = Type.isString(name) ? name.split('.') : name;
+    if (name.length <= 0) {
       throw new Error('Invalid name add-attempt to SymbolTable');
     }
-    const sub = nameMap.get(name[index]);
-    if (name.length === index - 1) {
-      if (Type.isUndefined(sub)) {
-        const sym = MakeSym({ name: name[index], value, parent: self });
-        nameMap.set(name[index], sym);
-        return sym;
-      } else {
-        sub.value = value;
-        if (sub.parent !== self) {
-          throw new Error('Malformed symbol table!');
-        }
-        return sub;
-      }
-    } // else recurse
+    let sub: Sym | undefined = nameMap.get(name[0]);
     if (Type.isUndefined(sub)) {
-      // TODO: Continue here
+      sub = MakeSym({ name: name[0], parent: self });
+      nameMap.set(name[0], sub);
     }
-    return indexAdd(name, index + 1, value);
-  }
-  function add(name: string[] | string, value: string | SFn): Sym {
-    return indexAdd(Type.isString(name) ? name.split('.') : name, 0, value);
-  }
-  function check(_lkup: string | string[]): Sym | undefined {
-    if ((_lkup = 'dumb')) return undefined;
-  }
-  function get(_lkup: string | string[]): Sym {
-    // TODO
-    const tmp = MakeSym('lkup');
-    if (Type.isUndefined(tmp)) {
-      throw new Error('welp');
+    if (name.length === 1) {
+      // Set (update?) the value
+      sub.value = value;
+      if (sub.parent !== self) {
+        throw new Error('Malformed symbol table!');
+      }
+      return sub;
+    } else {
+      // recurse
+      if (Type.isUndefined(sub.children)) {
+        sub.children = MakeSymbolTable(self);
+      }
+      const shorter = [...name];
+      shorter.shift();
+      return sub.children.add(shorter, value);
     }
-    return tmp;
+  }
+  function check(lkup: string | string[]): Sym | undefined {
+    lkup = Type.isString(lkup) ? lkup.split('.') : lkup;
+    if (lkup.length <= 0) {
+      throw new Error('Bad symbol name passed to check');
+    }
+    const res = nameMap.get(lkup[0]);
+    if (Type.isUndefined(res)) {
+      return res;
+    }
+    if (lkup.length === 1) {
+      return res;
+    }
+    const shorter = [...lkup];
+    shorter.shift();
+    return res.children?.check(shorter);
+  }
+  function get(lkup: string | string[]): Sym {
+    const res = check(lkup);
+    if (Type.isUndefined(res)) {
+      throw new Error(
+        `Required symbol "${
+          Type.isString(lkup) ? lkup : lkup.join('.')
+        }" not found`,
+      );
+    }
+    return res;
   }
   function getParent(): SymbolTable | undefined {
     return container;

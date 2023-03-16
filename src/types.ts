@@ -18,7 +18,6 @@ export type DumbSymTbl = Map<string, SimpleSymbol>;
 // plus a constructor that adds a filter on top, instead of recreating the table
 
 export type SymbolTable = {
-  indexAdd: (name: string[], index: number, value: string | SFn) => Sym;
   add: (name: string | string[], value: string | SFn) => Sym;
   get: (lkup: string | string[]) => Sym;
   check: (lkup: string | string[]) => Sym | undefined;
@@ -141,14 +140,14 @@ export type Platform = {
   version: string;
   tools?: SimpleSymbol;
   misc: DumbSymTbl;
-  hooks?: SimpleSymbol;
+  hooks?: DumbSymTbl;
   recipes: {
     c: Pattern;
     cpp: Pattern;
     s: Pattern;
     ar: Pattern;
     link: Pattern;
-    others: DumbSymTbl;
+    others: SimpleSymbol[];
   };
 };
 
