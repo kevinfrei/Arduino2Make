@@ -12,7 +12,7 @@ import { EnumerateBoards } from './board';
 import { AddConfig, LoadConfig } from './config';
 import { Dump, FlushOutput, SetOutputFile } from './dump';
 import { GetLibraries } from './libraries';
-import { ParseFile } from './parser';
+import { ParseFile, ParseSymbolTable } from './parser';
 import { MakePlatform } from './platform';
 import { GetTarget, SetTarget } from './target';
 import { GetGnuMakeTarget } from './targets/gnumake';
@@ -99,8 +99,10 @@ export async function generate(config: RunConfig): Promise<void> {
     const { root, libs } = config;
     // Parse the input files
     const boardPath = path.join(root, 'boards.txt');
+    const boardSymTab = await ParseSymbolTable(boardPath);
     const boards = EnumerateBoards(await ParseFile(boardPath));
     const platformPath = path.join(root, 'platform.txt');
+    const platSymTab = await ParseSymbolTable(platformPath);
     const platform = MakePlatform(await ParseFile(platformPath));
     // Scan the libraries:
     // TODO: Move Defs from Library into platformTarget
