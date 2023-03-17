@@ -177,11 +177,11 @@ async function getLibraryLocations(locs: string[]): Promise<string[]> {
 }
 
 async function makeV15Library(
-  root: string,
+  rootpath: string,
   flatFiles: string[],
 ): Promise<Library> {
   let libFiles: string[] = [];
-  const uqr = Unquote(root);
+  const uqr = Unquote(rootpath);
   if (flatFiles.some((v) => v.toLocaleLowerCase() === 'src')) {
     // Recurse into the src directory for v1.5 libraries
     libFiles = await EnumerateFiles(path.join(uqr, 'src'));
@@ -191,20 +191,20 @@ async function makeV15Library(
   }
   const lib = await ParseFile(path.join(uqr, 'library.properties'));
   const props = libPropsFromParsedFile(lib);
-  const files = await GetFileList(root, libFiles);
-  return { files, props };
+  const files = await GetFileList(rootpath, libFiles);
+  return { rootpath, files, props };
 }
 
 async function makeV10Library(
-  root: string,
+  rootpath: string,
   flatFiles: string[],
 ): Promise<Library> {
-  const uqr = Unquote(root);
+  const uqr = Unquote(rootpath);
   const files = await GetFileList(
-    root,
+    rootpath,
     flatFiles.map((f) => path.join(uqr, f)),
   );
-  return { files, props: { name: path.basename(root) } };
+  return { rootpath, files, props: { name: path.basename(rootpath) } };
 }
 
 // From the given root, create a library

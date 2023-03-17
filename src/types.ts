@@ -116,6 +116,7 @@ export type Files = {
 };
 
 export type Library = {
+  rootpath: string;
   props: LibProps;
   files: Files;
 };

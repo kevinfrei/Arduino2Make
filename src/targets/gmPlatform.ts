@@ -381,14 +381,10 @@ export async function BuildPlatform(
 
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
-    fileDefs.push(
-      MakeAppend(
-        'VPATH_CORE',
-        paths.map(QuoteIfNeeded).join(' '),
-        ['BUILD_CORE'],
-        cnd,
-      ),
-    );
+    const moreVpath = paths.map(QuoteIfNeeded).join(' ');
+    if (moreVpath.length > 0) {
+      fileDefs.push(MakeAppend('VPATH_CORE', moreVpath, ['BUILD_CORE'], cnd));
+    }
   }
   for (const vrn of variants) {
     const { c, cpp, s, paths, inc } = await GetFileList(
@@ -407,14 +403,12 @@ export async function BuildPlatform(
     fileDefs.push(MakeSrcList('SYS_INCLUDES', inc, 'BUILD_VARIANT', cnd));
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
-    fileDefs.push(
-      MakeAppend(
-        'VPATH_CORE',
-        paths.map(QuoteIfNeeded).join(' '),
-        ['BUILD_VARIANT'],
-        cnd,
-      ),
-    );
+    const moreVpath = paths.map(QuoteIfNeeded).join(' ');
+    if (moreVpath.length > 0) {
+      fileDefs.push(
+        MakeAppend('VPATH_CORE', moreVpath, ['BUILD_VARIANT'], cnd),
+      );
+    }
   }
   libs.forEach((val: Library) => {
     fileDefs.push(...GetLibDefs(val));

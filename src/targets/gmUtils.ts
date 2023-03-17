@@ -9,6 +9,7 @@ import {
 
 // Utilities for doing Makefile stuff
 
+// ifeq (VAR, value)
 export function MakeIfeq(variable: string, value: string): Condition {
   return {
     op: 'eq',
@@ -17,6 +18,7 @@ export function MakeIfeq(variable: string, value: string): Condition {
   };
 }
 
+// ifneq (VAR, value)
 export function MakeIfneq(variable: string, value: string): Condition {
   return {
     op: 'neq',
@@ -25,6 +27,7 @@ export function MakeIfneq(variable: string, value: string): Condition {
   };
 }
 
+// ifdef VAR
 export function MakeIfdef(variable: string): Condition {
   return {
     op: 'def',
@@ -32,6 +35,7 @@ export function MakeIfdef(variable: string): Condition {
   };
 }
 
+// ifndef VAR
 export function MakeIfndef(variable: string): Condition {
   return {
     op: 'ndef',
@@ -39,6 +43,7 @@ export function MakeIfndef(variable: string): Condition {
   };
 }
 
+// if variable
 export function MakeIf(variable: string): Condition {
   return { op: 'raw', variable };
 }

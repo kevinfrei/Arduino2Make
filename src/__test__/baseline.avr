@@ -952,37 +952,26 @@ ifeq (${BUILD_CORE}, arduino)
 endif
 ifeq (${BUILD_VARIANT}, yun)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/yun
-  VPATH_CORE+=
 else ifeq (${BUILD_VARIANT}, standard)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/standard
-  VPATH_CORE+=
 else ifeq (${BUILD_VARIANT}, eightanaloginputs)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/eightanaloginputs
-  VPATH_CORE+=
 else ifeq (${BUILD_VARIANT}, mega)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/mega
-  VPATH_CORE+=
 else ifeq (${BUILD_VARIANT}, leonardo)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/leonardo
-  VPATH_CORE+=
 else ifeq (${BUILD_VARIANT}, micro)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/micro
-  VPATH_CORE+=
 else ifeq (${BUILD_VARIANT}, ethernet)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/ethernet
-  VPATH_CORE+=
 else ifeq (${BUILD_VARIANT}, robot_control)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/robot_control
-  VPATH_CORE+=
 else ifeq (${BUILD_VARIANT}, robot_motor)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/robot_motor
-  VPATH_CORE+=
 else ifeq (${BUILD_VARIANT}, gemma)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/gemma
-  VPATH_CORE+=
 else ifeq (${BUILD_VARIANT}, circuitplay32u4)
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/circuitplay32u4
-  VPATH_CORE+=
 endif
 ifdef LIB_EEPROM
   SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/EEPROM/src
