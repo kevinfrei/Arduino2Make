@@ -114,14 +114,26 @@ export function MakeSym({
   parent?: SymbolTable;
   children?: SymbolTable;
 }): Sym {
-  return { name, value, parent, children };
+  function* iter(): Iterator<[string, Sym]> {
+    if (children) {
+      for (const i of children) {
+        yield i;
+      }
+    }
+  }
+  return { name, value, parent, children, [Symbol.iterator]: iter };
 }
 
 export function MakeSymbolTable(parentOptional?: Sym): SymbolTable {
   const container: Sym | undefined = parentOptional;
   const nameMap = new Map<string, Sym>();
-  const self: SymbolTable = { add, get, check, parent };
-
+  const self: SymbolTable = {
+    add,
+    get,
+    check,
+    parent,
+    [Symbol.iterator]: nameMap[Symbol.iterator],
+  };
   function add(name: string[] | string, value: string | SFn): Sym {
     name = isString(name) ? name.split('.') : name;
     /* istanbul ignore if */
