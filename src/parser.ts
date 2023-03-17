@@ -9,7 +9,7 @@ function isComment(line: string): boolean {
   return line.trim().startsWith('#');
 }
 
-export function ParseVariable(line: string, table: DumbSymTbl): boolean {
+function parseVariable(line: string, table: DumbSymTbl): boolean {
   const t = line.trim();
   const eq = t.indexOf('=');
   /* istanbul ignore if */
@@ -34,7 +34,7 @@ export async function ParseFile(filepath: string): Promise<ParsedFile> {
     }
     // Read the variables one by one
     /* istanbul ignore if */
-    if (!ParseVariable(line, scopedTable)) {
+    if (!parseVariable(line, scopedTable)) {
       Dump('err')(`Error ${num}: ${line}`);
     }
   }
