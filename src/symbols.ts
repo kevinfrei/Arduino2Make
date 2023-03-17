@@ -1,6 +1,13 @@
 import { Type } from '@freik/core-utils';
 import { Dump } from './dump.js';
-import type { DumbSymTbl, ScopedName, SimpleSymbol } from './types.js';
+import type {
+  DumbSymTbl,
+  ScopedName,
+  SFn,
+  SimpleSymbol,
+  Sym,
+  SymbolTable,
+} from './types.js';
 
 export function MakeScopedName(fullName: string): ScopedName {
   const names = fullName.split('.');
@@ -93,4 +100,86 @@ export function GetNestedChild(
     v = v.children.get(child);
   }
   return v;
+}
+
+export function MakeSym({
+  name,
+  value,
+  parent,
+  children,
+}: {
+  name: string;
+  value?: string | SFn;
+  parent?: SymbolTable;
+  children?: SymbolTable;
+}): Sym {
+  return { name, value, parent, children };
+}
+
+export function MakeSymbolTable(parentOptional?: Sym): SymbolTable {
+  const container: Sym | undefined = parentOptional;
+  const nameMap = new Map<string, Sym>();
+  const self: SymbolTable = { add, get, check, parent };
+
+  function add(name: string[] | string, value: string | SFn): Sym {
+    name = Type.isString(name) ? name.split('.') : name;
+    /* istanbul ignore if */
+    if (name.length <= 0) {
+      throw new Error('Invalid name add-attempt to SymbolTable');
+    }
+    let sub: Sym | undefined = nameMap.get(name[0]);
+    if (Type.isUndefined(sub)) {
+      sub = MakeSym({ name: name[0], parent: self });
+      nameMap.set(name[0], sub);
+    }
+    if (name.length === 1) {
+      // Set (update?) the value
+      sub.value = value;
+      /* istanbul ignore if */
+      if (sub.parent !== self) {
+        throw new Error('Malformed symbol table!');
+      }
+      return sub;
+    } else {
+      // recurse
+      if (Type.isUndefined(sub.children)) {
+        sub.children = MakeSymbolTable(sub);
+      }
+      const shorter = [...name];
+      shorter.shift();
+      return sub.children.add(shorter, value);
+    }
+  }
+  function check(lkup: string | string[]): Sym | undefined {
+    lkup = Type.isString(lkup) ? lkup.split('.') : lkup;
+    /* istanbul ignore if */
+    if (lkup.length <= 0) {
+      throw new Error('Bad symbol name passed to check');
+    }
+    const res = nameMap.get(lkup[0]);
+    if (Type.isUndefined(res)) {
+      return res;
+    }
+    if (lkup.length === 1) {
+      return res;
+    }
+    const shorter = [...lkup];
+    shorter.shift();
+    return res.children?.check(shorter);
+  }
+  function get(lkup: string | string[]): Sym {
+    const res = check(lkup);
+    if (Type.isUndefined(res)) {
+      throw new Error(
+        `Required symbol "${
+          Type.isString(lkup) ? lkup : lkup.join('.')
+        }" not found`,
+      );
+    }
+    return res;
+  }
+  function parent(): Sym | undefined {
+    return container;
+  }
+  return self;
 }
