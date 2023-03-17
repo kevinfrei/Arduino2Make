@@ -6,7 +6,7 @@ import { IsConfigPresent, ReadConfig } from './config.js';
 import { Dump, FlushOutput, SetOutputFile } from './dump.js';
 import { MakeGlobals } from './globals.js';
 import { GetLibraries } from './libraries.js';
-import { ParseFile } from './parser.js';
+import { ParseFile, ParseSymbolTable } from './parser.js';
 import { MakePlatform } from './platform.js';
 import { GetGnuMakeTarget } from './targets/gnumake.js';
 import { BuildSystemHost } from './types.js';
@@ -79,12 +79,13 @@ export default async function main(...args: string[]): Promise<void> {
     }
     const root = normalArgs[0];
     const libLocs = normalArgs.slice(1);
+    const boardPathName = path.join(root, 'boards.txt');
     // Parse the input files
-    const boards = EnumerateBoards(
-      await ParseFile(path.join(root, 'boards.txt')),
-    );
+    const boardSymTab = await ParseSymbolTable(boardPathName);
+    const boards = EnumerateBoards(await ParseFile(boardPathName));
     const platformPath = path.join(root, 'platform.txt');
     const platSyms = await ParseFile(platformPath);
+    const platSymTab = await ParseSymbolTable(platformPath);
     const platform = MakePlatform(platSyms);
     // Scan the libraries:
     // TODO: Move Defs from Library into platformtTarget
