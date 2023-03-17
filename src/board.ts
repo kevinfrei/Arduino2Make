@@ -1,8 +1,11 @@
 import { isUndefined } from '@freik/typechk';
 
+import { MakeSymbolTable } from './symbols.js';
 import type {
   Board,
   BoardsList,
+  BoardsListSymTab,
+  BoardSymTab,
   ParsedFile,
   ParsedSymbols,
   SimpleSymbol,
@@ -56,9 +59,9 @@ export function EnumerateBoards(board: ParsedFile): BoardsList {
 
 export function EnumerateBoardsFromSymbolTable(
   board: ParsedSymbols,
-): BoardsList {
+): BoardsListSymTab {
   const menus = getMenusSymTab(board);
-  const boards = new Map<string, Board>(
+  const boards = new Map<string, BoardSymTab>(
     [...board.symTable]
       .filter(([st]) => st !== 'menu')
       .map(([st, sy]) => [st, makeBoardFromSym(sy, menus)]),
@@ -76,21 +79,16 @@ function getMenusSymTab(parsedFile: ParsedSymbols): Map<string, string> {
 }
 
 // Create an individual board from the symbols we've got.
-function makeBoardFromSym(val: Sym, menus: Map<string, string>): Board {
+function makeBoardFromSym(
+  symbols: Sym,
+  menus: Map<string, string>,
+): BoardSymTab {
+  // We *could* have a board with no menu, so use check, not get
   const menuSyms =
-    val.children?.get('menu')?.children || new Map<string, Sym>();
-  // Validate that the menu selections are available in the menu options enumerated
-  const menuSelections: Sym[] = [];
-  menuSyms.forEach((ss: SimpleSymbol, key: string) => {
-    if (!menus.has(key)) {
-      // TODO: Throw an error here? Make a 'warning' level?
-      // eslint-disable-next-line no-console
-      console.error(
-        `Boards.txt file looks malformed: Missing ${key} from the menu list`,
-      );
-    } else {
-      menuSelections.push(ss);
-    }
-  });
-  return { menuSelections, symbols: val };
+    symbols.children?.check('menu')?.children || MakeSymbolTable(symbols);
+  // TODO: Validate that the menu selections are available in the menu options enumerated
+  const menuSelections: Sym[] = [
+    ...[...menuSyms].filter(([name]) => menus.has(name)).map(([, sym]) => sym),
+  ];
+  return { menuSelections, symbols };
 }
