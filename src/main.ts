@@ -82,6 +82,7 @@ export default async function main(...args: string[]): Promise<void> {
     const boardPathName = path.join(root, 'boards.txt');
     // Parse the input files
     const boardSymTab = await ParseSymbolTable(boardPathName);
+    const boards2 = EnumerateBoardsFromSymbolTable(boardSymTab);
     const boards = EnumerateBoards(await ParseFile(boardPathName));
     const platformPath = path.join(root, 'platform.txt');
     const platSyms = await ParseFile(platformPath);
