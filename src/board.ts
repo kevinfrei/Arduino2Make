@@ -1,6 +1,13 @@
 import { isUndefined } from '@freik/typechk';
 
-import type { Board, BoardsList, ParsedFile, SimpleSymbol } from './types';
+import type {
+  Board,
+  BoardsList,
+  ParsedFile,
+  ParsedSymbols,
+  SimpleSymbol,
+  Sym,
+} from './types';
 
 // Get the menu "parent" from the parsed file
 // This is a map of "ID" to the actual title of the user menu
@@ -45,4 +52,45 @@ export function EnumerateBoards(board: ParsedFile): BoardsList {
     }
   });
   return { menus, boards };
+}
+
+export function EnumerateBoardsFromSymbolTable(
+  board: ParsedSymbols,
+): BoardsList {
+  const menus = getMenusSymTab(board);
+  const boards = new Map<string, Board>(
+    [...board.symTable]
+      .filter(([st]) => st !== 'menu')
+      .map(([st, sy]) => [st, makeBoardFromSym(sy, menus)]),
+  );
+  return { menus, boards };
+}
+
+// Get the menu "parent" from the parsed file
+// This is a map of "ID" to the actual title of the user menu
+function getMenusSymTab(parsedFile: ParsedSymbols): Map<string, string> {
+  const menuSym = parsedFile.symTable.get('menu');
+  return new Map<string, string>(
+    [...menuSym].map(([id, sym]) => [id, sym.name]),
+  );
+}
+
+// Create an individual board from the symbols we've got.
+function makeBoardFromSym(val: Sym, menus: Map<string, string>): Board {
+  const menuSyms =
+    val.children?.get('menu')?.children || new Map<string, Sym>();
+  // Validate that the menu selections are available in the menu options enumerated
+  const menuSelections: Sym[] = [];
+  menuSyms.forEach((ss: SimpleSymbol, key: string) => {
+    if (!menus.has(key)) {
+      // TODO: Throw an error here? Make a 'warning' level?
+      // eslint-disable-next-line no-console
+      console.error(
+        `Boards.txt file looks malformed: Missing ${key} from the menu list`,
+      );
+    } else {
+      menuSelections.push(ss);
+    }
+  });
+  return { menuSelections, symbols: val };
 }

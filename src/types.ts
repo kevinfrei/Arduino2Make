@@ -11,6 +11,8 @@ export type Sym = {
   value?: string | SFn;
   parent?: SymbolTable;
   children?: SymbolTable;
+  // This should just iterator over any children, if there are some...
+  [Symbol.iterator](): Iterator<[string, Sym]>;
 };
 // This is the scoped c(b(a)) -> "Something Here" list:
 export type DumbSymTbl = Map<string, SimpleSymbol>;
@@ -22,7 +24,8 @@ export type SymbolTable = {
   get: (lkup: string | string[]) => Sym;
   check: (lkup: string | string[]) => Sym | undefined;
   parent: () => Sym | undefined;
-  // TODO: Iterators
+  // The table iterator
+  [Symbol.iterator](): Iterator<[string, Sym]>;
 };
 // A parsed file as something fancier than a SymbolTable, mostly for historical reasons
 export type ParsedFile = { scopedTable: DumbSymTbl };
@@ -112,6 +115,13 @@ export type Board = {
   menuSelections: SimpleSymbol[];
 };
 
+export type BoardSymTab = {
+  // The 'top level' symbol. This includes the menu options, cuz I'm lazy
+  symbols: Sym;
+  // The list of menu options for this board
+  menuSelections: Sym[];
+};
+
 export type BoardsList = {
   // Each board gets an item in here:
   boards: Map<string, Board>;
@@ -124,6 +134,13 @@ export type OldSizeType = {
   data: string;
   pattern: string;
   other: DumbSymTbl;
+};
+
+export type BoardsListSymTab = {
+  // Each board gets an item in here:
+  boards: Map<string, BoardSymTab>;
+  // The list of menu items (with their pleasant names)
+  menus: Map<string, string>;
 };
 
 export type Pattern = { pattern: string; other: DumbSymTbl };

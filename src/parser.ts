@@ -56,7 +56,7 @@ function parseVar(line: string, table: SymbolTable): boolean {
   }
   const fullName = t.substring(0, eq);
   const value = t.substring(eq + 1);
-  return !Type.isUndefined(table.add(fullName, value));
+  return !isUndefined(table.add(fullName, value));
 }
 
 // Read in the text file, and spit out the parsed file
