@@ -26,6 +26,7 @@ export type SymbolTable = {
 };
 // A parsed file as something fancier than a SymbolTable, mostly for historical reasons
 export type ParsedFile = { scopedTable: DumbSymTbl };
+export type ParsedSymbols = { symTable: SymbolTable };
 
 export type DependentValue = { value: string; unresolved: Set<string> };
 
