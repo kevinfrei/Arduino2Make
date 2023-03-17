@@ -116,13 +116,14 @@ export function MakeSym({
   return { name, value, parent, children };
 }
 
-export function MakeSymbolTable(parent?: SymbolTable): SymbolTable {
-  const container: SymbolTable | undefined = parent;
+export function MakeSymbolTable(parentOptional?: Sym): SymbolTable {
+  const container: Sym | undefined = parentOptional;
   const nameMap = new Map<string, Sym>();
-  const self: SymbolTable = { add, get, check, parent: getParent };
+  const self: SymbolTable = { add, get, check, parent };
 
   function add(name: string[] | string, value: string | SFn): Sym {
     name = Type.isString(name) ? name.split('.') : name;
+    /* istanbul ignore if */
     if (name.length <= 0) {
       throw new Error('Invalid name add-attempt to SymbolTable');
     }
@@ -134,6 +135,7 @@ export function MakeSymbolTable(parent?: SymbolTable): SymbolTable {
     if (name.length === 1) {
       // Set (update?) the value
       sub.value = value;
+      /* istanbul ignore if */
       if (sub.parent !== self) {
         throw new Error('Malformed symbol table!');
       }
@@ -141,7 +143,7 @@ export function MakeSymbolTable(parent?: SymbolTable): SymbolTable {
     } else {
       // recurse
       if (Type.isUndefined(sub.children)) {
-        sub.children = MakeSymbolTable(self);
+        sub.children = MakeSymbolTable(sub);
       }
       const shorter = [...name];
       shorter.shift();
@@ -150,6 +152,7 @@ export function MakeSymbolTable(parent?: SymbolTable): SymbolTable {
   }
   function check(lkup: string | string[]): Sym | undefined {
     lkup = Type.isString(lkup) ? lkup.split('.') : lkup;
+    /* istanbul ignore if */
     if (lkup.length <= 0) {
       throw new Error('Bad symbol name passed to check');
     }
@@ -175,7 +178,7 @@ export function MakeSymbolTable(parent?: SymbolTable): SymbolTable {
     }
     return res;
   }
-  function getParent(): SymbolTable | undefined {
+  function parent(): Sym | undefined {
     return container;
   }
   return self;

@@ -21,7 +21,7 @@ export type SymbolTable = {
   add: (name: string | string[], value: string | SFn) => Sym;
   get: (lkup: string | string[]) => Sym;
   check: (lkup: string | string[]) => Sym | undefined;
-  parent: () => SymbolTable | undefined;
+  parent: () => Sym | undefined;
   // TODO: Iterators
 };
 // A parsed file as something fancier than a SymbolTable, mostly for historical reasons
