@@ -1,7 +1,7 @@
 import { Type } from '@freik/core-utils';
 import minimist from 'minimist';
 import path from 'path';
-import { EnumerateBoards } from './board.js';
+import { EnumerateBoards, EnumerateBoardsFromSymbolTable } from './board.js';
 import { IsConfigPresent, ReadConfig } from './config.js';
 import { Dump, FlushOutput, SetOutputFile } from './dump.js';
 import { MakeGlobals } from './globals.js';

@@ -8,10 +8,7 @@
   "author": "Kevin Frei <kevinfrei@hotmail.com>",
   "license": "MIT",
   "bin": "./ar2mak.js",
-  "files": [
-    "lib/**/*",
-    "ar2mak.js"
-  ],
+  "files": ["lib/**/*", "ar2mak.js"],
   "scripts": {
     "release": "rimraf ./lib && tsc -p tsconfig.opt.json && ftool minify -i -r lib",
     "build": "rimraf ./lib && tsc",
