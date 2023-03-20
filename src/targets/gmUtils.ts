@@ -1,3 +1,4 @@
+import { Type } from '@freik/core-utils';
 import { Filter } from '../config.js';
 import {
   Condition,
@@ -147,16 +148,28 @@ export function MakeDeclDef(
   };
 }
 
+export function prefixAndJoinFiles(
+  filteredFiles: string[],
+  prefixer?: (str: string) => string,
+): string {
+  if (!Type.isUndefined(prefixer)) {
+    filteredFiles = filteredFiles.map(prefixer);
+  }
+  return filteredFiles.join(' \\\n    ');
+}
+
 export function MakeSrcList(
   name: string,
   files: string[],
   depend: string | string[],
   cnd: Condition[],
+  prefixer?: (str: string) => string,
 ): Definition {
+  // Filter out user-specified files to remove...
   const filteredFiles = Filter(name, files);
   return MakeAppend(
     name,
-    filteredFiles.join(' \\\n    '),
+    prefixAndJoinFiles(filteredFiles, prefixer),
     typeof depend === 'string' ? [depend] : depend,
     cnd,
   );

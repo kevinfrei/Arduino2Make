@@ -13,6 +13,7 @@ import type {
 } from '../types.js';
 import { GetPlainValue, QuoteIfNeeded, Unquote } from '../utils.js';
 import { GetLibDefs } from './gmLibs.js';
+import { MakePrefixer } from './gmPrefixer.js';
 import {
   MakeAppend,
   MakeDeclDef,
@@ -349,6 +350,14 @@ export async function BuildPlatform(
   );
 
   const fileDefs: Definition[] = [];
+  // Make a 'Prefixer' to replace paths with variables when possible
+  const pfx = MakePrefixer([
+    [
+      boardDefs.find((val) => val.name === 'RUNTIME_PLATFORM_PATH')?.value ||
+        '!@#$',
+      '${RUNTIME_PLATFORM_PATH}',
+    ],
+  ]);
   // Get the full file list & include path for each core & variant
   for (const core of cores) {
     const { c, cpp, s, paths } = await GetFileList(
@@ -356,7 +365,7 @@ export async function BuildPlatform(
     );
     const cnd = [MakeIfeq('${BUILD_CORE}', core)];
     if (c.length) {
-      fileDefs.push(MakeSrcList('C_SYS_SRCS', c, 'BUILD_CORE', cnd));
+      fileDefs.push(MakeSrcList('C_SYS_SRCS', c, 'BUILD_CORE', cnd, pfx));
     }
     if (cpp.length) {
       fileDefs.push(MakeSrcList('CPP_SYS_SRCS', cpp, 'BUILD_CORE', cnd));
