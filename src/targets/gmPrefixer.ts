@@ -6,7 +6,7 @@ export function MakePrefixer(
   return (str: string) => {
     for (const [p, r] of matches) {
       if (str.startsWith(p)) {
-        return `${r}${str.substring(p.length)}`;
+        return '${' + r + '}' + str.substring(p.length);
       }
     }
     return str;
