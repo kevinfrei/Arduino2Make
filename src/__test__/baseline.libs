@@ -1931,1146 +1931,1146 @@ ifeq (${UPLOAD_TOOL}, teensyloader)
   UPLOAD_PATTERN="${CMD_PATH}/teensy_post_compile" "-file=${BUILD_PROJECT_NAME}" "-path=$(abspath ${BUILD_PATH})" "-tools=${CMD_PATH}" "-board=${BUILD_BOARD}" -reboot "-port=${SERIAL_PORT}" "-portlabel=${SERIAL_PORT_LABEL}" "-portprotocol=${SERIAL_PORT_PROTOCOL}"
 endif
 ifeq (${BUILD_CORE}, teensy4)
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/cores/teensy4/analog.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/bootdata.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/clockspeed.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/debugprintf.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/delay.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/digital.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/eeprom.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/extmem.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/fuse.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/interrupt.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/keylayouts.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/nonstd.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/pwm.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/rtc.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_alloc_valid.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_calloc.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_free.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_hash.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_malloc.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_malloc_stats.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_pool.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_realloc.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_realloc_i.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_realloc_move.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_szalloc.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_util.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/sm_zalloc.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/startup.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/tempmon.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_desc.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_joystick.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_keyboard.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_midi.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_mouse.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_mtp.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_rawhid.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_seremu.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_serial.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_serial2.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_serial3.c \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_touch.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/cores/teensy4/AudioStream.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/CrashReport.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/DMAChannel.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/EventResponder.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/HardwareSerial.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/HardwareSerial1.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/HardwareSerial2.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/HardwareSerial3.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/HardwareSerial4.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/HardwareSerial5.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/HardwareSerial6.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/HardwareSerial7.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/HardwareSerial8.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/IntervalTimer.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/IPAddress.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/main.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/new.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/Print.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/serialEvent.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/serialEvent1.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/serialEvent2.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/serialEvent3.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/serialEvent4.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/serialEvent5.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/serialEvent6.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/serialEvent7.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/serialEvent8.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/serialEventUSB1.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/serialEventUSB2.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/Stream.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/Time.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/Tone.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_audio.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_flightsim.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/usb_inst.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/WMath.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/WString.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy4/yield.cpp
-  S_SYS_SRCS+=src/__test__/hardware/teensy/avr/cores/teensy4/memcpy-armv7m.S \
-    src/__test__/hardware/teensy/avr/cores/teensy4/memset.S
-  SYS_INCLUDES+= -Isrc/__test__/hardware/teensy/avr/cores/teensy4
-  VPATH_CORE+=src/__test__/hardware/teensy/avr/cores/teensy4
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/cores/teensy4/analog.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/bootdata.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/clockspeed.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/debugprintf.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/delay.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/digital.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/eeprom.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/extmem.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/fuse.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/interrupt.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/keylayouts.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/nonstd.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/pwm.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/rtc.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_alloc_valid.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_calloc.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_free.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_hash.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_malloc.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_malloc_stats.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_pool.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_realloc.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_realloc_i.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_realloc_move.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_szalloc.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_util.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/sm_zalloc.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/startup.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/tempmon.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_desc.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_joystick.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_keyboard.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_midi.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_mouse.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_mtp.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_rawhid.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_seremu.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_serial.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_serial2.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_serial3.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_touch.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/cores/teensy4/AudioStream.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/CrashReport.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/DMAChannel.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/EventResponder.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/HardwareSerial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/HardwareSerial1.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/HardwareSerial2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/HardwareSerial3.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/HardwareSerial4.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/HardwareSerial5.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/HardwareSerial6.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/HardwareSerial7.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/HardwareSerial8.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/IntervalTimer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/IPAddress.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/main.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/new.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/Print.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/serialEvent.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/serialEvent1.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/serialEvent2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/serialEvent3.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/serialEvent4.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/serialEvent5.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/serialEvent6.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/serialEvent7.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/serialEvent8.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/serialEventUSB1.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/serialEventUSB2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/Stream.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/Time.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/Tone.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_audio.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_flightsim.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/usb_inst.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/WMath.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/WString.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/yield.cpp
+  S_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/cores/teensy4/memcpy-armv7m.S \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy4/memset.S
+  SYS_INCLUDES+= -I${RUNTIME_PLATFORM_PATH}/cores/teensy4
+  VPATH_CORE+=${RUNTIME_PLATFORM_PATH}/cores/teensy4
 else ifeq (${BUILD_CORE}, teensy3)
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/cores/teensy3/analog.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/eeprom.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/keylayouts.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/math_helper.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/mk20dx128.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/nonstd.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/pins_teensy.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serial1.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serial2.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serial3.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serial4.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serial5.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serial6.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serial6_lpuart.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/ser_print.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/touch.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_desc.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_dev.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_joystick.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_keyboard.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_mem.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_midi.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_mouse.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_mtp.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_rawhid.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_seremu.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_serial.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_serial2.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_serial3.c \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_touch.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/cores/teensy3/AudioStream.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/avr_emulation.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/CrashReport.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/DMAChannel.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/EventResponder.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/HardwareSerial.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/HardwareSerial1.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/HardwareSerial2.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/HardwareSerial3.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/HardwareSerial4.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/HardwareSerial5.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/HardwareSerial6.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/IntervalTimer.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/IPAddress.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/main.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/new.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/Print.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serialEvent.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serialEvent1.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serialEvent2.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serialEvent3.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serialEvent4.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serialEvent5.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serialEvent6.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serialEventUSB1.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/serialEventUSB2.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/Stream.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/Time.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/Tone.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_audio.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_flightsim.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/usb_inst.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/WMath.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/WString.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy3/yield.cpp
-  S_SYS_SRCS+=src/__test__/hardware/teensy/avr/cores/teensy3/memcpy-armv7m.S \
-    src/__test__/hardware/teensy/avr/cores/teensy3/memset.S
-  SYS_INCLUDES+= -Isrc/__test__/hardware/teensy/avr/cores/teensy3
-  VPATH_CORE+=src/__test__/hardware/teensy/avr/cores/teensy3
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/cores/teensy3/analog.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/eeprom.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/keylayouts.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/math_helper.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/mk20dx128.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/nonstd.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/pins_teensy.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serial1.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serial2.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serial3.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serial4.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serial5.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serial6.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serial6_lpuart.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/ser_print.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/touch.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_desc.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_dev.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_joystick.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_keyboard.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_mem.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_midi.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_mouse.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_mtp.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_rawhid.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_seremu.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_serial.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_serial2.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_serial3.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_touch.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/cores/teensy3/AudioStream.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/avr_emulation.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/CrashReport.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/DMAChannel.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/EventResponder.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/HardwareSerial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/HardwareSerial1.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/HardwareSerial2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/HardwareSerial3.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/HardwareSerial4.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/HardwareSerial5.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/HardwareSerial6.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/IntervalTimer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/IPAddress.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/main.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/new.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/Print.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serialEvent.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serialEvent1.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serialEvent2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serialEvent3.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serialEvent4.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serialEvent5.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serialEvent6.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serialEventUSB1.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/serialEventUSB2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/Stream.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/Time.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/Tone.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_audio.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_flightsim.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/usb_inst.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/WMath.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/WString.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/yield.cpp
+  S_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/cores/teensy3/memcpy-armv7m.S \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy3/memset.S
+  SYS_INCLUDES+= -I${RUNTIME_PLATFORM_PATH}/cores/teensy3
+  VPATH_CORE+=${RUNTIME_PLATFORM_PATH}/cores/teensy3
 else ifeq (${BUILD_CORE}, teensy)
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/cores/teensy/keylayouts.c \
-    src/__test__/hardware/teensy/avr/cores/teensy/malloc.c \
-    src/__test__/hardware/teensy/avr/cores/teensy/pins_teensy.c \
-    src/__test__/hardware/teensy/avr/cores/teensy/usb.c \
-    src/__test__/hardware/teensy/avr/cores/teensy/WInterrupts.c \
-    src/__test__/hardware/teensy/avr/cores/teensy/wiring.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/cores/teensy/CrashReport.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/HardwareSerial.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/IPAddress.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/main.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/new.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/Print.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/Stream.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/Time.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/Tone.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/usb_api.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/WMath.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/WString.cpp \
-    src/__test__/hardware/teensy/avr/cores/teensy/yield.cpp
-  SYS_INCLUDES+= -Isrc/__test__/hardware/teensy/avr/cores/teensy
-  VPATH_CORE+=src/__test__/hardware/teensy/avr/cores/teensy
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/cores/teensy/keylayouts.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/malloc.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/pins_teensy.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/usb.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/WInterrupts.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/wiring.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/cores/teensy/CrashReport.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/HardwareSerial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/IPAddress.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/main.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/new.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/Print.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/Stream.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/Time.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/Tone.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/usb_api.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/WMath.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/WString.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/teensy/yield.cpp
+  SYS_INCLUDES+= -I${RUNTIME_PLATFORM_PATH}/cores/teensy
+  VPATH_CORE+=${RUNTIME_PLATFORM_PATH}/cores/teensy
 endif
 ifdef LIB_ACCELSTEPPER
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/AccelStepper/src/AccelStepper.cpp \
-    src/__test__/hardware/teensy/avr/libraries/AccelStepper/src/MultiStepper.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/AccelStepper/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/AccelStepper/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/AccelStepper/src/AccelStepper.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/AccelStepper/src/MultiStepper.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/AccelStepper/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/AccelStepper/src
 endif
 ifdef LIB_ADAFRUIT_NEOPIXEL
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Adafruit_NeoPixel/esp8266.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Adafruit_NeoPixel/Adafruit_NeoPixel.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Adafruit_NeoPixel
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Adafruit_NeoPixel
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_NeoPixel/esp8266.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_NeoPixel/Adafruit_NeoPixel.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_NeoPixel
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_NeoPixel
 endif
 ifdef LIB_ADAFRUIT_NRF8001
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Adafruit_nRF8001/Adafruit_BLE_UART.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Adafruit_nRF8001
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Adafruit_nRF8001
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_nRF8001/Adafruit_BLE_UART.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_nRF8001
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_nRF8001
 endif
 ifdef LIB_ADAFRUIT_STMPE610
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Adafruit_STMPE610/Adafruit_STMPE610.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Adafruit_STMPE610
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Adafruit_STMPE610
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_STMPE610/Adafruit_STMPE610.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_STMPE610
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_STMPE610
 endif
 ifdef LIB_ADAFRUIT_VS1053
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Adafruit_VS1053/Adafruit_VS1053.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Adafruit_VS1053
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Adafruit_VS1053
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_VS1053/Adafruit_VS1053.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_VS1053
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Adafruit_VS1053
 endif
 ifdef LIB_ADC
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ADC/ADC.cpp \
-    src/__test__/hardware/teensy/avr/libraries/ADC/ADC_Module.cpp \
-    src/__test__/hardware/teensy/avr/libraries/ADC/AnalogBufferDMA.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ADC
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ADC
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/ADC/ADC.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/ADC/ADC_Module.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/ADC/AnalogBufferDMA.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/ADC
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/ADC
 endif
 ifdef LIB_ALTSOFTSERIAL
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/AltSoftSerial/AltSoftSerial.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/AltSoftSerial
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/AltSoftSerial
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/AltSoftSerial/AltSoftSerial.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/AltSoftSerial
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/AltSoftSerial
 endif
 ifdef LIB_ARTNET
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Artnet/Artnet.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Artnet
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Artnet
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Artnet/Artnet.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Artnet
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Artnet
 endif
 ifdef LIB_AUDIO
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Audio/data_bandlimit_step.c \
-    src/__test__/hardware/teensy/avr/libraries/Audio/data_spdif.c \
-    src/__test__/hardware/teensy/avr/libraries/Audio/data_ulaw.c \
-    src/__test__/hardware/teensy/avr/libraries/Audio/data_waveforms.c \
-    src/__test__/hardware/teensy/avr/libraries/Audio/data_windows.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Audio/analyze_fft1024.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/analyze_fft256.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/analyze_notefreq.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/analyze_peak.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/analyze_print.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/analyze_rms.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/analyze_tonedetect.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/async_input_spdif3.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/control_ak4558.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/control_cs42448.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/control_cs4272.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/control_sgtl5000.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/control_tlv320aic3206.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/control_wm8731.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_bitcrusher.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_chorus.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_combine.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_delay.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_delay_ext.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_envelope.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_fade.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_flange.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_freeverb.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_granular.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_midside.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_multiply.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_rectifier.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_reverb.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_wavefolder.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/effect_waveshaper.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/filter_biquad.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/filter_fir.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/filter_ladder.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/filter_variable.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_adc.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_adcs.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_i2s.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_i2s2.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_i2s_hex.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_i2s_oct.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_i2s_quad.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_pdm.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_pdm_i2s2.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_spdif3.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_tdm.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/input_tdm2.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/mixer.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_adat.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_dac.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_dacs.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_i2s.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_i2s2.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_i2s_hex.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_i2s_oct.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_i2s_quad.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_mqs.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_pt8211.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_pt8211_2.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_pwm.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_spdif.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_spdif2.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_spdif3.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_tdm.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/output_tdm2.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/play_memory.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/play_queue.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/play_sd_raw.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/play_sd_wav.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/play_serialflash_raw.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/Quantizer.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/record_queue.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/Resampler.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/spi_interrupt.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/synth_dc.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/synth_karplusstrong.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/synth_pinknoise.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/synth_pwm.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/synth_simple_drum.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/synth_sine.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/synth_tonesweep.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/synth_waveform.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/synth_wavetable.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Audio/synth_whitenoise.cpp
-  S_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Audio/memcpy_audio.S
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Audio
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Audio
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Audio/data_bandlimit_step.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/data_spdif.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/data_ulaw.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/data_waveforms.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/data_windows.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Audio/analyze_fft1024.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/analyze_fft256.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/analyze_notefreq.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/analyze_peak.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/analyze_print.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/analyze_rms.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/analyze_tonedetect.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/async_input_spdif3.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/control_ak4558.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/control_cs42448.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/control_cs4272.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/control_sgtl5000.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/control_tlv320aic3206.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/control_wm8731.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_bitcrusher.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_chorus.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_combine.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_delay.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_delay_ext.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_envelope.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_fade.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_flange.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_freeverb.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_granular.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_midside.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_multiply.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_rectifier.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_reverb.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_wavefolder.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/effect_waveshaper.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/filter_biquad.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/filter_fir.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/filter_ladder.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/filter_variable.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_adc.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_adcs.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_i2s.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_i2s2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_i2s_hex.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_i2s_oct.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_i2s_quad.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_pdm.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_pdm_i2s2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_spdif3.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_tdm.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/input_tdm2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/mixer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_adat.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_dac.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_dacs.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_i2s.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_i2s2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_i2s_hex.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_i2s_oct.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_i2s_quad.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_mqs.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_pt8211.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_pt8211_2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_pwm.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_spdif.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_spdif2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_spdif3.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_tdm.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/output_tdm2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/play_memory.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/play_queue.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/play_sd_raw.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/play_sd_wav.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/play_serialflash_raw.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/Quantizer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/record_queue.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/Resampler.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/spi_interrupt.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/synth_dc.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/synth_karplusstrong.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/synth_pinknoise.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/synth_pwm.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/synth_simple_drum.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/synth_sine.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/synth_tonesweep.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/synth_waveform.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/synth_wavetable.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Audio/synth_whitenoise.cpp
+  S_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Audio/memcpy_audio.S
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Audio
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Audio
 endif
 ifdef LIB_BOUNCE
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Bounce/Bounce.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Bounce
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Bounce
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Bounce/Bounce.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Bounce
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Bounce
 endif
 ifdef LIB_BOUNCE2
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Bounce2/src/Bounce2.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Bounce2/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Bounce2/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Bounce2/src/Bounce2.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Bounce2/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Bounce2/src
 endif
 ifdef LIB_CAPACITIVESENSOR
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/CapacitiveSensor/CapacitiveSensor.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/CapacitiveSensor
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/CapacitiveSensor
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/CapacitiveSensor/CapacitiveSensor.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/CapacitiveSensor
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/CapacitiveSensor
 endif
 ifdef LIB_CRYPTOACCEL
-  S_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/CryptoAccel/src/mmcau_aes_functions.S \
-    src/__test__/hardware/teensy/avr/libraries/CryptoAccel/src/mmcau_des_functions.S \
-    src/__test__/hardware/teensy/avr/libraries/CryptoAccel/src/mmcau_md5_functions.S \
-    src/__test__/hardware/teensy/avr/libraries/CryptoAccel/src/mmcau_sha1_functions.S \
-    src/__test__/hardware/teensy/avr/libraries/CryptoAccel/src/mmcau_sha256_functions.S
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/CryptoAccel/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/CryptoAccel/src
+  S_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/CryptoAccel/src/mmcau_aes_functions.S \
+    ${RUNTIME_PLATFORM_PATH}/libraries/CryptoAccel/src/mmcau_des_functions.S \
+    ${RUNTIME_PLATFORM_PATH}/libraries/CryptoAccel/src/mmcau_md5_functions.S \
+    ${RUNTIME_PLATFORM_PATH}/libraries/CryptoAccel/src/mmcau_sha1_functions.S \
+    ${RUNTIME_PLATFORM_PATH}/libraries/CryptoAccel/src/mmcau_sha256_functions.S
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/CryptoAccel/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/CryptoAccel/src
 endif
 ifdef LIB_DMXSIMPLE
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/DmxSimple/DmxSimple.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/DmxSimple
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/DmxSimple
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/DmxSimple/DmxSimple.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/DmxSimple
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/DmxSimple
 endif
 ifdef LIB_DOGLCD
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/DogLcd/DogLcd.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/DogLcd
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/DogLcd
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/DogLcd/DogLcd.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/DogLcd
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/DogLcd
 endif
 ifdef LIB_DS1307RTC
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/DS1307RTC/DS1307RTC.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/DS1307RTC
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/DS1307RTC
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/DS1307RTC/DS1307RTC.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/DS1307RTC
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/DS1307RTC
 endif
 ifdef LIB_EASYTRANSFER
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/EasyTransfer/src/EasyTransfer.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/EasyTransfer/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/EasyTransfer/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/EasyTransfer/src/EasyTransfer.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/EasyTransfer/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/EasyTransfer/src
 endif
 ifdef LIB_EASYTRANSFERI2C
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/EasyTransferI2C/src/EasyTransferI2C.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/EasyTransferI2C/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/EasyTransferI2C/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/EasyTransferI2C/src/EasyTransferI2C.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/EasyTransferI2C/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/EasyTransferI2C/src
 endif
 ifdef LIB_EEPROM
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/EEPROM/EEPROM.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/EEPROM
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/EEPROM
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/EEPROM/EEPROM.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/EEPROM
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/EEPROM
 endif
 ifdef LIB_ENCODER
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Encoder/Encoder.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Encoder
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Encoder
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Encoder/Encoder.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Encoder
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Encoder
 endif
 ifdef LIB_ENTROPY
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Entropy/Entropy.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Entropy
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Entropy
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Entropy/Entropy.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Entropy
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Entropy
 endif
 ifdef LIB_ETHERNET
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Ethernet/src/Dhcp.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Ethernet/src/Dns.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Ethernet/src/Ethernet.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Ethernet/src/EthernetClient.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Ethernet/src/EthernetServer.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Ethernet/src/EthernetUdp.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Ethernet/src/socket.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Ethernet/src/utility/w5100.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Ethernet/src \
-    -Isrc/__test__/hardware/teensy/avr/libraries/Ethernet/src/utility
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Ethernet/src src/__test__/hardware/teensy/avr/libraries/Ethernet/src/utility
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src/Dhcp.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src/Dns.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src/Ethernet.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src/EthernetClient.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src/EthernetServer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src/EthernetUdp.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src/socket.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src/utility/w5100.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src/utility
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src ${RUNTIME_PLATFORM_PATH}/libraries/Ethernet/src/utility
 endif
 ifdef LIB_FASTCRC
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FastCRC/FastCRChw.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastCRC/FastCRCsw.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FastCRC
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FastCRC
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/FastCRC/FastCRChw.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FastCRC/FastCRCsw.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/FastCRC
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/FastCRC
 endif
 ifdef LIB_FASTLED
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FastLED/src/bitswap.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastLED/src/colorpalettes.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastLED/src/colorutils.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastLED/src/FastLED.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastLED/src/hsv2rgb.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastLED/src/lib8tion.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastLED/src/noise.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/esp/32/clockless_rmt_esp32.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastLED/src/power_mgt.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FastLED/src/wiring.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/lib8tion \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/apollo3 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/arm/common \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/arm/d21 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/arm/d51 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/arm/k20 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/arm/k66 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/arm/kl26 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/arm/mxrt1062 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/arm/nrf51 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/arm/nrf52 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/arm/sam \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/arm/stm32 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/avr \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/esp/32 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/esp/8266 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FastLED/src src/__test__/hardware/teensy/avr/libraries/FastLED/src/platforms/esp/32
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/bitswap.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/colorpalettes.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/colorutils.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/FastLED.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/hsv2rgb.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/lib8tion.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/noise.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/esp/32/clockless_rmt_esp32.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/power_mgt.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/wiring.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/lib8tion \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/apollo3 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/arm/common \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/arm/d21 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/arm/d51 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/arm/k20 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/arm/k66 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/arm/kl26 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/arm/mxrt1062 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/arm/nrf51 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/arm/nrf52 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/arm/sam \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/arm/stm32 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/avr \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/esp/32 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/esp/8266 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src ${RUNTIME_PLATFORM_PATH}/libraries/FastLED/src/platforms/esp/32
 endif
 ifdef LIB_FLEXCAN
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FlexCAN/FlexCAN.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FlexCAN
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FlexCAN
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/FlexCAN/FlexCAN.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/FlexCAN
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/FlexCAN
 endif
 ifdef LIB_FLEXCAN_T4
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FlexCAN_T4
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/FlexCAN_T4
 endif
 ifdef LIB_FLEXIO_T4
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FlexIO_t4/src/FlexIOSPI.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FlexIO_t4/src/FlexIO_t4.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FlexIO_t4/src/FlexSerial.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FlexIO_t4/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FlexIO_t4/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/FlexIO_t4/src/FlexIOSPI.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FlexIO_t4/src/FlexIO_t4.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FlexIO_t4/src/FlexSerial.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/FlexIO_t4/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/FlexIO_t4/src
 endif
 ifdef LIB_FLEXITIMER2
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FlexiTimer2/FlexiTimer2.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FlexiTimer2
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FlexiTimer2
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/FlexiTimer2/FlexiTimer2.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/FlexiTimer2
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/FlexiTimer2
 endif
 ifdef LIB_FNET
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FNET/src/port/cpu/fnet_cpu.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt_eth.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt_isr.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt_isr_inst.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt_serial.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/port/fnet_usb.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/port/fnet_usb_config.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/port/netif/fec/fnet_fec.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/autoip/fnet_autoip.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/azure/fnet_azure_lock.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/azure/fnet_azure_platform.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/azure/fnet_azure_socketio.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/azure/fnet_azure_threadapi.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/azure/fnet_azure_tickcounter.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/azure/fnet_azure_tlsio.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/azure/fnet_azure_tlsio_socketio.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/bench/fnet_bench_cln.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/bench/fnet_bench_srv.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/dhcp/fnet_dhcp.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/dhcp/fnet_dhcp_cln.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/dhcp/fnet_dhcp_srv.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/dns/fnet_dns.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/flash/fnet_flash.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/fnet_service.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/fs/fnet_fs.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/fs/fnet_fs_rom.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/fs/fnet_fs_root.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/http/fnet_http_cln.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/http/fnet_http_srv.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/http/fnet_http_srv_auth.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/http/fnet_http_srv_cgi.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/http/fnet_http_srv_get.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/http/fnet_http_srv_post.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/http/fnet_http_srv_ssi.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/link/fnet_link.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/llmnr/fnet_llmnr.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/mdns/fnet_mdns.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/ping/fnet_ping.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/serial/fnet_serial.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/shell/fnet_shell.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/sntp/fnet_sntp.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/telnet/fnet_telnet.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/tftp/fnet_tftp_cln.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/tftp/fnet_tftp_srv.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/service/tls/fnet_tls.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_arp.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_checksum.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_error.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_eth.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_icmp4.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_icmp6.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_igmp.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_inet.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_ip.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_ip4.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_ip6.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_isr.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_loop.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_mempool.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_mld.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_nd6.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_netbuf.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_netif.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_prot.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_raw.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_socket.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_stack.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_stdlib.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_tcp.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_timer.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_udp.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/stack/fnet_wifi.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/aes.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/aesni.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/arc4.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/aria.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/asn1parse.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/asn1write.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/base64.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/bignum.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/blowfish.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/camellia.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ccm.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/certs.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/chacha20.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/chachapoly.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/cipher.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/cipher_wrap.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/cmac.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ctr_drbg.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/debug.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/des.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/dhm.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ecdh.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ecdsa.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ecjpake.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ecp.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ecp_curves.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/entropy.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/entropy_poll.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/error.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/gcm.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/havege.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/hkdf.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/hmac_drbg.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/md.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/md2.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/md4.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/md5.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/md_wrap.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/memory_buffer_alloc.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/net_sockets.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/nist_kw.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/oid.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/padlock.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pem.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pk.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pkcs11.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pkcs12.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pkcs5.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pkparse.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pkwrite.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pk_wrap.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/platform.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/platform_util.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/poly1305.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ripemd160.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/rsa.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/rsa_internal.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/sha1.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/sha256.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/sha512.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_cache.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_ciphersuites.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_cli.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_cookie.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_srv.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_ticket.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_tls.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/threading.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/timing.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/version.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/version_features.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509write_crt.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509write_csr.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509_create.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509_crl.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509_crt.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509_csr.c \
-    src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/xtea.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt_serial.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FNET/src \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/port/compiler \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/port/cpu \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/port/cpu/mimxrt \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/port \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/port/netif/fec \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/autoip \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/azure \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/bench \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/dhcp \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/dns \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/flash \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/fs \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/http \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/link \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/llmnr \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/mdns \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/ping \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/serial \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/shell \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/sntp \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/telnet \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/tftp \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/service/tls \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/stack \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/configs \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/doxygen/input \
-    -Isrc/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src/mbedtls
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FNET/src/port/cpu src/__test__/hardware/teensy/avr/libraries/FNET/src/port/cpu/mimxrt src/__test__/hardware/teensy/avr/libraries/FNET/src/port src/__test__/hardware/teensy/avr/libraries/FNET/src/port/netif/fec src/__test__/hardware/teensy/avr/libraries/FNET/src/service/autoip src/__test__/hardware/teensy/avr/libraries/FNET/src/service/azure src/__test__/hardware/teensy/avr/libraries/FNET/src/service/bench src/__test__/hardware/teensy/avr/libraries/FNET/src/service/dhcp src/__test__/hardware/teensy/avr/libraries/FNET/src/service/dns src/__test__/hardware/teensy/avr/libraries/FNET/src/service/flash src/__test__/hardware/teensy/avr/libraries/FNET/src/service src/__test__/hardware/teensy/avr/libraries/FNET/src/service/fs src/__test__/hardware/teensy/avr/libraries/FNET/src/service/http src/__test__/hardware/teensy/avr/libraries/FNET/src/service/link src/__test__/hardware/teensy/avr/libraries/FNET/src/service/llmnr src/__test__/hardware/teensy/avr/libraries/FNET/src/service/mdns src/__test__/hardware/teensy/avr/libraries/FNET/src/service/ping src/__test__/hardware/teensy/avr/libraries/FNET/src/service/serial src/__test__/hardware/teensy/avr/libraries/FNET/src/service/shell src/__test__/hardware/teensy/avr/libraries/FNET/src/service/sntp src/__test__/hardware/teensy/avr/libraries/FNET/src/service/telnet src/__test__/hardware/teensy/avr/libraries/FNET/src/service/tftp src/__test__/hardware/teensy/avr/libraries/FNET/src/service/tls src/__test__/hardware/teensy/avr/libraries/FNET/src/stack src/__test__/hardware/teensy/avr/libraries/FNET/src/third_party/mbedtls-2.12.0/src
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/cpu/fnet_cpu.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt_eth.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt_isr.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt_isr_inst.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt_serial.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/fnet_usb.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/fnet_usb_config.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/netif/fec/fnet_fec.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/autoip/fnet_autoip.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/azure/fnet_azure_lock.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/azure/fnet_azure_platform.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/azure/fnet_azure_socketio.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/azure/fnet_azure_threadapi.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/azure/fnet_azure_tickcounter.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/azure/fnet_azure_tlsio.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/azure/fnet_azure_tlsio_socketio.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/bench/fnet_bench_cln.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/bench/fnet_bench_srv.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/dhcp/fnet_dhcp.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/dhcp/fnet_dhcp_cln.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/dhcp/fnet_dhcp_srv.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/dns/fnet_dns.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/flash/fnet_flash.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/fnet_service.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/fs/fnet_fs.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/fs/fnet_fs_rom.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/fs/fnet_fs_root.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/http/fnet_http_cln.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/http/fnet_http_srv.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/http/fnet_http_srv_auth.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/http/fnet_http_srv_cgi.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/http/fnet_http_srv_get.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/http/fnet_http_srv_post.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/http/fnet_http_srv_ssi.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/link/fnet_link.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/llmnr/fnet_llmnr.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/mdns/fnet_mdns.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/ping/fnet_ping.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/serial/fnet_serial.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/shell/fnet_shell.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/sntp/fnet_sntp.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/telnet/fnet_telnet.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/tftp/fnet_tftp_cln.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/tftp/fnet_tftp_srv.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/tls/fnet_tls.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_arp.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_checksum.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_error.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_eth.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_icmp4.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_icmp6.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_igmp.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_inet.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_ip.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_ip4.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_ip6.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_isr.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_loop.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_mempool.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_mld.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_nd6.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_netbuf.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_netif.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_prot.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_raw.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_socket.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_stack.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_stdlib.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_tcp.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_timer.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_udp.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack/fnet_wifi.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/aes.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/aesni.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/arc4.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/aria.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/asn1parse.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/asn1write.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/base64.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/bignum.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/blowfish.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/camellia.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ccm.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/certs.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/chacha20.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/chachapoly.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/cipher.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/cipher_wrap.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/cmac.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ctr_drbg.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/debug.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/des.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/dhm.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ecdh.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ecdsa.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ecjpake.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ecp.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ecp_curves.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/entropy.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/entropy_poll.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/error.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/gcm.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/havege.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/hkdf.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/hmac_drbg.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/md.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/md2.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/md4.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/md5.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/md_wrap.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/memory_buffer_alloc.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/net_sockets.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/nist_kw.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/oid.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/padlock.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pem.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pk.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pkcs11.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pkcs12.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pkcs5.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pkparse.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pkwrite.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/pk_wrap.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/platform.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/platform_util.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/poly1305.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ripemd160.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/rsa.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/rsa_internal.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/sha1.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/sha256.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/sha512.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_cache.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_ciphersuites.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_cli.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_cookie.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_srv.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_ticket.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/ssl_tls.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/threading.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/timing.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/version.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/version_features.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509write_crt.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509write_csr.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509_create.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509_crl.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509_crt.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/x509_csr.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/xtea.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/cpu/mimxrt/fnet_mimxrt_serial.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/compiler \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/cpu \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/cpu/mimxrt \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/netif/fec \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/autoip \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/azure \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/bench \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/dhcp \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/dns \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/flash \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/fs \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/http \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/link \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/llmnr \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/mdns \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/ping \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/serial \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/shell \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/sntp \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/telnet \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/tftp \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/tls \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/configs \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/doxygen/input \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src/mbedtls
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/cpu ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/cpu/mimxrt ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/port/netif/fec ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/autoip ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/azure ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/bench ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/dhcp ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/dns ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/flash ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/fs ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/http ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/link ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/llmnr ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/mdns ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/ping ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/serial ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/shell ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/sntp ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/telnet ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/tftp ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/service/tls ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/stack ${RUNTIME_PLATFORM_PATH}/libraries/FNET/src/third_party/mbedtls-2.12.0/src
 endif
 ifdef LIB_FREQCOUNT
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FreqCount/FreqCount.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FreqCount
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FreqCount
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/FreqCount/FreqCount.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/FreqCount
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/FreqCount
 endif
 ifdef LIB_FREQMEASURE
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FreqMeasure/FreqMeasure.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FreqMeasure
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FreqMeasure
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/FreqMeasure/FreqMeasure.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/FreqMeasure
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/FreqMeasure
 endif
 ifdef LIB_FREQMEASUREMULTI
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FreqMeasureMulti/FreqMeasureMulti.cpp \
-    src/__test__/hardware/teensy/avr/libraries/FreqMeasureMulti/FreqMeasureMultiIMXRT.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FreqMeasureMulti
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FreqMeasureMulti
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/FreqMeasureMulti/FreqMeasureMulti.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/FreqMeasureMulti/FreqMeasureMultiIMXRT.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/FreqMeasureMulti
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/FreqMeasureMulti
 endif
 ifdef LIB_FREQUENCYTIMER2
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/FrequencyTimer2/FrequencyTimer2.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/FrequencyTimer2
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/FrequencyTimer2
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/FrequencyTimer2/FrequencyTimer2.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/FrequencyTimer2
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/FrequencyTimer2
 endif
 ifdef LIB_I2C_T3
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/i2c_t3/i2c_t3.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/i2c_t3
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/i2c_t3
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/i2c_t3/i2c_t3.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/i2c_t3
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/i2c_t3
 endif
 ifdef LIB_ILI9341_T3
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ILI9341_t3/font_Arial.c \
-    src/__test__/hardware/teensy/avr/libraries/ILI9341_t3/font_ArialBold.c \
-    src/__test__/hardware/teensy/avr/libraries/ILI9341_t3/glcdfont.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ILI9341_t3/ILI9341_t3.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ILI9341_t3
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ILI9341_t3
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/ILI9341_t3/font_Arial.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/ILI9341_t3/font_ArialBold.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/ILI9341_t3/glcdfont.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/ILI9341_t3/ILI9341_t3.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/ILI9341_t3
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/ILI9341_t3
 endif
 ifdef LIB_ILI9488_T3
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ILI9488_t3/src/glcdfont.c \
-    src/__test__/hardware/teensy/avr/libraries/ILI9488_t3/src/ili9488_t3_font_Arial.c \
-    src/__test__/hardware/teensy/avr/libraries/ILI9488_t3/src/ili9488_t3_font_ArialBold.c \
-    src/__test__/hardware/teensy/avr/libraries/ILI9488_t3/src/ili9488_t3_font_ComicSansMS.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ILI9488_t3/src/ILI9488_t3.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ILI9488_t3/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ILI9488_t3/src
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/ILI9488_t3/src/glcdfont.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/ILI9488_t3/src/ili9488_t3_font_Arial.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/ILI9488_t3/src/ili9488_t3_font_ArialBold.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/ILI9488_t3/src/ili9488_t3_font_ComicSansMS.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/ILI9488_t3/src/ILI9488_t3.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/ILI9488_t3/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/ILI9488_t3/src
 endif
 ifdef LIB_IRREMOTE
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/IRremote/src \
-    -Isrc/__test__/hardware/teensy/avr/libraries/IRremote/src/private
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/IRremote/src \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/IRremote/src/private
 endif
 ifdef LIB_KEYPAD
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Keypad/src/Key.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Keypad/src/Keypad.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Keypad/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Keypad/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Keypad/src/Key.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Keypad/src/Keypad.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Keypad/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Keypad/src
 endif
 ifdef LIB_KS0108
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ks0108/ks0108.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ks0108
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ks0108
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/ks0108/ks0108.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/ks0108
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/ks0108
 endif
 ifdef LIB_LEDCONTROL
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/LedControl/src/LedControl.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/LedControl/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/LedControl/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/LedControl/src/LedControl.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/LedControl/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/LedControl/src
 endif
 ifdef LIB_LEDDISPLAY
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/LedDisplay/LedDisplay.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/LedDisplay
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/LedDisplay
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/LedDisplay/LedDisplay.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/LedDisplay
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/LedDisplay
 endif
 ifdef LIB_LIQUIDCRYSTAL
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/LiquidCrystal/src/LiquidCrystal.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/LiquidCrystal/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/LiquidCrystal/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/LiquidCrystal/src/LiquidCrystal.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/LiquidCrystal/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/LiquidCrystal/src
 endif
 ifdef LIB_LIQUIDCRYSTALFAST
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/LiquidCrystalFast/LiquidCrystalFast.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/LiquidCrystalFast
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/LiquidCrystalFast
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/LiquidCrystalFast/LiquidCrystalFast.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/LiquidCrystalFast
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/LiquidCrystalFast
 endif
 ifdef LIB_LITTLEFS
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/LittleFS/src/littlefs/lfs.c \
-    src/__test__/hardware/teensy/avr/libraries/LittleFS/src/littlefs/lfs_util.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/LittleFS/src/LittleFS.cpp \
-    src/__test__/hardware/teensy/avr/libraries/LittleFS/src/LittleFS_NAND.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/LittleFS/src/littlefs \
-    -Isrc/__test__/hardware/teensy/avr/libraries/LittleFS/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/LittleFS/src/littlefs src/__test__/hardware/teensy/avr/libraries/LittleFS/src
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/LittleFS/src/littlefs/lfs.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/LittleFS/src/littlefs/lfs_util.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/LittleFS/src/LittleFS.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/LittleFS/src/LittleFS_NAND.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/LittleFS/src/littlefs \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/LittleFS/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/LittleFS/src/littlefs ${RUNTIME_PLATFORM_PATH}/libraries/LittleFS/src
 endif
 ifdef LIB_LOWPOWER
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/LowPower/LowPower.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/LowPower
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/LowPower
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/LowPower/LowPower.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/LowPower
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/LowPower
 endif
 ifdef LIB_METRO
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Metro/Metro.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Metro
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Metro
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Metro/Metro.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Metro
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Metro
 endif
 ifdef LIB_MFRC522
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/MFRC522/src/MFRC522.cpp \
-    src/__test__/hardware/teensy/avr/libraries/MFRC522/src/MFRC522Debug.cpp \
-    src/__test__/hardware/teensy/avr/libraries/MFRC522/src/MFRC522Extended.cpp \
-    src/__test__/hardware/teensy/avr/libraries/MFRC522/src/MFRC522Hack.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/MFRC522/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/MFRC522/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/MFRC522/src/MFRC522.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/MFRC522/src/MFRC522Debug.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/MFRC522/src/MFRC522Extended.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/MFRC522/src/MFRC522Hack.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/MFRC522/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/MFRC522/src
 endif
 ifdef LIB_MIDI_LIBRARY
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/MIDI/src/MIDI.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/MIDI/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/MIDI/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/MIDI/src/MIDI.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/MIDI/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/MIDI/src
 endif
 ifdef LIB_MSTIMER2
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/MsTimer2/MsTimer2.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/MsTimer2
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/MsTimer2
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/MsTimer2/MsTimer2.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/MsTimer2
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/MsTimer2
 endif
 ifdef LIB_NATIVEETHERNET
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/NativeEthernet/src/NativeDns.cpp \
-    src/__test__/hardware/teensy/avr/libraries/NativeEthernet/src/NativeEthernet.cpp \
-    src/__test__/hardware/teensy/avr/libraries/NativeEthernet/src/NativeEthernetClient.cpp \
-    src/__test__/hardware/teensy/avr/libraries/NativeEthernet/src/NativeEthernetServer.cpp \
-    src/__test__/hardware/teensy/avr/libraries/NativeEthernet/src/NativeEthernetUdp.cpp \
-    src/__test__/hardware/teensy/avr/libraries/NativeEthernet/src/NativeMdns.cpp \
-    src/__test__/hardware/teensy/avr/libraries/NativeEthernet/src/Nativesocket.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/NativeEthernet/src \
-    -Isrc/__test__/hardware/teensy/avr/libraries/NativeEthernet/src/utility
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/NativeEthernet/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/NativeEthernet/src/NativeDns.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/NativeEthernet/src/NativeEthernet.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/NativeEthernet/src/NativeEthernetClient.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/NativeEthernet/src/NativeEthernetServer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/NativeEthernet/src/NativeEthernetUdp.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/NativeEthernet/src/NativeMdns.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/NativeEthernet/src/Nativesocket.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/NativeEthernet/src \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/NativeEthernet/src/utility
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/NativeEthernet/src
 endif
 ifdef LIB_NXPMOTIONSENSE
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/NXPMotionSense/matrix.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/NXPMotionSense/NXPMotionSense.cpp \
-    src/__test__/hardware/teensy/avr/libraries/NXPMotionSense/SensorFusion.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/NXPMotionSense
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/NXPMotionSense
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/NXPMotionSense/matrix.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/NXPMotionSense/NXPMotionSense.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/NXPMotionSense/SensorFusion.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/NXPMotionSense
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/NXPMotionSense
 endif
 ifdef LIB_OCTOWS2811
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/OctoWS2811/OctoWS2811.cpp \
-    src/__test__/hardware/teensy/avr/libraries/OctoWS2811/OctoWS2811_imxrt.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/OctoWS2811
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/OctoWS2811
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/OctoWS2811/OctoWS2811.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/OctoWS2811/OctoWS2811_imxrt.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/OctoWS2811
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/OctoWS2811
 endif
 ifdef LIB_ONEWIRE
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/OneWire/OneWire.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/OneWire
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/OneWire
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/OneWire/OneWire.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/OneWire
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/OneWire
 endif
 ifdef LIB_OSC
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/OSC/OSCMatch.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/OSC/OSCBundle.cpp \
-    src/__test__/hardware/teensy/avr/libraries/OSC/OSCData.cpp \
-    src/__test__/hardware/teensy/avr/libraries/OSC/OSCMessage.cpp \
-    src/__test__/hardware/teensy/avr/libraries/OSC/OSCTiming.cpp \
-    src/__test__/hardware/teensy/avr/libraries/OSC/SLIPEncodedSerial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/OSC/SLIPEncodedUSBSerial.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/OSC
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/OSC
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/OSC/OSCMatch.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/OSC/OSCBundle.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/OSC/OSCData.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/OSC/OSCMessage.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/OSC/OSCTiming.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/OSC/SLIPEncodedSerial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/OSC/SLIPEncodedUSBSerial.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/OSC
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/OSC
 endif
 ifdef LIB_PING
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Ping/Ping.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Ping
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Ping
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Ping/Ping.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Ping
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Ping
 endif
 ifdef LIB_PS2KEYBOARD
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/PS2Keyboard/PS2Keyboard.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/PS2Keyboard
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/PS2Keyboard
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/PS2Keyboard/PS2Keyboard.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/PS2Keyboard
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/PS2Keyboard
 endif
 ifdef LIB_PULSEPOSITION
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/PulsePosition/PulsePosition.cpp \
-    src/__test__/hardware/teensy/avr/libraries/PulsePosition/PulsePositionIMXRT.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/PulsePosition
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/PulsePosition
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/PulsePosition/PulsePosition.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/PulsePosition/PulsePositionIMXRT.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/PulsePosition
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/PulsePosition
 endif
 ifdef LIB_PWMSERVO
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/PWMServo/PWMServo.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/PWMServo
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/PWMServo
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/PWMServo/PWMServo.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/PWMServo
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/PWMServo
 endif
 ifdef LIB_QUADENCODER
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/QuadEncoder/QuadEncoder.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/QuadEncoder
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/QuadEncoder
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/QuadEncoder/QuadEncoder.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/QuadEncoder
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/QuadEncoder
 endif
 ifdef LIB_RA8875
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/RA8875/glcdfont.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/RA8875/RA8875.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/RA8875
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/RA8875
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/RA8875/glcdfont.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/RA8875/RA8875.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/RA8875
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/RA8875
 endif
 ifdef LIB_RADIOHEAD
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/RadioHead/RHCRC.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHDatagram.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHEncryptedDriver.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHGenericDriver.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHGenericSPI.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHHardwareSP12.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHHardwareSP1I.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHHardwareSPI.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHMesh.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHNRFSPIDriver.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHReliableDatagram.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHRouter.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHSoftwareSPI.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RHSPIDriver.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_ABZ.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_ASK.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_CC110.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_E32.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_MRF89.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_NRF24.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_NRF51.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_NRF905.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_RF22.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_RF24.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_RF69.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_RF95.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_Serial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/RadioHead/RH_TCP.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/RadioHead
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/RadioHead
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHCRC.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHDatagram.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHEncryptedDriver.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHGenericDriver.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHGenericSPI.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHHardwareSP12.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHHardwareSP1I.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHHardwareSPI.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHMesh.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHNRFSPIDriver.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHReliableDatagram.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHRouter.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHSoftwareSPI.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RHSPIDriver.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_ABZ.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_ASK.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_CC110.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_E32.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_MRF89.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_NRF24.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_NRF51.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_NRF905.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_RF22.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_RF24.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_RF69.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_RF95.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_Serial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/RadioHead/RH_TCP.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/RadioHead
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/RadioHead
 endif
 ifdef LIB_RESPONSIVEANALOGREAD
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ResponsiveAnalogRead/src/ResponsiveAnalogRead.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ResponsiveAnalogRead/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ResponsiveAnalogRead/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/ResponsiveAnalogRead/src/ResponsiveAnalogRead.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/ResponsiveAnalogRead/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/ResponsiveAnalogRead/src
 endif
 ifdef LIB_SD
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/SD/src/SD.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SD/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SD/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/SD/src/SD.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/SD/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/SD/src
 endif
 ifdef LIB_SDFAT
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/SdFat/src/common/FmtNumber.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/common/FsCache.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/common/FsDateTime.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/common/FsGetPartitionInfo.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/common/FsName.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/common/FsStructs.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/common/FsUtf.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/common/PrintBasic.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/common/upcase.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/ExFatLib/ExFatDbg.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/ExFatLib/ExFatFile.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/ExFatLib/ExFatFilePrint.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/ExFatLib/ExFatFileWrite.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/ExFatLib/ExFatFormatter.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/ExFatLib/ExFatName.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/ExFatLib/ExFatPartition.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/ExFatLib/ExFatVolume.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/ExFatLib/upcase.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FatLib/FatDbg.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FatLib/FatFile.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FatLib/FatFileLFN.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FatLib/FatFilePrint.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FatLib/FatFileSFN.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FatLib/FatFormatter.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FatLib/FatName.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FatLib/FatPartition.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FatLib/FatVolume.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FreeStack.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FsLib/FsFile.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FsLib/FsNew.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/FsLib/FsVolume.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/iostream/istream.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/iostream/ostream.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/iostream/StdioStream.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/iostream/StreamBaseClass.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/MinimumSerial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/SdCard/SdCardInfo.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/SdCard/SdioTeensy.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/SdCard/SdSpiCard.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/SpiDriver/SdSpiArtemis.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/SpiDriver/SdSpiChipSelect.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/SpiDriver/SdSpiDue.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/SpiDriver/SdSpiESP.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/SpiDriver/SdSpiParticle.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/SpiDriver/SdSpiSTM32.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/SpiDriver/SdSpiSTM32Core.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SdFat/src/SpiDriver/SdSpiTeensy3.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SdFat/src \
-    -Isrc/__test__/hardware/teensy/avr/libraries/SdFat/src/common \
-    -Isrc/__test__/hardware/teensy/avr/libraries/SdFat/src/DigitalIO/boards \
-    -Isrc/__test__/hardware/teensy/avr/libraries/SdFat/src/DigitalIO \
-    -Isrc/__test__/hardware/teensy/avr/libraries/SdFat/src/ExFatLib \
-    -Isrc/__test__/hardware/teensy/avr/libraries/SdFat/src/FatLib \
-    -Isrc/__test__/hardware/teensy/avr/libraries/SdFat/src/FsLib \
-    -Isrc/__test__/hardware/teensy/avr/libraries/SdFat/src/iostream \
-    -Isrc/__test__/hardware/teensy/avr/libraries/SdFat/src/SdCard \
-    -Isrc/__test__/hardware/teensy/avr/libraries/SdFat/src/SpiDriver
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SdFat/src/common src/__test__/hardware/teensy/avr/libraries/SdFat/src/ExFatLib src/__test__/hardware/teensy/avr/libraries/SdFat/src/FatLib src/__test__/hardware/teensy/avr/libraries/SdFat/src src/__test__/hardware/teensy/avr/libraries/SdFat/src/FsLib src/__test__/hardware/teensy/avr/libraries/SdFat/src/iostream src/__test__/hardware/teensy/avr/libraries/SdFat/src/SdCard src/__test__/hardware/teensy/avr/libraries/SdFat/src/SpiDriver
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/common/FmtNumber.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/common/FsCache.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/common/FsDateTime.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/common/FsGetPartitionInfo.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/common/FsName.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/common/FsStructs.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/common/FsUtf.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/common/PrintBasic.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/common/upcase.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/ExFatLib/ExFatDbg.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/ExFatLib/ExFatFile.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/ExFatLib/ExFatFilePrint.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/ExFatLib/ExFatFileWrite.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/ExFatLib/ExFatFormatter.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/ExFatLib/ExFatName.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/ExFatLib/ExFatPartition.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/ExFatLib/ExFatVolume.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/ExFatLib/upcase.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FatLib/FatDbg.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FatLib/FatFile.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FatLib/FatFileLFN.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FatLib/FatFilePrint.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FatLib/FatFileSFN.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FatLib/FatFormatter.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FatLib/FatName.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FatLib/FatPartition.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FatLib/FatVolume.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FreeStack.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FsLib/FsFile.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FsLib/FsNew.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FsLib/FsVolume.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/iostream/istream.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/iostream/ostream.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/iostream/StdioStream.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/iostream/StreamBaseClass.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/MinimumSerial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SdCard/SdCardInfo.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SdCard/SdioTeensy.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SdCard/SdSpiCard.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SpiDriver/SdSpiArtemis.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SpiDriver/SdSpiChipSelect.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SpiDriver/SdSpiDue.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SpiDriver/SdSpiESP.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SpiDriver/SdSpiParticle.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SpiDriver/SdSpiSTM32.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SpiDriver/SdSpiSTM32Core.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SpiDriver/SdSpiTeensy3.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/common \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/DigitalIO/boards \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/DigitalIO \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/ExFatLib \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FatLib \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FsLib \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/iostream \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SdCard \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SpiDriver
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/common ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/ExFatLib ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FatLib ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/FsLib ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/iostream ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SdCard ${RUNTIME_PLATFORM_PATH}/libraries/SdFat/src/SpiDriver
 endif
 ifdef LIB_SERIALFLASH
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/SerialFlash/SerialFlashChip.cpp \
-    src/__test__/hardware/teensy/avr/libraries/SerialFlash/SerialFlashDirectory.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SerialFlash
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SerialFlash
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/SerialFlash/SerialFlashChip.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/SerialFlash/SerialFlashDirectory.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/SerialFlash
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/SerialFlash
 endif
 ifdef LIB_SERVO
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Servo/Servo.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Servo
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Servo
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Servo/Servo.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Servo
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Servo
 endif
 ifdef LIB_SHIFTPWM
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ShiftPWM/CShiftPWM.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ShiftPWM
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ShiftPWM
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/ShiftPWM/CShiftPWM.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/ShiftPWM
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/ShiftPWM
 endif
 ifdef LIB_SNOOZE
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32/hal.c \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_35/hal.c \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_36/hal.c \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_40/hal.c \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_LC/hal.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32/SnoozeAlarm.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32/SnoozeAudio.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32/SnoozeCompare.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32/SnoozeDigital.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32/SnoozeSPI.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32/SnoozeTimer.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32/SnoozeTouch.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32/SnoozeUSBSerial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_35/SnoozeAlarm.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_35/SnoozeAudio.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_35/SnoozeCompare.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_35/SnoozeDigital.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_35/SnoozeSPI.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_35/SnoozeTimer.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_35/SnoozeUSBSerial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_36/SnoozeAlarm.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_36/SnoozeAudio.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_36/SnoozeCompare.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_36/SnoozeDigital.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_36/SnoozeSPI.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_36/SnoozeTimer.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_36/SnoozeTouch.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_36/SnoozeUSBSerial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_40/SnoozeAlarm.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_40/SnoozeCompare.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_40/SnoozeDigital.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_40/SnoozeSPI.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_40/SnoozeTimer.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_40/SnoozeUSBSerial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_LC/SnoozeAlarm.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_LC/SnoozeCompare.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_LC/SnoozeDigital.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_LC/Snoozelc5vBuffer.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_LC/SnoozeSPI.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_LC/SnoozeTimer.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_LC/SnoozeTouch.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_LC/SnoozeUSBSerial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/Snooze.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Snooze/src/SnoozeBlock.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_35 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_36 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_40 \
-    -Isrc/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_LC \
-    -Isrc/__test__/hardware/teensy/avr/libraries/Snooze/src
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_32 src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_35 src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_36 src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_40 src/__test__/hardware/teensy/avr/libraries/Snooze/src/hal/TEENSY_LC src/__test__/hardware/teensy/avr/libraries/Snooze/src
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_32/hal.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_35/hal.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_36/hal.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_40/hal.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_LC/hal.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_32/SnoozeAlarm.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_32/SnoozeAudio.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_32/SnoozeCompare.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_32/SnoozeDigital.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_32/SnoozeSPI.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_32/SnoozeTimer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_32/SnoozeTouch.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_32/SnoozeUSBSerial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_35/SnoozeAlarm.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_35/SnoozeAudio.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_35/SnoozeCompare.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_35/SnoozeDigital.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_35/SnoozeSPI.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_35/SnoozeTimer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_35/SnoozeUSBSerial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_36/SnoozeAlarm.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_36/SnoozeAudio.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_36/SnoozeCompare.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_36/SnoozeDigital.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_36/SnoozeSPI.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_36/SnoozeTimer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_36/SnoozeTouch.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_36/SnoozeUSBSerial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_40/SnoozeAlarm.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_40/SnoozeCompare.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_40/SnoozeDigital.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_40/SnoozeSPI.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_40/SnoozeTimer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_40/SnoozeUSBSerial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_LC/SnoozeAlarm.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_LC/SnoozeCompare.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_LC/SnoozeDigital.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_LC/Snoozelc5vBuffer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_LC/SnoozeSPI.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_LC/SnoozeTimer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_LC/SnoozeTouch.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_LC/SnoozeUSBSerial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/Snooze.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/SnoozeBlock.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_32 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_35 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_36 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_40 \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_LC \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_32 ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_35 ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_36 ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_40 ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src/hal/TEENSY_LC ${RUNTIME_PLATFORM_PATH}/libraries/Snooze/src
 endif
 ifdef LIB_SOFTPWM
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/SoftPWM/SoftPWM.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SoftPWM
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SoftPWM
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/SoftPWM/SoftPWM.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/SoftPWM
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/SoftPWM
 endif
 ifdef LIB_SOFTWARESERIAL
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/SoftwareSerial/SoftwareSerial.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SoftwareSerial
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SoftwareSerial
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/SoftwareSerial/SoftwareSerial.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/SoftwareSerial
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/SoftwareSerial
 endif
 ifdef LIB_SPI
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/SPI/SPI.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SPI
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SPI
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/SPI/SPI.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/SPI
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/SPI
 endif
 ifdef LIB_SPIFLASH
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/SPIFlash/SPIFlash.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/SPIFlash
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/SPIFlash
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/SPIFlash/SPIFlash.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/SPIFlash
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/SPIFlash
 endif
 ifdef LIB_TEENSY_SSD1351
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ssd1351/glcdfont.c
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ssd1351
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ssd1351
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/ssd1351/glcdfont.c
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/ssd1351
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/ssd1351
 endif
 ifdef LIB_ST7735_T3
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ST7735_t3/glcdfont.c \
-    src/__test__/hardware/teensy/avr/libraries/ST7735_t3/st7735_t3_font_Arial.c \
-    src/__test__/hardware/teensy/avr/libraries/ST7735_t3/st7735_t3_font_ComicSansMS.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/ST7735_t3/ST7735_t3.cpp \
-    src/__test__/hardware/teensy/avr/libraries/ST7735_t3/ST7789_t3.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/ST7735_t3
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/ST7735_t3
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/ST7735_t3/glcdfont.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/ST7735_t3/st7735_t3_font_Arial.c \
+    ${RUNTIME_PLATFORM_PATH}/libraries/ST7735_t3/st7735_t3_font_ComicSansMS.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/ST7735_t3/ST7735_t3.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/ST7735_t3/ST7789_t3.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/ST7735_t3
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/ST7735_t3
 endif
 ifdef LIB_TALKIE
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Talkie/Talkie.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Talkie
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Talkie
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Talkie/Talkie.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Talkie
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Talkie
 endif
 ifdef LIB_TEENSYTHREADS
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TeensyThreads/TeensyThreads.cpp
-  S_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TeensyThreads/TeensyThreads-asm.S
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TeensyThreads
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TeensyThreads
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/TeensyThreads/TeensyThreads.cpp
+  S_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/TeensyThreads/TeensyThreads-asm.S
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/TeensyThreads
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/TeensyThreads
 endif
 ifdef LIB_TFT_ILI9163C
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TFT_ILI9163C/TFT_ILI9163C.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TFT_ILI9163C
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TFT_ILI9163C
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/TFT_ILI9163C/TFT_ILI9163C.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/TFT_ILI9163C
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/TFT_ILI9163C
 endif
 ifdef LIB_TIME
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Time/DateStrings.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Time/Time.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Time
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Time
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Time/DateStrings.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Time/Time.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Time
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Time
 endif
 ifdef LIB_TIMEALARMS
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TimeAlarms/TimeAlarms.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TimeAlarms
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TimeAlarms
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/TimeAlarms/TimeAlarms.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/TimeAlarms
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/TimeAlarms
 endif
 ifdef LIB_TIMERONE
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TimerOne/TimerOne.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TimerOne
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TimerOne
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/TimerOne/TimerOne.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/TimerOne
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/TimerOne
 endif
 ifdef LIB_TIMERTHREE
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TimerThree/TimerThree.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TimerThree
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TimerThree
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/TimerThree/TimerThree.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/TimerThree
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/TimerThree
 endif
 ifdef LIB_TINYGPS
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TinyGPS/TinyGPS.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TinyGPS
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TinyGPS
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/TinyGPS/TinyGPS.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/TinyGPS
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/TinyGPS
 endif
 ifdef LIB_TLC5940
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Tlc5940/Tlc5940.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Tlc5940
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Tlc5940
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Tlc5940/Tlc5940.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Tlc5940
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Tlc5940
 endif
 ifdef LIB_TOUCHSCREEN
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/TouchScreen/TouchScreen.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/TouchScreen
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/TouchScreen
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/TouchScreen/TouchScreen.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/TouchScreen
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/TouchScreen
 endif
 ifdef LIB_USBHOST_T36
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/USBHost_t36/adk.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/antplus.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/bluetooth.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/digitizer.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/ehci.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/enumeration.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/hid.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/hub.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/joystick.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/keyboard.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/keyboardHIDExtras.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/MassStorageDriver.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/memory.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/midi.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/mouse.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/print.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/rawhid.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/SerEMU.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/serial.cpp \
-    src/__test__/hardware/teensy/avr/libraries/USBHost_t36/USBFilesystemFormatter.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/USBHost_t36
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/USBHost_t36
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/adk.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/antplus.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/bluetooth.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/digitizer.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/ehci.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/enumeration.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/hid.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/hub.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/joystick.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/keyboard.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/keyboardHIDExtras.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/MassStorageDriver.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/memory.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/midi.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/mouse.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/print.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/rawhid.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/SerEMU.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/serial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36/USBFilesystemFormatter.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/USBHost_t36
 endif
 ifdef LIB_UTFT
-  C_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/UTFT/DefaultFonts.c
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/UTFT/UTFT.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/UTFT
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/UTFT
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/UTFT/DefaultFonts.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/UTFT/UTFT.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/UTFT
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/UTFT
 endif
 ifdef LIB_VIRTUALWIRE
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/VirtualWire/VirtualWire.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/VirtualWire
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/VirtualWire
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/VirtualWire/VirtualWire.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/VirtualWire
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/VirtualWire
 endif
 ifdef LIB_WIRE
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/Wire/Wire.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Wire/WireIMXRT.cpp \
-    src/__test__/hardware/teensy/avr/libraries/Wire/WireKinetis.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/Wire
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/Wire
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Wire/Wire.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Wire/WireIMXRT.cpp \
+    ${RUNTIME_PLATFORM_PATH}/libraries/Wire/WireKinetis.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Wire
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Wire
 endif
 ifdef LIB_WS2812SERIAL
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/WS2812Serial/WS2812Serial.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/WS2812Serial
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/WS2812Serial
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/WS2812Serial/WS2812Serial.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/WS2812Serial
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/WS2812Serial
 endif
 ifdef LIB_X10
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/x10/x10.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/x10
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/x10
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/x10/x10.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/x10
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/x10
 endif
 ifdef LIB_XBEE
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/XBee/XBee.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/XBee
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/XBee
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/XBee/XBee.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/XBee
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/XBee
 endif
 ifdef LIB_XPT2046_TOUCHSCREEN
-  CPP_SYS_SRCS+=src/__test__/hardware/teensy/avr/libraries/XPT2046_Touchscreen/XPT2046_Touchscreen.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/teensy/avr/libraries/XPT2046_Touchscreen
-  VPATH_MORE+=src/__test__/hardware/teensy/avr/libraries/XPT2046_Touchscreen
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/XPT2046_Touchscreen/XPT2046_Touchscreen.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/XPT2046_Touchscreen
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/XPT2046_Touchscreen
 endif
 ifdef LIB_ADAFRUIT_CIRCUIT_PLAYGROUND
   CPP_SYS_SRCS+=src/__test__/libraries/Adafruit_Circuit_Playground/Adafruit_CircuitPlayground.cpp

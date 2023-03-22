@@ -8,7 +8,10 @@ import { MakeAppend, MakeIfdef, MakeSrcList, MakifyName } from './gmUtils.js';
 // https://arduino.github.io/arduino-cli/library-specification/
 
 // TODO: Move to Make
-export function GetLibDefs({ files, props }: Library): Definition[] {
+export function GetLibDefs(
+  { files, props }: Library,
+  pfx: (str: string) => string,
+): Definition[] {
   const { c, cpp, s, paths, inc, a } = files;
   const libDefName = 'LIB_' + MakifyName(props.name);
   const libCond = MakeIfdef(libDefName);
@@ -24,20 +27,20 @@ export function GetLibDefs({ files, props }: Library): Definition[] {
   */
   const defs: Definition[] = [];
   if (c.length) {
-    defs.push(MakeSrcList('C_SYS_SRCS', c, [], [libCond]));
+    defs.push(MakeSrcList('C_SYS_SRCS', c, [], [libCond], pfx));
   }
   if (cpp.length) {
-    defs.push(MakeSrcList('CPP_SYS_SRCS', cpp, [], [libCond]));
+    defs.push(MakeSrcList('CPP_SYS_SRCS', cpp, [], [libCond], pfx));
   }
   if (s.length) {
-    defs.push(MakeSrcList('S_SYS_SRCS', s, [], [libCond]));
+    defs.push(MakeSrcList('S_SYS_SRCS', s, [], [libCond], pfx));
   }
-  defs.push(MakeSrcList('SYS_INCLUDES', inc, [], [libCond]));
+  defs.push(MakeSrcList('SYS_INCLUDES', inc, [], [libCond], pfx, '-I'));
   if (paths.length > 0) {
     defs.push(
       MakeAppend(
         'VPATH_MORE',
-        paths.map(QuoteIfNeeded).join(' '),
+        paths.map(pfx).map(QuoteIfNeeded).join(' '),
         [],
         [libCond],
       ),
@@ -49,7 +52,12 @@ export function GetLibDefs({ files, props }: Library): Definition[] {
   if (libpaths.size > 0) {
     [...libpaths].forEach((val) =>
       defs.push(
-        MakeAppend('COMPILER_LIBRARIES_LDFLAGS', '-L' + val, [], [libCond]),
+        MakeAppend(
+          'COMPILER_LIBRARIES_LDFLAGS',
+          '-L' + pfx(val),
+          [],
+          [libCond],
+        ),
       ),
     );
   }

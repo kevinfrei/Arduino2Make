@@ -375,11 +375,24 @@ function getTimeUtc(tzAdjust?: boolean, dstAdjust?: boolean): () => string {
 }
 
 function emitPlatform(
-  platformPath: string,
+  initial: Definition[],
   boardDefined: Definition[],
   platDefs: Definition[],
   rules: GnuMakeRecipe[],
 ): void {
+  // Make definitions dependent on their condition values, so that I can
+  // put errors in place when mandatory symbols aren't defined before inclusion
+  const { checks, defs } = CalculateChecksAndOrderDefinitions(
+    [...initial, ...boardDefined, ...platDefs],
+    rules,
+    optionalDefs,
+  );
+  emitChecks(checks);
+  emitDefs(defs);
+  emitRules(rules);
+}
+
+function makeInitialDefs(platformPath: string) {
   const isWin = MakeIfeq('$(OS)', 'Windows_NT');
   const notWin = MakeIfneq('$(OS)', 'Windows_NT');
   const isMac = MakeIfeq('$(uname)', 'Darwin');
@@ -396,17 +409,7 @@ function emitPlatform(
     MakeDeclDef('RUNTIME_IDE_VERSION', '10819'),
     MakeDeclDef('IDE_VERSION', '10819'),
   ];
-
-  // Make definitions dependent on their condition values, so that I can
-  // put errors in place when mandatory symbols aren't defined before inclusion
-  const { checks, defs } = CalculateChecksAndOrderDefinitions(
-    [...initial, ...boardDefined, ...platDefs],
-    rules,
-    optionalDefs,
-  );
-  emitChecks(checks);
-  emitDefs(defs);
-  emitRules(rules);
+  return initial;
 }
 
 async function emit(
@@ -416,16 +419,17 @@ async function emit(
   libraries: Library[],
 ): Promise<void> {
   const boardDefined = GenBoardDefs(boards);
-
+  const initial = makeInitialDefs(platformPath);
   // TODO: Don't have recipes & tools fully handled in the platform yet
   const { defs: platDefs, rules } = await BuildPlatform(
+    initial,
     boardDefined,
     platSyms,
     path.dirname(platformPath),
     libraries,
   );
 
-  emitPlatform(platformPath, boardDefined, platDefs, rules);
+  emitPlatform(initial, boardDefined, platDefs, rules);
 }
 
 function expandName(nm: string): { name: string; expansion: string } {

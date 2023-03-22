@@ -13,6 +13,7 @@ import type {
 } from '../types.js';
 import { GetPlainValue, QuoteIfNeeded, Unquote } from '../utils.js';
 import { GetLibDefs } from './gmLibs.js';
+import { MakePrefixer } from './gmPrefixer.js';
 import {
   MakeAppend,
   MakeDeclDef,
@@ -193,6 +194,7 @@ function makeRecipes(recipes: SimpleSymbol): GnuMakeRecipe[] {
 // Makefile code.
 // It also returns the set of probably defined values generated from this code
 export async function BuildPlatform(
+  initialDefs: Definition[],
   boardDefs: Definition[],
   platform: ParsedFile,
   rootpath: string,
@@ -349,6 +351,14 @@ export async function BuildPlatform(
   );
 
   const fileDefs: Definition[] = [];
+  // Make a 'Prefixer' to replace paths with variables when possible
+  const pfx = MakePrefixer([
+    [
+      initialDefs.find((val) => val.name === 'RUNTIME_PLATFORM_PATH')?.value ||
+        '!@#$',
+      '${RUNTIME_PLATFORM_PATH}',
+    ],
+  ]);
   // Get the full file list & include path for each core & variant
   for (const core of cores) {
     const { c, cpp, s, paths } = await GetFileList(
@@ -356,22 +366,22 @@ export async function BuildPlatform(
     );
     const cnd = [MakeIfeq('${BUILD_CORE}', core)];
     if (c.length) {
-      fileDefs.push(MakeSrcList('C_SYS_SRCS', c, 'BUILD_CORE', cnd));
+      fileDefs.push(MakeSrcList('C_SYS_SRCS', c, 'BUILD_CORE', cnd, pfx));
     }
     if (cpp.length) {
-      fileDefs.push(MakeSrcList('CPP_SYS_SRCS', cpp, 'BUILD_CORE', cnd));
+      fileDefs.push(MakeSrcList('CPP_SYS_SRCS', cpp, 'BUILD_CORE', cnd, pfx));
     }
     if (s.length) {
-      fileDefs.push(MakeSrcList('S_SYS_SRCS', s, 'BUILD_CORE', cnd));
+      fileDefs.push(MakeSrcList('S_SYS_SRCS', s, 'BUILD_CORE', cnd, pfx));
     }
     fileDefs.push(
       MakeAppend(
         'SYS_INCLUDES',
         ' ' +
           QuoteIfNeeded(
-            `-I${path
-              .join(Unquote(rootpath), 'cores', core)
-              .replaceAll('\\', '/')}`,
+            `-I${pfx(
+              path.join(Unquote(rootpath), 'cores', core).replaceAll('\\', '/'),
+            )}`,
           ),
         ['BUILD_CORE'],
         cnd,
@@ -381,14 +391,10 @@ export async function BuildPlatform(
 
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
-    fileDefs.push(
-      MakeAppend(
-        'VPATH_CORE',
-        paths.map(QuoteIfNeeded).join(' '),
-        ['BUILD_CORE'],
-        cnd,
-      ),
-    );
+    const moreVpath = paths.map(QuoteIfNeeded).map(pfx).join(' ');
+    if (moreVpath.length > 0) {
+      fileDefs.push(MakeAppend('VPATH_CORE', moreVpath, ['BUILD_CORE'], cnd));
+    }
   }
   for (const vrn of variants) {
     const { c, cpp, s, paths, inc } = await GetFileList(
@@ -396,28 +402,30 @@ export async function BuildPlatform(
     );
     const cnd = [MakeIfeq('${BUILD_VARIANT}', vrn)];
     if (c.length) {
-      fileDefs.push(MakeSrcList('C_SYS_SRCS', c, 'BUILD_VARIANT', cnd));
+      fileDefs.push(MakeSrcList('C_SYS_SRCS', c, 'BUILD_VARIANT', cnd, pfx));
     }
     if (cpp.length) {
-      fileDefs.push(MakeSrcList('CPP_SYS_SRCS', cpp, 'BUILD_VARIANT', cnd));
+      fileDefs.push(
+        MakeSrcList('CPP_SYS_SRCS', cpp, 'BUILD_VARIANT', cnd, pfx),
+      );
     }
     if (s.length) {
-      fileDefs.push(MakeSrcList('S_SYS_SRCS', s, 'BUILD_VARIANT', cnd));
+      fileDefs.push(MakeSrcList('S_SYS_SRCS', s, 'BUILD_VARIANT', cnd, pfx));
     }
-    fileDefs.push(MakeSrcList('SYS_INCLUDES', inc, 'BUILD_VARIANT', cnd));
+    fileDefs.push(
+      MakeSrcList('SYS_INCLUDES', inc, 'BUILD_VARIANT', cnd, pfx, '-I'),
+    );
     // I need to decide: VPATH or multiple rules!
     // VPATH is easier, so for now let's do that
-    fileDefs.push(
-      MakeAppend(
-        'VPATH_CORE',
-        paths.map(QuoteIfNeeded).join(' '),
-        ['BUILD_VARIANT'],
-        cnd,
-      ),
-    );
+    const moreVpath = paths.map(QuoteIfNeeded).map(pfx).join(' ');
+    if (moreVpath.length > 0) {
+      fileDefs.push(
+        MakeAppend('VPATH_CORE', moreVpath, ['BUILD_VARIANT'], cnd),
+      );
+    }
   }
   libs.forEach((val: Library) => {
-    fileDefs.push(...GetLibDefs(val));
+    fileDefs.push(...GetLibDefs(val, pfx));
   });
 
   const sycSrcVal = '${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}';

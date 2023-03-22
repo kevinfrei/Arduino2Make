@@ -1,3 +1,4 @@
+import { Type } from '@freik/core-utils';
 import { Filter } from '../config.js';
 import {
   Condition,
@@ -9,6 +10,7 @@ import {
 
 // Utilities for doing Makefile stuff
 
+// ifeq (VAR, value)
 export function MakeIfeq(variable: string, value: string): Condition {
   return {
     op: 'eq',
@@ -17,6 +19,7 @@ export function MakeIfeq(variable: string, value: string): Condition {
   };
 }
 
+// ifneq (VAR, value)
 export function MakeIfneq(variable: string, value: string): Condition {
   return {
     op: 'neq',
@@ -25,6 +28,7 @@ export function MakeIfneq(variable: string, value: string): Condition {
   };
 }
 
+// ifdef VAR
 export function MakeIfdef(variable: string): Condition {
   return {
     op: 'def',
@@ -32,6 +36,7 @@ export function MakeIfdef(variable: string): Condition {
   };
 }
 
+// ifndef VAR
 export function MakeIfndef(variable: string): Condition {
   return {
     op: 'ndef',
@@ -39,6 +44,7 @@ export function MakeIfndef(variable: string): Condition {
   };
 }
 
+// if variable
 export function MakeIf(variable: string): Condition {
   return { op: 'raw', variable };
 }
@@ -142,16 +148,44 @@ export function MakeDeclDef(
   };
 }
 
+export function prefixAndJoinFiles(
+  filteredFiles: string[],
+  prefixer?: (str: string) => string,
+  trimmer?: string,
+): string {
+  if (!Type.isUndefined(prefixer)) {
+    if (Type.isUndefined(trimmer)) {
+      filteredFiles = filteredFiles.map(prefixer);
+    } else {
+      const reAdd = new Set<number>();
+      filteredFiles = filteredFiles
+        .map((val, index) => {
+          if (val.startsWith(trimmer)) {
+            reAdd.add(index);
+            return val.substring(trimmer.length);
+          }
+          return val;
+        })
+        .map(prefixer)
+        .map((val, index) => (reAdd.has(index) ? trimmer + val : val));
+    }
+  }
+  return filteredFiles.join(' \\\n    ');
+}
+
 export function MakeSrcList(
   name: string,
   files: string[],
   depend: string | string[],
   cnd: Condition[],
+  prefixer?: (str: string) => string,
+  trimmer?: string,
 ): Definition {
+  // Filter out user-specified files to remove...
   const filteredFiles = Filter(name, files);
   return MakeAppend(
     name,
-    filteredFiles.join(' \\\n    '),
+    prefixAndJoinFiles(filteredFiles, prefixer, trimmer),
     typeof depend === 'string' ? [depend] : depend,
     cnd,
   );

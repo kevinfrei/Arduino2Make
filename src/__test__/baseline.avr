@@ -922,92 +922,81 @@ ifeq (${UPLOAD_TOOL}, avrdude_remote)
   UPLOAD_PATTERN=/usr/bin/run-avrdude /tmp/sketch.hex ${UPLOAD_VERBOSE} -p${BUILD_MCU}
 endif
 ifeq (${BUILD_CORE}, arduino)
-  C_SYS_SRCS+=src/__test__/hardware/arduino/avr/cores/arduino/hooks.c \
-    src/__test__/hardware/arduino/avr/cores/arduino/WInterrupts.c \
-    src/__test__/hardware/arduino/avr/cores/arduino/wiring.c \
-    src/__test__/hardware/arduino/avr/cores/arduino/wiring_analog.c \
-    src/__test__/hardware/arduino/avr/cores/arduino/wiring_digital.c \
-    src/__test__/hardware/arduino/avr/cores/arduino/wiring_pulse.c \
-    src/__test__/hardware/arduino/avr/cores/arduino/wiring_shift.c
-  CPP_SYS_SRCS+=src/__test__/hardware/arduino/avr/cores/arduino/abi.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/CDC.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/HardwareSerial.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/HardwareSerial0.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/HardwareSerial1.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/HardwareSerial2.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/HardwareSerial3.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/IPAddress.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/main.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/new.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/PluggableUSB.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/Print.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/Stream.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/Tone.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/USBCore.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/WMath.cpp \
-    src/__test__/hardware/arduino/avr/cores/arduino/WString.cpp
-  S_SYS_SRCS+=src/__test__/hardware/arduino/avr/cores/arduino/wiring_pulse.S
-  SYS_INCLUDES+= -Isrc/__test__/hardware/arduino/avr/cores/arduino
-  VPATH_CORE+=src/__test__/hardware/arduino/avr/cores/arduino
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/cores/arduino/hooks.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/WInterrupts.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/wiring.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/wiring_analog.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/wiring_digital.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/wiring_pulse.c \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/wiring_shift.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/cores/arduino/abi.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/CDC.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/HardwareSerial.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/HardwareSerial0.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/HardwareSerial1.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/HardwareSerial2.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/HardwareSerial3.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/IPAddress.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/main.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/new.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/PluggableUSB.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/Print.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/Stream.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/Tone.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/USBCore.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/WMath.cpp \
+    ${RUNTIME_PLATFORM_PATH}/cores/arduino/WString.cpp
+  S_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/cores/arduino/wiring_pulse.S
+  SYS_INCLUDES+= -I${RUNTIME_PLATFORM_PATH}/cores/arduino
+  VPATH_CORE+=${RUNTIME_PLATFORM_PATH}/cores/arduino
 endif
 ifeq (${BUILD_VARIANT}, yun)
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/yun
-  VPATH_CORE+=
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/variants/yun
 else ifeq (${BUILD_VARIANT}, standard)
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/standard
-  VPATH_CORE+=
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/variants/standard
 else ifeq (${BUILD_VARIANT}, eightanaloginputs)
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/eightanaloginputs
-  VPATH_CORE+=
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/variants/eightanaloginputs
 else ifeq (${BUILD_VARIANT}, mega)
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/mega
-  VPATH_CORE+=
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/variants/mega
 else ifeq (${BUILD_VARIANT}, leonardo)
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/leonardo
-  VPATH_CORE+=
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/variants/leonardo
 else ifeq (${BUILD_VARIANT}, micro)
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/micro
-  VPATH_CORE+=
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/variants/micro
 else ifeq (${BUILD_VARIANT}, ethernet)
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/ethernet
-  VPATH_CORE+=
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/variants/ethernet
 else ifeq (${BUILD_VARIANT}, robot_control)
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/robot_control
-  VPATH_CORE+=
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/variants/robot_control
 else ifeq (${BUILD_VARIANT}, robot_motor)
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/robot_motor
-  VPATH_CORE+=
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/variants/robot_motor
 else ifeq (${BUILD_VARIANT}, gemma)
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/gemma
-  VPATH_CORE+=
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/variants/gemma
 else ifeq (${BUILD_VARIANT}, circuitplay32u4)
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/variants/circuitplay32u4
-  VPATH_CORE+=
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/variants/circuitplay32u4
 endif
 ifdef LIB_EEPROM
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/EEPROM/src
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/EEPROM/src
 endif
 ifdef LIB_HID
-  CPP_SYS_SRCS+=src/__test__/hardware/arduino/avr/libraries/HID/src/HID.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/HID/src
-  VPATH_MORE+=src/__test__/hardware/arduino/avr/libraries/HID/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/HID/src/HID.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/HID/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/HID/src
 endif
 ifdef LIB_SOFTWARESERIAL
-  CPP_SYS_SRCS+=src/__test__/hardware/arduino/avr/libraries/SoftwareSerial/src/SoftwareSerial.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/SoftwareSerial/src
-  VPATH_MORE+=src/__test__/hardware/arduino/avr/libraries/SoftwareSerial/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/SoftwareSerial/src/SoftwareSerial.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/SoftwareSerial/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/SoftwareSerial/src
 endif
 ifdef LIB_SPI
-  CPP_SYS_SRCS+=src/__test__/hardware/arduino/avr/libraries/SPI/src/SPI.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/SPI/src
-  VPATH_MORE+=src/__test__/hardware/arduino/avr/libraries/SPI/src
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/SPI/src/SPI.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/SPI/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/SPI/src
 endif
 ifdef LIB_WIRE
-  C_SYS_SRCS+=src/__test__/hardware/arduino/avr/libraries/Wire/src/utility/twi.c
-  CPP_SYS_SRCS+=src/__test__/hardware/arduino/avr/libraries/Wire/src/Wire.cpp
-  SYS_INCLUDES+=-Isrc/__test__/hardware/arduino/avr/libraries/Wire/src/utility \
-    -Isrc/__test__/hardware/arduino/avr/libraries/Wire/src
-  VPATH_MORE+=src/__test__/hardware/arduino/avr/libraries/Wire/src/utility src/__test__/hardware/arduino/avr/libraries/Wire/src
+  C_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Wire/src/utility/twi.c
+  CPP_SYS_SRCS+=${RUNTIME_PLATFORM_PATH}/libraries/Wire/src/Wire.cpp
+  SYS_INCLUDES+=-I${RUNTIME_PLATFORM_PATH}/libraries/Wire/src/utility \
+    -I${RUNTIME_PLATFORM_PATH}/libraries/Wire/src
+  VPATH_MORE+=${RUNTIME_PLATFORM_PATH}/libraries/Wire/src/utility ${RUNTIME_PLATFORM_PATH}/libraries/Wire/src
 endif
 SYS_SRC=${C_SYS_SRCS} ${CPP_SYS_SRCS} ${S_SYS_SRCS}
 USER_SRC=${USER_C_SRCS} ${USER_CPP_SRCS} ${USER_S_SRCS}
