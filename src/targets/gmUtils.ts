@@ -151,9 +151,24 @@ export function MakeDeclDef(
 export function prefixAndJoinFiles(
   filteredFiles: string[],
   prefixer?: (str: string) => string,
+  trimmer?: string,
 ): string {
   if (!Type.isUndefined(prefixer)) {
-    filteredFiles = filteredFiles.map(prefixer);
+    if (Type.isUndefined(trimmer)) {
+      filteredFiles = filteredFiles.map(prefixer);
+    } else {
+      const reAdd = new Set<number>();
+      filteredFiles = filteredFiles
+        .map((val, index) => {
+          if (val.startsWith(trimmer)) {
+            reAdd.add(index);
+            return val.substring(trimmer.length);
+          }
+          return val;
+        })
+        .map(prefixer)
+        .map((val, index) => (reAdd.has(index) ? trimmer + val : val));
+    }
   }
   return filteredFiles.join(' \\\n    ');
 }
@@ -164,12 +179,13 @@ export function MakeSrcList(
   depend: string | string[],
   cnd: Condition[],
   prefixer?: (str: string) => string,
+  trimmer?: string,
 ): Definition {
   // Filter out user-specified files to remove...
   const filteredFiles = Filter(name, files);
   return MakeAppend(
     name,
-    prefixAndJoinFiles(filteredFiles, prefixer),
+    prefixAndJoinFiles(filteredFiles, prefixer, trimmer),
     typeof depend === 'string' ? [depend] : depend,
     cnd,
   );
