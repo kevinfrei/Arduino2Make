@@ -185,11 +185,6 @@ function emitDefs(defs: Definition[]) {
   closeConditions(prevCond.length - 1, prevCond.length);
 }
 
-// This is currently more art than science :/
-function slashify(str: string): string {
-  return str.replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"').replace(/'/g, '');
-}
-
 function emitRules(rules: GnuMakeRecipe[]) {
   // Check to see what our flash target depends on
   // TODO: Not sure what to do if we have multiple flash targets :/
