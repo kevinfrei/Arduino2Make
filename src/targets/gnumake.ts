@@ -234,7 +234,7 @@ else
 endif
 
 # Now, on to the actual rules`);
-  // const jsonFiles: string[] = [];
+  // const jsnFiles: string[] = [];
   rules.forEach((rule: GnuMakeRecipe) => {
     Dump()('');
     if (rule.dst === 'o') {
@@ -242,22 +242,11 @@ endif
       const sfx = rule.src.toUpperCase();
       const cmd = tryToAddUserExtraFlag(sfx, '"$<"', rule.command);
       Dump()(`\t${cmd}\n`);
-      // Also, let's make the .json compile_commands target
-      Dump()(`$\{BUILD_PATH\}/%.${rule.src}.json : %.${rule.src}`);
-      Dump()('ifeq ($(RUNTIME_OS),windows)');
-      // Windows Specific for loop and echo here
-      Dump()(
-        '\t@echo { \\"directory\\":\\"$(<D)\\", \\"file\\":\\"$(<F)\\", \\"command\\": > $@',
-      );
-      Dump()(`\t@echo "${cmd.replaceAll('"', '\\"')}" >> $@`);
-      Dump()('\t@echo }, >> $@');
-      Dump()('else');
-      // *nix Shell for loop/echo here
-      Dump()(
-        '\t@echo "{ \\"directory\\": \\"$(<D)\\",\\"file\\":\\"$(<F)\\"," > $@',
-      );
-      Dump()('\t@echo "\\"command\\":\\"' + slashify(cmd) + '\\"}," >> $@');
-      Dump()('endif');
+      // Also, let's make the .jsn compile_commands target
+      Dump()(`$\{BUILD_PATH\}/%.${rule.src}.jsn : %.${rule.src}`);
+      Dump()('\t$(file >$@,dir#$(<D))');
+      Dump()('\t$(file >>$@,fil#$(<F))');
+      Dump()(`\t$(file >>$@,cmd#${cmd})`);
     } else if (rule.dst === 'a') {
       Dump()('${BUILD_PATH}/system.a : ${SYS_OBJS}');
       const cmd = tryToAddUserExtraFlag('AR', 'rcs "$@"', rule.command);
@@ -280,19 +269,10 @@ endif
     }
   });
   Dump()(`\n
-$\{BUILD_PATH}/compile_commands.json: $\{USER_JSON} $\{SYS_JSON}
-ifeq ($(RUNTIME_OS),windows)
-\t@echo [ > $@
-\t@sed -e "s/ / /" $^ >> $@
-\t@echo {}] >> $@
-else
-\t@echo "[" > $@.tmp
-\t@cat $^ >> $@.tmp
-\t@echo "]" >> $@.tmp
-\t@sed -e ':a' -e 'N' -e '$$!ba' -e 's/},\\n]/}]/g' $@.tmp > $@
-endif
+$\{BUILD_PATH}/compile_commands.jsn: $\{USER_JSN} $\{SYS_JSN}
+\t@cat $\{USER_JSN} $\{SYS_JSN} > $@
 
-compile_commands: $\{BUILD_PATH} $\{BUILD_PATH}/compile_commands.json`);
+compile_commands: $\{BUILD_PATH} $\{BUILD_PATH}/compile_commands.jsn`);
 }
 function tryToAddUserExtraFlag(sfx: string, srch: string, cmd: string) {
   const flg = `$\{COMPILER_${sfx}_EXTRA_FLAGS\} `;

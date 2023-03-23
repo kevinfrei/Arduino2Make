@@ -457,8 +457,8 @@ export async function BuildPlatform(
   fileDefs.push(mkObjList('SYS_OBJS', 'SYS_SRC', 'o'));
   fileDefs.push(mkObjList('USER_OBJS', 'USER_SRC', 'o'));
   fileDefs.push(MakeDeclDef('ALL_OBJS', '${USER_OBJS} ${SYS_OBJS}'));
-  fileDefs.push(mkObjList('SYS_JSON', 'SYS_SRC', 'json'));
-  fileDefs.push(mkObjList('USER_JSON', 'USER_SRC', 'json'));
+  fileDefs.push(mkObjList('SYS_JSN', 'SYS_SRC', 'jsn'));
+  fileDefs.push(mkObjList('USER_JSN', 'USER_SRC', 'jsn'));
   // ALL_OBJS = \
   // $(addprefix ${M_OUT}/, $(patsubst %.cpp, %.cpp.o, $(notdir ${TUSB_SRCS})))
 
