@@ -3132,7 +3132,7 @@ flash: ${BUILD_PATH}/${PROJ_NAME}.flash
 
 # And finally, create the directory
 ${BUILD_PATH}:
-ifeq ($(OS),Windows_NT)
+ifeq ($(RUNTIME_OS),windows)
 	-@mkdir "$@"
 else
 	@test -d "$@" || mkdir -p "$@"
@@ -3144,8 +3144,8 @@ ${BUILD_PATH}/%.S.o : %.S
 	"${COMPILER_PATH}${BUILD_TOOLCHAIN}${BUILD_COMMAND_GCC}" -c ${BUILD_FLAGS_OPTIMIZE} ${BUILD_FLAGS_COMMON} ${BUILD_FLAGS_DEP} ${BUILD_FLAGS_S} ${BUILD_FLAGS_CPU} ${BUILD_FLAGS_DEFS} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DF_CPU=${BUILD_FCPU} -D${BUILD_USBTYPE} -DLAYOUT_${BUILD_KEYLAYOUT} ${SYS_INCLUDES} ${USER_INCLUDES} ${COMPILER_S_EXTRA_FLAGS} "$<" -o "$@"
 
 ${BUILD_PATH}/%.S.json : %.S
-ifeq ($(OS),Windows_NT)
-	@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@
+ifeq ($(RUNTIME_OS),windows)
+	@echo { \"directory\":\"$(<D)\", \"file\":\"$(<F)\", \"command\": > $@
 	@echo "\"${COMPILER_PATH}${BUILD_TOOLCHAIN}${BUILD_COMMAND_GCC}\" -c ${BUILD_FLAGS_OPTIMIZE} ${BUILD_FLAGS_COMMON} ${BUILD_FLAGS_DEP} ${BUILD_FLAGS_S} ${BUILD_FLAGS_CPU} ${BUILD_FLAGS_DEFS} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DF_CPU=${BUILD_FCPU} -D${BUILD_USBTYPE} -DLAYOUT_${BUILD_KEYLAYOUT} ${SYS_INCLUDES} ${USER_INCLUDES} ${COMPILER_S_EXTRA_FLAGS} \"$<\" -o \"$@\"" >> $@
 	@echo }, >> $@
 else
@@ -3157,8 +3157,8 @@ ${BUILD_PATH}/%.c.o : %.c
 	"${COMPILER_PATH}${BUILD_TOOLCHAIN}${BUILD_COMMAND_GCC}" -c ${BUILD_FLAGS_OPTIMIZE} ${BUILD_FLAGS_COMMON} ${BUILD_FLAGS_DEP} ${BUILD_FLAGS_C} ${BUILD_FLAGS_CPU} ${BUILD_FLAGS_DEFS} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DF_CPU=${BUILD_FCPU} -D${BUILD_USBTYPE} -DLAYOUT_${BUILD_KEYLAYOUT} ${SYS_INCLUDES} ${USER_INCLUDES} ${COMPILER_C_EXTRA_FLAGS} "$<" -o "$@"
 
 ${BUILD_PATH}/%.c.json : %.c
-ifeq ($(OS),Windows_NT)
-	@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@
+ifeq ($(RUNTIME_OS),windows)
+	@echo { \"directory\":\"$(<D)\", \"file\":\"$(<F)\", \"command\": > $@
 	@echo "\"${COMPILER_PATH}${BUILD_TOOLCHAIN}${BUILD_COMMAND_GCC}\" -c ${BUILD_FLAGS_OPTIMIZE} ${BUILD_FLAGS_COMMON} ${BUILD_FLAGS_DEP} ${BUILD_FLAGS_C} ${BUILD_FLAGS_CPU} ${BUILD_FLAGS_DEFS} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DF_CPU=${BUILD_FCPU} -D${BUILD_USBTYPE} -DLAYOUT_${BUILD_KEYLAYOUT} ${SYS_INCLUDES} ${USER_INCLUDES} ${COMPILER_C_EXTRA_FLAGS} \"$<\" -o \"$@\"" >> $@
 	@echo }, >> $@
 else
@@ -3170,8 +3170,8 @@ ${BUILD_PATH}/%.ino.o : %.ino
 	"${COMPILER_PATH}${BUILD_TOOLCHAIN}${BUILD_COMMAND_G__}" -c ${BUILD_FLAGS_OPTIMIZE} ${BUILD_FLAGS_COMMON} ${BUILD_FLAGS_DEP} ${BUILD_FLAGS_CPP} ${BUILD_FLAGS_CPU} ${BUILD_FLAGS_DEFS} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DF_CPU=${BUILD_FCPU} -D${BUILD_USBTYPE} -DLAYOUT_${BUILD_KEYLAYOUT} "-I${BUILD_PATH}/pch" ${SYS_INCLUDES} ${USER_INCLUDES} -x c++ ${COMPILER_INO_EXTRA_FLAGS} "$<" -o "$@"
 
 ${BUILD_PATH}/%.ino.json : %.ino
-ifeq ($(OS),Windows_NT)
-	@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@
+ifeq ($(RUNTIME_OS),windows)
+	@echo { \"directory\":\"$(<D)\", \"file\":\"$(<F)\", \"command\": > $@
 	@echo "\"${COMPILER_PATH}${BUILD_TOOLCHAIN}${BUILD_COMMAND_G__}\" -c ${BUILD_FLAGS_OPTIMIZE} ${BUILD_FLAGS_COMMON} ${BUILD_FLAGS_DEP} ${BUILD_FLAGS_CPP} ${BUILD_FLAGS_CPU} ${BUILD_FLAGS_DEFS} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DF_CPU=${BUILD_FCPU} -D${BUILD_USBTYPE} -DLAYOUT_${BUILD_KEYLAYOUT} \"-I${BUILD_PATH}/pch\" ${SYS_INCLUDES} ${USER_INCLUDES} -x c++ ${COMPILER_INO_EXTRA_FLAGS} \"$<\" -o \"$@\"" >> $@
 	@echo }, >> $@
 else
@@ -3183,8 +3183,8 @@ ${BUILD_PATH}/%.cpp.o : %.cpp
 	"${COMPILER_PATH}${BUILD_TOOLCHAIN}${BUILD_COMMAND_G__}" -c ${BUILD_FLAGS_OPTIMIZE} ${BUILD_FLAGS_COMMON} ${BUILD_FLAGS_DEP} ${BUILD_FLAGS_CPP} ${BUILD_FLAGS_CPU} ${BUILD_FLAGS_DEFS} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DF_CPU=${BUILD_FCPU} -D${BUILD_USBTYPE} -DLAYOUT_${BUILD_KEYLAYOUT} "-I${BUILD_PATH}/pch" ${SYS_INCLUDES} ${USER_INCLUDES} ${COMPILER_CPP_EXTRA_FLAGS} "$<" -o "$@"
 
 ${BUILD_PATH}/%.cpp.json : %.cpp
-ifeq ($(OS),Windows_NT)
-	@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@
+ifeq ($(RUNTIME_OS),windows)
+	@echo { \"directory\":\"$(<D)\", \"file\":\"$(<F)\", \"command\": > $@
 	@echo "\"${COMPILER_PATH}${BUILD_TOOLCHAIN}${BUILD_COMMAND_G__}\" -c ${BUILD_FLAGS_OPTIMIZE} ${BUILD_FLAGS_COMMON} ${BUILD_FLAGS_DEP} ${BUILD_FLAGS_CPP} ${BUILD_FLAGS_CPU} ${BUILD_FLAGS_DEFS} -DARDUINO=${RUNTIME_IDE_VERSION} -DARDUINO_${BUILD_BOARD} -DF_CPU=${BUILD_FCPU} -D${BUILD_USBTYPE} -DLAYOUT_${BUILD_KEYLAYOUT} \"-I${BUILD_PATH}/pch\" ${SYS_INCLUDES} ${USER_INCLUDES} ${COMPILER_CPP_EXTRA_FLAGS} \"$<\" -o \"$@\"" >> $@
 	@echo }, >> $@
 else
@@ -3208,7 +3208,7 @@ ${BUILD_PATH}/${BUILD_PROJECT_NAME}.flash : ${BUILD_PATH}/${BUILD_PROJECT_NAME}.
 
 
 ${BUILD_PATH}/compile_commands.json: ${USER_JSON} ${SYS_JSON}
-ifeq ($(OS),Windows_NT)
+ifeq ($(RUNTIME_OS),windows)
 	@echo [ > $@
 	@sed -e "s/ / /" $^ >> $@
 	@echo {}] >> $@

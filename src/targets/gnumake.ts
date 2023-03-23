@@ -227,7 +227,7 @@ flash: $\{BUILD_PATH\}/$\{PROJ_NAME\}.flash
 
 # And finally, create the directory
 $\{BUILD_PATH\}:
-ifeq ($(OS),Windows_NT)
+ifeq ($(RUNTIME_OS),windows)
 \t-@mkdir "$@"
 else
 \t@test -d "$@" || mkdir -p "$@"
@@ -244,9 +244,11 @@ endif
       Dump()(`\t${cmd}\n`);
       // Also, let's make the .json compile_commands target
       Dump()(`$\{BUILD_PATH\}/%.${rule.src}.json : %.${rule.src}`);
-      Dump()('ifeq ($(OS),Windows_NT)');
+      Dump()('ifeq ($(RUNTIME_OS),windows)');
       // Windows Specific for loop and echo here
-      Dump()('\t@echo { "directory":"$(<D)", "file":"$(<F)", "command": > $@');
+      Dump()(
+        '\t@echo { \\"directory\\":\\"$(<D)\\", \\"file\\":\\"$(<F)\\", \\"command\\": > $@',
+      );
       Dump()(`\t@echo "${cmd.replaceAll('"', '\\"')}" >> $@`);
       Dump()('\t@echo }, >> $@');
       Dump()('else');
@@ -279,7 +281,7 @@ endif
   });
   Dump()(`\n
 $\{BUILD_PATH}/compile_commands.json: $\{USER_JSON} $\{SYS_JSON}
-ifeq ($(OS),Windows_NT)
+ifeq ($(RUNTIME_OS),windows)
 \t@echo [ > $@
 \t@sed -e "s/ / /" $^ >> $@
 \t@echo {}] >> $@
