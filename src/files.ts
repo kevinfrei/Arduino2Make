@@ -1,8 +1,16 @@
-import { pathCompare } from '@freik/node-utils';
 import { promises as fsp } from 'fs';
 import * as path from 'path';
 import { Files } from './types.js';
 import { QuoteIfNeeded, Unquote } from './utils.js';
+
+function pathCompare(a: string | null, b: string | null): number {
+  if (a === null) return b !== null ? 1 : 0;
+  if (b === null) return -1;
+  const m = a.toLocaleUpperCase();
+  const n = b.toLocaleUpperCase();
+  // Don't use localeCompare: it will make some things equal that aren't *quite*
+  return (m > n ? 1 : 0) - (m < n ? 1 : 0);
+}
 
 // Use this to keep things in a predictable order...
 export async function ReadDir(root: string): Promise<string[]> {
