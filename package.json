@@ -1,6 +1,6 @@
 {
   "name": "@freik/arduino2proj",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "Arduino platform and library to Makefile conversion tool",
   "type": "module",
   "module": "./lib/main.js",
@@ -15,7 +15,7 @@
     "postinstall": "husky install",
     "prepublishOnly": "yarn run chk && yarn pinst --disable",
     "postpublish": "yarn pinst --enable",
-    "prepare": "yarn run build",
+    "prepare": "yarn run release",
     "format": "ftool format",
     "lint": "eslint src --fix --ext ts",
     "chk": "yarn run build && yarn run lint && yarn run test",
