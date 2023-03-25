@@ -135,21 +135,66 @@ export type BoardsList = {
   menus: Map<string, string>;
 };
 
+export type OldSizeType = {
+  program: string;
+  data: string;
+  pattern: string;
+  other: DumbSymTbl;
+};
+
 export type Pattern = { pattern: string; other: DumbSymTbl };
+
+export type AllRecipes = {
+  // c.o
+  c: Pattern;
+  // cpp.o
+  cpp: Pattern;
+  // S.o
+  s: Pattern;
+  // just 'ar'
+  ar: Pattern;
+  // c.combine
+  link: Pattern;
+  // objcopy.<name>
+  objcopy: { name: string; pattern: Pattern }[];
+  // recipe.size.regex and regex.data
+  size: OldSizeType;
+  // This is a tool that returns some json blob
+  advancedSize?: Pattern;
+  // preproc.macros (auto-gen'd from cpp.o if not defined)
+  preprocess?: Pattern;
+  // preproc.include (optional and old, apparently?)
+  include?: Pattern;
+
+  others: SimpleSymbol[];
+};
+
+export type AllHooks = {
+  prebuild: Pattern[];
+  postbuild: Pattern[]; // This one isn't in the spec, but Teensy uses it
+  sketchPrebuild: Pattern[];
+  skechPostbuild: Pattern[];
+  libPrebuild: Pattern[];
+  libPostbuild: Pattern[];
+  corePrebuild: Pattern[];
+  corePostbuild: Pattern[];
+  prelink: Pattern[];
+  postlink: Pattern[];
+  precopy: Pattern[];
+  postcopy: Pattern[];
+  prehex: Pattern[];
+  posthex: Pattern[];
+};
+
 export type Platform = {
   name: string;
   version: string;
   tools?: SimpleSymbol;
   misc: DumbSymTbl;
-  hooks?: DumbSymTbl;
-  recipes: {
-    c: Pattern;
-    cpp: Pattern;
-    s: Pattern;
-    ar: Pattern;
-    link: Pattern;
-    others: SimpleSymbol[];
-  };
+  recipes: AllRecipes;
+  hooks: AllHooks;
+  // upload.maximum_size and upload.maximum_data_size
+  maxSize: { program: number; data: number };
 };
 
 // These are functions to spit out the platform implementation of global values: N[really]YI!!!
