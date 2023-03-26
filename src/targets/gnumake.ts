@@ -1,4 +1,4 @@
-import { platform } from 'os';
+import { platform as osplatform } from 'os';
 import path from 'path';
 import { Transform } from '../config.js';
 import { Dump } from '../dump.js';
@@ -10,6 +10,7 @@ import type {
   GnuMakeRecipe,
   Library,
   ParsedFile,
+  Platform,
 } from '../types.js';
 import { CalculateChecksAndOrderDefinitions } from '../utils.js';
 import { GenBoardDefs } from './gmBoard.js';
@@ -299,7 +300,7 @@ function getRuntimeIdePath(): string {
 function getRuntimeOs(): string {
   // TODO: This is assuming gen-host is also compile-host
   // {runtime.os}: the running OS ("linux", "windows", "macosx")
-  switch (platform().toLocaleLowerCase()) {
+  switch (osplatform().toLocaleLowerCase()) {
     case 'win32':
       return 'windows';
     case 'darwin':
@@ -307,7 +308,7 @@ function getRuntimeOs(): string {
     case 'linux':
       return 'linux';
     default:
-      throw new Error('Unsupported platform: ' + platform());
+      throw new Error('Unsupported platform: ' + osplatform());
   }
 }
 
@@ -392,6 +393,7 @@ function makeInitialDefs(platformPath: string) {
 async function emit(
   platformPath: string,
   platSyms: ParsedFile,
+  platform: Platform,
   boards: BoardsList,
   libraries: Library[],
 ): Promise<void> {
@@ -402,6 +404,7 @@ async function emit(
     initial,
     boardDefined,
     platSyms,
+    platform,
     path.dirname(platformPath),
     libraries,
   );

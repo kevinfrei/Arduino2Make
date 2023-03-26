@@ -93,7 +93,13 @@ export default async function main(...args: string[]): Promise<void> {
     const globals = MakeGlobals(buildSysTarget);
 
     // Emit the build stuff:
-    await buildSysTarget.emit(platformPath, platSyms, boards, libraries);
+    await buildSysTarget.emit(
+      platformPath,
+      platSyms,
+      platform,
+      boards,
+      libraries,
+    );
 
     // Flush the output to disk...
     await FlushOutput();

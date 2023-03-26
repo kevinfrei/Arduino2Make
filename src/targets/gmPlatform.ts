@@ -9,6 +9,7 @@ import type {
   GnuMakeRecipe,
   Library,
   ParsedFile,
+  Platform,
   SimpleSymbol,
 } from '../types.js';
 import { GetPlainValue, QuoteIfNeeded, Unquote } from '../utils.js';
@@ -196,7 +197,8 @@ function makeRecipes(recipes: SimpleSymbol): GnuMakeRecipe[] {
 export async function BuildPlatform(
   initialDefs: Definition[],
   boardDefs: Definition[],
-  platform: ParsedFile,
+  plSyms: ParsedFile,
+  platform: Platform,
   rootpath: string,
   libs: Library[],
 ): Promise<{ defs: Definition[]; rules: GnuMakeRecipe[] }> {
@@ -211,7 +213,7 @@ export async function BuildPlatform(
   // Now spit out all the variables
   const fakeTop = {
     name: 'fake',
-    children: platform.scopedTable,
+    children: plSyms.scopedTable,
   };
   const skip: FilterFunc = (a) => a.name !== 'recipe' && a.name !== 'tools';
   const plain = GetPlainValue;
@@ -266,7 +268,7 @@ export async function BuildPlatform(
       !fn.name.endsWith('_WINDOWS'),
   );
   */
-  const toolsSyms = platform.scopedTable.get('tools');
+  const toolsSyms = plSyms.scopedTable.get('tools');
   if (toolsSyms) {
     for (const [key, value] of toolsSyms.children) {
       const patt = GetNestedChild(value, 'upload', 'pattern');
@@ -294,12 +296,11 @@ export async function BuildPlatform(
     }
   }
   // Build up all the various make rules from the recipes in the platform file
-  const recipeSyms: SimpleSymbol | undefined =
-    platform.scopedTable.get('recipe');
+  const recipeSyms = plSyms.scopedTable.get('recipe');
   // A rather messy hack to add .ino capabilities: (add -x c++ to the CPP rule)
   if (recipeSyms?.children.has('cpp')) {
     const cppRecipe = recipeSyms.children.get('cpp')!;
-    const cppChild: SimpleSymbol | undefined = cppRecipe.children.get('o');
+    const cppChild = cppRecipe.children.get('o');
     if (cppChild && cppRecipe.children.size === 1) {
       const cppPattern = cppChild.children.get('pattern');
       if (cppPattern && cppChild.children.size === 1 && !!cppPattern.value) {

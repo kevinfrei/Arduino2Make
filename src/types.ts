@@ -216,6 +216,7 @@ export type BuildSystemHost = {
   emit: (
     platformPath: string,
     platSyms: ParsedFile,
+    platform: Platform,
     board: BoardsList,
     libraries: Library[],
   ) => Promise<void>;
