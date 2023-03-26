@@ -16,6 +16,7 @@ import {
   MakeDependentValue,
   MakeResolve,
   QuoteIfNeeded,
+  ResolveString,
   Unquote,
 } from '../utils.js';
 import { GetLibDefs } from './gmLibs.js';
@@ -152,21 +153,26 @@ function makeRecipes(recipes: SimpleSymbol, rec: AllRecipes): GnuMakeRecipe[] {
   });
 
   // linker (recipe.c.combine.patthern) *.o + sys.a => %.elf
-  const linkDepVal: DependentValue | undefined = getRule(
-    'c',
-    'combine',
-    'pattern',
+  const linkDepVal = ResolveString(
+    MakeResolve(
+      MakeResolve(
+        MakeDependentValue(rec.link.pattern),
+        'OBJECT_FILES',
+        '${USER_OBJS}',
+      ),
+      'ARCHIVE_FILE',
+      'system.a',
+    ),
+    '${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf',
+    '$@',
   );
-  if (linkDepVal) {
-    const { value, unresolved: deps } = linkDepVal;
-    deps.delete('OBJECT_FILES');
-    deps.delete('ARCHIVE_FILE');
-    const command = value
-      .replace('${OBJECT_FILES}', '${USER_OBJS}')
-      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf', '$@')
-      .replace('${ARCHIVE_FILE}', 'system.a');
-    result.push({ src: 'o-a', dst: 'elf', command, dependsOn: [...deps] });
-  }
+  result.push({
+    src: 'o-a',
+    dst: 'elf',
+    command: linkDepVal.value,
+    dependsOn: [...linkDepVal.unresolved],
+  });
+
   // hex (recipe.objcopy.hex.pattern) .elf => .hex
   const hexDepVal: DependentValue | undefined = getRule(
     'objcopy',
