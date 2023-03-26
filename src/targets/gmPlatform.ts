@@ -11,7 +11,12 @@ import type {
   Platform,
   SimpleSymbol,
 } from '../types.js';
-import { GetPlainValue, QuoteIfNeeded, Unquote } from '../utils.js';
+import {
+  GetPlainValue,
+  MakeResolve,
+  QuoteIfNeeded,
+  Unquote,
+} from '../utils.js';
 import { GetLibDefs } from './gmLibs.js';
 import { MakePrefixer } from './gmPrefixer.js';
 import {
@@ -85,12 +90,7 @@ function makeRecipes(recipes: SimpleSymbol): GnuMakeRecipe[] {
     if (!depVal || !depVal.unresolved.has(rhs) || !depVal.unresolved.has(lhs)) {
       return;
     }
-    const value = depVal.value
-      .replace('${' + rhs + '}', '$<')
-      .replace('${' + lhs + '}', '$@');
-    depVal.unresolved.delete(lhs);
-    depVal.unresolved.delete(rhs);
-    return { value, unresolved: depVal.unresolved };
+    return MakeResolve(MakeResolve(depVal, rhs, '$<'), lhs, '$@');
   }
   const result: GnuMakeRecipe[] = [];
   // Produces a bunch of things like this:
@@ -189,34 +189,131 @@ function makeRecipes(recipes: SimpleSymbol): GnuMakeRecipe[] {
   return result;
 }
 
-// This generates the rules & whatnot for the platform data
-// This is the 'meat' of the whole thing, as recipes generate very different
-// Makefile code.
-// It also returns the set of probably defined values generated from this code
-export async function BuildPlatform(
-  initialDefs: Definition[],
-  boardDefs: Definition[],
-  plSyms: ParsedFile,
-  platform: Platform,
-  rootpath: string,
-  libs: Library[],
-): Promise<{ defs: Definition[]; rules: GnuMakeRecipe[] }> {
-  const defs: Definition[] = [
-    MakeDeclDef(
-      'BUILD_CORE_PATH',
-      '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}',
-      ['RUNTIME_PLATFORM_PATH', 'BUILD_CORE'],
-    ),
-  ];
+/*
+function makefileRecipes(rec: AllRecipes): GnuMakeRecipe[] {
+  function getRule(...location: string[]): DependentValue | undefined {
+    const pattern: SimpleSymbol | undefined = GetNestedChild(
+      rec,
+      ...location,
+    );
+    if (pattern) {
+      const res = GetPlainValue(pattern);
+      if (res.value.length > 0) {
+        return res;
+      }
+    }
+  }
 
-  // const skip: FilterFunc = (a) => a.name !== 'recipe' && a.name !== 'tools';
-  const plain = GetPlainValue;
-  const defined = MakeDefinitions(
-    { name: 'fake', children: platform.misc },
-    plain,
-    null,
+  function makeRule(
+    location: string[],
+    lhs: string,
+    rhs: string,
+  ): DependentValue | undefined {
+    const depVal = getRule(...location);
+    if (!depVal || !depVal.unresolved.has(rhs) || !depVal.unresolved.has(lhs)) {
+      return;
+    }
+    return MakeResolve(MakeResolve(depVal, rhs, '$<'), lhs, '$@');
+  }
+  const result: GnuMakeRecipe[] = [];
+  // Produces a bunch of things like this:
+  // (outdir)%.S.o: %.S
+  //  ${tool} -c ${flags} -o $@ $<
+
+  // First, let's just get the .o producers
+  for (const src of ['S', 'c', 'ino', 'cpp']) {
+    const depVal: DependentValue | undefined = makeRule(
+      [src, 'o', 'pattern'],
+      'OBJECT_FILE',
+      'SOURCE_FILE',
+    );
+    if (!depVal) continue;
+    const dependsOn = [...depVal.unresolved];
+    const cleanedVal = cleanup(depVal.value);
+    result.push({ src, dst: 'o', command: cleanedVal, dependsOn });
+  }
+
+  // Create archives (recipe.ar.pattern) sys*.o's => sys.a
+  const arcDepVal: DependentValue | undefined = makeRule(
+    ['ar', 'pattern'],
+    'ARCHIVE_FILE_PATH',
+    'OBJECT_FILE',
   );
+  if (arcDepVal) {
+    const dependsOn = [...arcDepVal.unresolved];
+    result.push({
+      src: 'o',
+      dst: 'a',
+      command: arcDepVal.value.replace('"$<"', '$^'),
+      dependsOn,
+    });
+  }
+  // linker (recipe.c.combine.patthern) *.o + sys.a => %.elf
+  const linkDepVal: DependentValue | undefined = getRule(
+    'c',
+    'combine',
+    'pattern',
+  );
+  if (linkDepVal) {
+    const { value, unresolved: deps } = linkDepVal;
+    deps.delete('OBJECT_FILES');
+    deps.delete('ARCHIVE_FILE');
+    const command = value
+      .replace('${OBJECT_FILES}', '${USER_OBJS}')
+      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf', '$@')
+      .replace('${ARCHIVE_FILE}', 'system.a');
+    result.push({ src: 'o-a', dst: 'elf', command, dependsOn: [...deps] });
+  }
+  // hex (recipe.objcopy.hex.pattern) .elf => .hex
+  const hexDepVal: DependentValue | undefined = getRule(
+    'objcopy',
+    'hex',
+    'pattern',
+  );
+  if (hexDepVal) {
+    const { value, unresolved: deps } = hexDepVal;
+    const command = value
+      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf', '$<')
+      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex', '$@');
+    result.push({ src: 'elf', dst: 'hex', command, dependsOn: [...deps] });
+  }
+  // dfu zip packager (recipe.objcopy.zip.pattern) .hex => .zip
+  const zipDepVal: DependentValue | undefined = getRule(
+    'objcopy',
+    'zip',
+    'pattern',
+  );
+  if (zipDepVal) {
+    const { value, unresolved: deps } = zipDepVal;
+    const command = value
+      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex', '$<')
+      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.zip', '$@');
+    result.push({ src: 'hex', dst: 'zip', command, dependsOn: [...deps] });
+    // Finally, add a 'flash' target
+    result.push({
+      src: 'zip',
+      dst: 'flash',
+      command: '${UPLOAD_PATTERN} ${UPLOAD_EXTRA_FLAGS}',
+      dependsOn: [],
+    });
+  } else if (hexDepVal) {
+    // If we don't have a zip target, I guess create a hex target?
+    result.push({
+      src: 'hex',
+      dst: 'flash',
+      command: '${UPLOAD_PATTERN} ${UPLOAD_EXTRA_FLAGS}',
+      dependsOn: [],
+    });
+  } else {
+    // TODO: What do we do without a zip or a hex target?
+  }
+  // Future: Add more recipe support in here?
+  // size, and whatever the 'output.tmp_file/save_file stuff is used for...
+  return result;
+}
+*/
 
+function makeToolDefs(platform: Platform) {
   function parentTool(a: SimpleSymbol): boolean {
     for (; a.parent; a = a.parent) {
       if (a.name === 'tools') {
@@ -225,12 +322,14 @@ export async function BuildPlatform(
     }
     return a.name === 'tools';
   }
-  const tmpToolDefs = MakeDefinitions(
-    { name: 'fake2', children: plSyms.scopedTable },
-    plain,
-    null,
-    parentTool,
-  );
+  const tmpToolDefs = platform.tools
+    ? MakeDefinitions(
+        { name: 'fake2', children: new Map([['fake2', platform.tools]]) },
+        GetPlainValue,
+        null,
+        parentTool,
+      )
+    : [];
   // Handle the macosx/windows suffixed tools
   // FYI: My input tester stuff has precisely 1 of these tools, so
   // what I'm doing down here may not work properly with something with more
@@ -258,7 +357,6 @@ export async function BuildPlatform(
   // It looks like the board selects the tool & protocol
   // The tool ought to be the name of the thing
   // The protocol seems to imply that Arduino groks a variety of flash tools :/
-
   // TODO: Also handle the {cmd} thing which clearly refers to
   // the locally scoped cmd (or cmd.windows/cmd.macosx thing)
   // as well as the tools.(name).OPERATION.pattern
@@ -271,9 +369,8 @@ export async function BuildPlatform(
       !fn.name.endsWith('_WINDOWS'),
   );
   */
-  const toolsSyms = plSyms.scopedTable.get('tools');
-  if (toolsSyms) {
-    for (const [key, value] of toolsSyms.children) {
+  if (platform.tools) {
+    for (const [key, value] of platform.tools.children) {
       const patt = GetNestedChild(value, 'upload', 'pattern');
       // const params = GetNestedChild(value, 'upload', 'params');
       if (!patt) continue;
@@ -298,6 +395,38 @@ export async function BuildPlatform(
       toolDefs.push(tldef);
     }
   }
+  return toolDefs;
+}
+
+// This generates the rules & whatnot for the platform data
+// This is the 'meat' of the whole thing, as recipes generate very different
+// Makefile code.
+// It also returns the set of probably defined values generated from this code
+export async function BuildPlatform(
+  initialDefs: Definition[],
+  boardDefs: Definition[],
+  plSyms: ParsedFile,
+  platform: Platform,
+  rootpath: string,
+  libs: Library[],
+): Promise<{ defs: Definition[]; rules: GnuMakeRecipe[] }> {
+  const defs: Definition[] = [
+    MakeDeclDef(
+      'BUILD_CORE_PATH',
+      '${RUNTIME_PLATFORM_PATH}/cores/${BUILD_CORE}',
+      ['RUNTIME_PLATFORM_PATH', 'BUILD_CORE'],
+    ),
+  ];
+
+  // const skip: FilterFunc = (a) => a.name !== 'recipe' && a.name !== 'tools';
+  const defined = MakeDefinitions(
+    { name: 'fake', children: platform.misc },
+    GetPlainValue,
+    null,
+  );
+
+  const toolDefs: Definition[] = makeToolDefs(platform);
+
   // Build up all the various make rules from the recipes in the platform file
   const recipeSyms = plSyms.scopedTable.get('recipe');
   // A rather messy hack to add .ino capabilities: (add -x c++ to the CPP rule)
