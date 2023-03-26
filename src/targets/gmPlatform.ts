@@ -1,4 +1,3 @@
-import { Type } from '@freik/core-utils';
 import * as path from 'path';
 import { GetFileList } from '../files.js';
 import { GetNestedChild } from '../symbols.js';
@@ -99,16 +98,17 @@ function makeRecipes(recipes: SimpleSymbol, rec: AllRecipes): GnuMakeRecipe[] {
     pattern: string,
     lhs: string,
     rhs: string,
+    rhsRep: string,
   ): DependentValue {
     const depVal = MakeDependentValue(pattern);
     if (!depVal || !depVal.unresolved.has(rhs) || !depVal.unresolved.has(lhs)) {
       throw new Error('Missing required recipe pattern');
     }
-    return MakeResolve(MakeResolve(depVal, rhs, '$<'), lhs, '$@');
+    return MakeResolve(MakeResolve(depVal, rhs, rhsRep), lhs, '$@');
   }
 
   function makeORecipe(pattern: string, src: string): GnuMakeRecipe {
-    const rule = makefileRule(pattern, 'OBJECT_FILE', 'SOURCE_FILE');
+    const rule = makefileRule(pattern, 'OBJECT_FILE', 'SOURCE_FILE', '$<');
     return {
       src,
       dst: 'o',
@@ -138,20 +138,19 @@ function makeRecipes(recipes: SimpleSymbol, rec: AllRecipes): GnuMakeRecipe[] {
   result.push(makeORecipe(rec.cpp.pattern, 'cpp'));
 
   // Create archives (recipe.ar.pattern) sys*.o's => sys.a
-  const arcDepVal: DependentValue | undefined = makeRule(
-    ['ar', 'pattern'],
+  const arRule = makefileRule(
+    rec.ar.pattern,
     'ARCHIVE_FILE_PATH',
     'OBJECT_FILE',
+    '$#@!', // Placeholder to rip out extra double-quotes
   );
-  if (arcDepVal) {
-    const dependsOn = [...arcDepVal.unresolved];
-    result.push({
-      src: 'o',
-      dst: 'a',
-      command: arcDepVal.value.replace('"$<"', '$^'),
-      dependsOn,
-    });
-  }
+  result.push({
+    src: 'o',
+    dst: 'a',
+    command: arRule.value.replace('"$#@!"', '$^'),
+    dependsOn: [...arRule.unresolved],
+  });
+
   // linker (recipe.c.combine.patthern) *.o + sys.a => %.elf
   const linkDepVal: DependentValue | undefined = getRule(
     'c',
@@ -332,44 +331,7 @@ export async function BuildPlatform(
 
   // Build up all the various make rules from the recipes in the platform file
   const recipeSyms = plSyms.scopedTable.get('recipe');
-  // A rather messy hack to add .ino capabilities: (add -x c++ to the CPP rule)
-  if (recipeSyms?.children.has('cpp')) {
-    const cppRecipe = recipeSyms.children.get('cpp')!;
-    const cppChild = cppRecipe.children.get('o');
-    if (cppChild && cppRecipe.children.size === 1) {
-      const cppPattern = cppChild.children.get('pattern');
-      if (cppPattern && cppChild.children.size === 1 && !!cppPattern.value) {
-        const val = cppPattern.value;
-        if (!Type.isString(val)) {
-          throw new Error('cpp patterns must be strings, not functions');
-        }
-        const toAdd = val.indexOf(' "{source_file}" -o ');
-        if (toAdd > 0) {
-          const value =
-            val.substring(0, toAdd) + ' -x c++' + val.substring(toAdd);
-          const inoRecipe = {
-            name: 'ino',
-            parent: cppRecipe.parent,
-            children: new Map(),
-          };
-          const oChildVar: SimpleSymbol = {
-            name: 'o',
-            children: new Map(),
-            parent: inoRecipe,
-          };
-          const pChildVar: SimpleSymbol = {
-            name: 'pattern',
-            parent: oChildVar,
-            value,
-            children: new Map(),
-          };
-          oChildVar.children.set('pattern', pChildVar);
-          inoRecipe.children.set('o', oChildVar);
-          recipeSyms.children.set('ino', inoRecipe);
-        }
-      }
-    }
-  }
+
   const rules: GnuMakeRecipe[] = recipeSyms
     ? makeRecipes(recipeSyms, platform.recipes)
     : [];
