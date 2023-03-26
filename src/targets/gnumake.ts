@@ -7,7 +7,7 @@ import type {
   BuildSystemHost,
   Condition,
   Definition,
-  GnuMakeRecipe,
+  DependentUpon,
   Library,
   ParsedFile,
   Platform,
@@ -22,6 +22,12 @@ import {
   MakeUnDecl,
   MakifyName,
 } from './gmUtils.js';
+
+export type GnuMakeRecipe = DependentUpon & {
+  src: string;
+  dst: string;
+  command: string;
+};
 
 // Utilities for doing Makefile stuff
 

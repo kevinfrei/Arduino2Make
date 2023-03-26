@@ -32,17 +32,6 @@ export type DependentValue = { value: string; unresolved: Set<string> };
 export type FilterFunc = (str: SimpleSymbol) => boolean;
 export type ValueMakerFunc = (vrbl: SimpleSymbol) => DependentValue;
 
-export interface CondEq {
-  op: 'eq' | 'neq';
-  variable: string;
-  value: string;
-}
-
-export interface CondDef {
-  op: 'def' | 'ndef';
-  variable: string;
-}
-
 export interface Condition {
   op: 'eq' | 'neq' | 'def' | 'ndef' | 'raw';
   variable: string;
@@ -58,12 +47,6 @@ export type Definition = DependentUpon & {
   type: 'decl' | 'seq' | 'add' | '?decl';
   value: string;
   condition: Condition[];
-};
-
-export type GnuMakeRecipe = DependentUpon & {
-  src: string;
-  dst: string;
-  command: string;
 };
 
 export type ScopedName = {

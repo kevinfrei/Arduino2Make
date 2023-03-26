@@ -5,7 +5,6 @@ import type {
   AllRecipes,
   Definition,
   DependentValue,
-  GnuMakeRecipe,
   Library,
   ParsedFile,
   Platform,
@@ -30,6 +29,7 @@ import {
   MakeSrcList,
   MakeUnDecl,
 } from './gmUtils.js';
+import { GnuMakeRecipe } from './gnumake.js';
 
 function cleanup(val: string): string {
   // there's a -DFOO="${VAR}" in the recipe text
@@ -81,18 +81,6 @@ function makeRecipes(recipes: SimpleSymbol, rec: AllRecipes): GnuMakeRecipe[] {
         return res;
       }
     }
-  }
-
-  function makeRule(
-    location: string[],
-    lhs: string,
-    rhs: string,
-  ): DependentValue | undefined {
-    const depVal = getRule(...location);
-    if (!depVal || !depVal.unresolved.has(rhs) || !depVal.unresolved.has(lhs)) {
-      return;
-    }
-    return MakeResolve(MakeResolve(depVal, rhs, '$<'), lhs, '$@');
   }
 
   function makefileRule(
