@@ -1,3 +1,4 @@
+import { Type } from '@freik/core-utils';
 import * as path from 'path';
 import { GetFileList } from '../files.js';
 import { GetNestedChild } from '../symbols.js';
@@ -162,17 +163,27 @@ function makeRecipes(recipes: SimpleSymbol, rec: AllRecipes): GnuMakeRecipe[] {
   });
 
   // hex (recipe.objcopy.hex.pattern) .elf => .hex
-  const hexDepVal: DependentValue | undefined = getRule(
-    'objcopy',
-    'hex',
-    'pattern',
-  );
-  if (hexDepVal) {
-    const { value, unresolved: deps } = hexDepVal;
-    const command = value
-      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf', '$<')
-      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex', '$@');
-    result.push({ src: 'elf', dst: 'hex', command, dependsOn: [...deps] });
+  // TODO: This is wrong, but the docs for this stuff are truly awful
+  // Come back to it if I decide I want to make this stuff work for
+  // more platforms...
+  const hex = rec.objcopy.find((val) => val.name === 'hex');
+  let hexDepVal: DependentValue | undefined;
+  if (!Type.isUndefined(hex)) {
+    hexDepVal = ResolveString(
+      ResolveString(
+        MakeDependentValue(hex.pattern.pattern),
+        '${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf',
+        '$<',
+      ),
+      '${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex',
+      '$@',
+    );
+    result.push({
+      src: 'elf',
+      dst: 'hex',
+      command: hexDepVal.value,
+      dependsOn: [...hexDepVal.unresolved],
+    });
   }
   // dfu zip packager (recipe.objcopy.zip.pattern) .hex => .zip
   const zipDepVal: DependentValue | undefined = getRule(
