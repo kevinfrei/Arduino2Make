@@ -9,7 +9,6 @@ import type {
   Definition,
   DependentUpon,
   Library,
-  ParsedFile,
   Platform,
 } from '../types.js';
 import { CalculateChecksAndOrderDefinitions } from '../utils.js';
@@ -398,7 +397,6 @@ function makeInitialDefs(platformPath: string) {
 
 async function emit(
   platformPath: string,
-  platSyms: ParsedFile,
   platform: Platform,
   boards: BoardsList,
   libraries: Library[],
@@ -409,7 +407,6 @@ async function emit(
   const { defs: platDefs, rules } = await BuildPlatform(
     initial,
     boardDefined,
-    platSyms,
     platform,
     path.dirname(platformPath),
     libraries,

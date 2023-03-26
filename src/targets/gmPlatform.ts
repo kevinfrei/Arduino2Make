@@ -7,7 +7,6 @@ import type {
   Definition,
   DependentValue,
   Library,
-  ParsedFile,
   Platform,
   SimpleSymbol,
 } from '../types.js';
@@ -70,20 +69,7 @@ function cleanup(val: string): string {
 
 // For reference, stuff like $@, $^, and $< are called 'automatic variables'
 // in the GNU Makefile documentation
-function makeRecipes(recipes: SimpleSymbol, rec: AllRecipes): GnuMakeRecipe[] {
-  function getRule(...location: string[]): DependentValue | undefined {
-    const pattern: SimpleSymbol | undefined = GetNestedChild(
-      recipes,
-      ...location,
-    );
-    if (pattern) {
-      const res = GetPlainValue(pattern);
-      if (res.value.length > 0) {
-        return res;
-      }
-    }
-  }
-
+function makeRecipes(rec: AllRecipes): GnuMakeRecipe[] {
   function makefileRule(
     pattern: string,
     lhs: string,
@@ -186,17 +172,24 @@ function makeRecipes(recipes: SimpleSymbol, rec: AllRecipes): GnuMakeRecipe[] {
     });
   }
   // dfu zip packager (recipe.objcopy.zip.pattern) .hex => .zip
-  const zipDepVal: DependentValue | undefined = getRule(
-    'objcopy',
-    'zip',
-    'pattern',
-  );
-  if (zipDepVal) {
-    const { value, unresolved: deps } = zipDepVal;
-    const command = value
-      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex', '$<')
-      .replace('${BUILD_PATH}/${BUILD_PROJECT_NAME}.zip', '$@');
-    result.push({ src: 'hex', dst: 'zip', command, dependsOn: [...deps] });
+  const zip = rec.objcopy.find((val) => val.name === 'zip');
+  let zipDepVal: DependentValue | undefined;
+  if (!Type.isUndefined(zip)) {
+    zipDepVal = ResolveString(
+      ResolveString(
+        MakeDependentValue(zip.pattern.pattern),
+        '${BUILD_PATH}/${BUILD_PROJECT_NAME}.hex',
+        '$<',
+      ),
+      '${BUILD_PATH}/${BUILD_PROJECT_NAME}.zip',
+      '$@',
+    );
+    result.push({
+      src: 'hex',
+      dst: 'zip',
+      command: zipDepVal.value,
+      dependsOn: [...zipDepVal.unresolved],
+    });
     // Finally, add a 'flash' target
     result.push({
       src: 'zip',
@@ -204,7 +197,8 @@ function makeRecipes(recipes: SimpleSymbol, rec: AllRecipes): GnuMakeRecipe[] {
       command: '${UPLOAD_PATTERN} ${UPLOAD_EXTRA_FLAGS}',
       dependsOn: [],
     });
-  } else if (hexDepVal) {
+  }
+  if (hexDepVal && !zipDepVal) {
     // If we don't have a zip target, I guess create a hex target?
     result.push({
       src: 'hex',
@@ -212,8 +206,6 @@ function makeRecipes(recipes: SimpleSymbol, rec: AllRecipes): GnuMakeRecipe[] {
       command: '${UPLOAD_PATTERN} ${UPLOAD_EXTRA_FLAGS}',
       dependsOn: [],
     });
-  } else {
-    // TODO: What do we do without a zip or a hex target?
   }
   // Future: Add more recipe support in here?
   // size, and whatever the 'output.tmp_file/save_file stuff is used for...
@@ -312,7 +304,6 @@ function makeToolDefs(platform: Platform) {
 export async function BuildPlatform(
   initialDefs: Definition[],
   boardDefs: Definition[],
-  plSyms: ParsedFile,
   platform: Platform,
   rootpath: string,
   libs: Library[],
@@ -335,12 +326,7 @@ export async function BuildPlatform(
   const toolDefs: Definition[] = makeToolDefs(platform);
 
   // Build up all the various make rules from the recipes in the platform file
-  const recipeSyms = plSyms.scopedTable.get('recipe');
-
-  const rules: GnuMakeRecipe[] = recipeSyms
-    ? makeRecipes(recipeSyms, platform.recipes)
-    : [];
-
+  const rules: GnuMakeRecipe[] = makeRecipes(platform.recipes);
   // TODO: Get the file list together (just more definitions, I think)
   // For each build.core, create a file list
   const cores: Set<string> = new Set(
