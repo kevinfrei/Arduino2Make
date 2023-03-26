@@ -5,7 +5,6 @@ import { GetNestedChild } from '../symbols.js';
 import type {
   Definition,
   DependentValue,
-  FilterFunc,
   GnuMakeRecipe,
   Library,
   ParsedFile,
@@ -210,14 +209,13 @@ export async function BuildPlatform(
     ),
   ];
 
-  // Now spit out all the variables
-  const fakeTop = {
-    name: 'fake',
-    children: plSyms.scopedTable,
-  };
-  const skip: FilterFunc = (a) => a.name !== 'recipe' && a.name !== 'tools';
+  // const skip: FilterFunc = (a) => a.name !== 'recipe' && a.name !== 'tools';
   const plain = GetPlainValue;
-  const defined = MakeDefinitions(fakeTop, plain, null, skip);
+  const defined = MakeDefinitions(
+    { name: 'fake', children: platform.misc },
+    plain,
+    null,
+  );
 
   function parentTool(a: SimpleSymbol): boolean {
     for (; a.parent; a = a.parent) {
@@ -227,7 +225,12 @@ export async function BuildPlatform(
     }
     return a.name === 'tools';
   }
-  const tmpToolDefs = MakeDefinitions(fakeTop, plain, null, parentTool);
+  const tmpToolDefs = MakeDefinitions(
+    { name: 'fake2', children: plSyms.scopedTable },
+    plain,
+    null,
+    parentTool,
+  );
   // Handle the macosx/windows suffixed tools
   // FYI: My input tester stuff has precisely 1 of these tools, so
   // what I'm doing down here may not work properly with something with more
