@@ -13,21 +13,17 @@ type Config = {
   filters: FilterItem[];
 };
 
-const isTransformItem = Type.isSpecificTypeFn<TransformItem>(
-  [
-    ['defmatch', Type.isString],
-    ['text', Type.isString],
-    ['replace', Type.isString],
-  ],
-  ['defmatch', 'text', 'replace'],
-);
-const isFilterItem = Type.isSpecificTypeFn<FilterItem>(
-  [
-    ['defmatch', Type.isString],
-    ['remove', Type.isString],
-  ],
-  ['defmatch', 'remove'],
-);
+const isTransformItem = Type.isObjectOfFullTypeFn<TransformItem>({
+  defmatch: Type.isString,
+  text: Type.isString,
+  replace: Type.isString,
+});
+
+const isFilterItem = Type.isObjectOfFullTypeFn<FilterItem>({
+  defmatch: Type.isString,
+  remove: Type.isString,
+});
+
 function isConfig(i: unknown): i is Partial<Config> {
   return (
     Type.hasType(i, 'transforms', Type.isArrayOfFn(isTransformItem)) ||

@@ -62,7 +62,7 @@ export function ResolvedValue(
   }
 }
 
-function unresolvedValue(value: string): DependentValue {
+export function MakeDependentValue(value: string): DependentValue {
   let res = '';
   const unresolved: Set<string> = new Set();
   let loc = 0;
@@ -87,9 +87,33 @@ function unresolvedValue(value: string): DependentValue {
   return { value: res, unresolved };
 }
 
+export function ResolveString(
+  val: DependentValue,
+  src: string,
+  dst: string,
+): DependentValue {
+  return { value: val.value.replace(src, dst), unresolved: val.unresolved };
+}
+
+// TODO: This is using make syntax. I need to get back to Arduino syntax
+// and only use Make syntax in the Makefile target
+export function MakeResolve(
+  val: DependentValue,
+  toResolve: string,
+  resolvedValue: string,
+): DependentValue {
+  const unresolved = new Set(val.unresolved);
+  unresolved.delete(toResolve);
+  return ResolveString(
+    { value: val.value, unresolved },
+    '${' + toResolve + '}',
+    resolvedValue,
+  );
+}
+
 export function GetPlainValue(vrbl: SimpleSymbol): DependentValue {
   if (vrbl.value) {
-    return unresolvedValue(
+    return MakeDependentValue(
       Type.isString(vrbl.value) ? vrbl.value : vrbl.value(),
     );
   } else {

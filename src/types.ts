@@ -32,17 +32,6 @@ export type DependentValue = { value: string; unresolved: Set<string> };
 export type FilterFunc = (str: SimpleSymbol) => boolean;
 export type ValueMakerFunc = (vrbl: SimpleSymbol) => DependentValue;
 
-export interface CondEq {
-  op: 'eq' | 'neq';
-  variable: string;
-  value: string;
-}
-
-export interface CondDef {
-  op: 'def' | 'ndef';
-  variable: string;
-}
-
 export interface Condition {
   op: 'eq' | 'neq' | 'def' | 'ndef' | 'raw';
   variable: string;
@@ -58,12 +47,6 @@ export type Definition = DependentUpon & {
   type: 'decl' | 'seq' | 'add' | '?decl';
   value: string;
   condition: Condition[];
-};
-
-export type GnuMakeRecipe = DependentUpon & {
-  src: string;
-  dst: string;
-  command: string;
 };
 
 export type ScopedName = {
@@ -135,21 +118,66 @@ export type BoardsList = {
   menus: Map<string, string>;
 };
 
+export type OldSizeType = {
+  program: string;
+  data: string;
+  pattern: string;
+  other: DumbSymTbl;
+};
+
 export type Pattern = { pattern: string; other: DumbSymTbl };
+
+export type AllRecipes = {
+  // c.o
+  c: Pattern;
+  // cpp.o
+  cpp: Pattern;
+  // S.o
+  s: Pattern;
+  // just 'ar'
+  ar: Pattern;
+  // c.combine
+  link: Pattern;
+  // objcopy.<name>
+  objcopy: { name: string; pattern: Pattern }[];
+  // recipe.size.regex and regex.data
+  size: OldSizeType;
+  // This is a tool that returns some json blob
+  advancedSize?: Pattern;
+  // preproc.macros (auto-gen'd from cpp.o if not defined)
+  preprocess?: Pattern;
+  // preproc.include (optional and old, apparently?)
+  include?: Pattern;
+
+  others: SimpleSymbol[];
+};
+
+export type AllHooks = {
+  prebuild: Pattern[];
+  postbuild: Pattern[]; // This one isn't in the spec, but Teensy uses it
+  sketchPrebuild: Pattern[];
+  skechPostbuild: Pattern[];
+  libPrebuild: Pattern[];
+  libPostbuild: Pattern[];
+  corePrebuild: Pattern[];
+  corePostbuild: Pattern[];
+  prelink: Pattern[];
+  postlink: Pattern[];
+  precopy: Pattern[];
+  postcopy: Pattern[];
+  prehex: Pattern[];
+  posthex: Pattern[];
+};
+
 export type Platform = {
   name: string;
   version: string;
   tools?: SimpleSymbol;
   misc: DumbSymTbl;
-  hooks?: DumbSymTbl;
-  recipes: {
-    c: Pattern;
-    cpp: Pattern;
-    s: Pattern;
-    ar: Pattern;
-    link: Pattern;
-    others: SimpleSymbol[];
-  };
+  recipes: AllRecipes;
+  hooks: AllHooks;
+  // upload.maximum_size and upload.maximum_data_size
+  maxSize: { program: number; data: number };
 };
 
 // These are functions to spit out the platform implementation of global values: N[really]YI!!!
@@ -170,7 +198,7 @@ export type PlatformGlobalFuncs = {
 export type BuildSystemHost = {
   emit: (
     platformPath: string,
-    platSyms: ParsedFile,
+    platform: Platform,
     board: BoardsList,
     libraries: Library[],
   ) => Promise<void>;

@@ -4,7 +4,6 @@ import path from 'path';
 import { EnumerateBoards } from './board.js';
 import { IsConfigPresent, ReadConfig } from './config.js';
 import { Dump, FlushOutput, SetOutputFile } from './dump.js';
-import { MakeGlobals } from './globals.js';
 import { GetLibraries } from './libraries.js';
 import { ParseFile } from './parser.js';
 import { MakePlatform } from './platform.js';
@@ -80,20 +79,18 @@ export default async function main(...args: string[]): Promise<void> {
     const root = normalArgs[0];
     const libLocs = normalArgs.slice(1);
     // Parse the input files
-    const boards = EnumerateBoards(
-      await ParseFile(path.join(root, 'boards.txt')),
-    );
+    const boardPath = path.join(root, 'boards.txt');
+    const boards = EnumerateBoards(await ParseFile(boardPath));
     const platformPath = path.join(root, 'platform.txt');
-    const platSyms = await ParseFile(platformPath);
-    const platform = MakePlatform(platSyms);
+    const platform = MakePlatform(await ParseFile(platformPath));
     // Scan the libraries:
     // TODO: Move Defs from Library into platformtTarget
     const libraries = await GetLibraries(root, libLocs);
 
-    const globals = MakeGlobals(buildSysTarget);
+    // const globals = MakeGlobals(buildSysTarget);
 
     // Emit the build stuff:
-    await buildSysTarget.emit(platformPath, platSyms, boards, libraries);
+    await buildSysTarget.emit(platformPath, platform, boards, libraries);
 
     // Flush the output to disk...
     await FlushOutput();
