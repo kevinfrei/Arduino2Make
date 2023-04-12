@@ -1,4 +1,12 @@
-import { SafelyUnpickle, Type } from '@freik/core-utils';
+import {
+  SafelyUnpickle,
+  chkArrayOf,
+  chkObjectOfType,
+  hasFieldType,
+  isArray,
+  isString,
+  isUndefined,
+} from '@freik/typechk';
 import { promises as fs } from 'fs';
 import { Dump } from './dump.js';
 
@@ -13,28 +21,28 @@ type Config = {
   filters: FilterItem[];
 };
 
-const isTransformItem = Type.isObjectOfFullTypeFn<TransformItem>({
-  defmatch: Type.isString,
-  text: Type.isString,
-  replace: Type.isString,
+const isTransformItem = chkObjectOfType<TransformItem>({
+  defmatch: isString,
+  text: isString,
+  replace: isString,
 });
 
-const isFilterItem = Type.isObjectOfFullTypeFn<FilterItem>({
-  defmatch: Type.isString,
-  remove: Type.isString,
+const isFilterItem = chkObjectOfType<FilterItem>({
+  defmatch: isString,
+  remove: isString,
 });
 
 function isConfig(i: unknown): i is Partial<Config> {
   return (
-    Type.hasType(i, 'transforms', Type.isArrayOfFn(isTransformItem)) ||
-    Type.hasType(i, 'filters', Type.isArrayOfFn(isFilterItem))
+    hasFieldType(i, 'transforms', chkArrayOf(isTransformItem)) ||
+    hasFieldType(i, 'filters', chkArrayOf(isFilterItem))
   );
 }
 
 let config: Partial<Config> | undefined;
 
 export function IsConfigPresent(): boolean {
-  return !Type.isUndefined(config);
+  return !isUndefined(config);
 }
 
 export async function ReadConfig(
@@ -43,7 +51,7 @@ export async function ReadConfig(
   try {
     const cfg = await fs.readFile(cfgPath, 'utf-8');
     const json = SafelyUnpickle(cfg, isConfig);
-    if (Type.isUndefined(json)) {
+    if (isUndefined(json)) {
       Dump('err')('Invalid type for config file:');
       Dump('err')(json);
     }
@@ -58,7 +66,7 @@ export function Transform(
   name: string,
   value: string,
 ): { name: string; value: string } {
-  if (!config || !Type.hasType(config, 'transforms', Type.isArray)) {
+  if (!config || !isArray(config.transforms)) {
     return { name, value };
   }
   for (const { defmatch, text, replace } of config.transforms) {
@@ -71,7 +79,7 @@ export function Transform(
 }
 
 export function Filter(name: string, files: string[]): string[] {
-  if (!config || !Type.hasType(config, 'filters', Type.isArray)) {
+  if (!config || !isArray(config.filters)) {
     return files;
   }
   for (const { defmatch, remove } of config.filters) {

@@ -1,16 +1,23 @@
-import { Type } from '@freik/core-utils';
+import {
+  chkArrayOf,
+  chkFieldType,
+  chkObjectOf,
+  chkObjectOfType,
+  chkStrField,
+  isString,
+} from '@freik/typechk';
 
 export type PlatformPair = { packager: string; name: string };
-const isPackagePair = Type.isObjectOfFullTypeFn({
-  packager: Type.isString,
-  name: Type.isString,
+const isPackagePair = chkObjectOfType({
+  packager: isString,
+  name: isString,
 });
 
 export type ToolTriplet = PlatformPair & { version: string };
-const isToolTriplet = Type.isObjectOfFullTypeFn({
-  packager: Type.isString,
-  name: Type.isString,
-  version: Type.isString,
+const isToolTriplet = chkObjectOfType({
+  packager: isString,
+  name: isString,
+  version: isString,
 });
 
 export type PlatformEntry = {
@@ -29,17 +36,17 @@ export type PlatformEntry = {
   monitorDependencies: PlatformPair[];
 };
 
-const isPlatformEntry = Type.isObjectOfFullTypeFn<PlatformEntry>({
-  name: Type.isString,
-  architecture: Type.isString,
-  version: Type.isString,
-  category: Type.isString,
-  help: Type.isObjectOfFn(Type.hasStrFn('online')),
-  url: Type.isString,
-  archiveFileName: Type.isString,
-  checksum: Type.isString,
-  size: Type.isString,
-  boards: Type.isArrayOfFn(Type.hasStrFn('name')),
+const isPlatformEntry = chkObjectOfType<PlatformEntry>({
+  name: isString,
+  architecture: isString,
+  version: isString,
+  category: isString,
+  help: chkObjectOf(chkStrField('online')),
+  url: isString,
+  archiveFileName: isString,
+  checksum: isString,
+  size: isString,
+  boards: chkArrayOf(chkStrField('name')),
   toolDependencies: isToolTriplet,
   discoveryDependencies: isPackagePair,
   monitorDependencies: isPackagePair,
@@ -53,12 +60,12 @@ export type ToolSystemEntry = {
   url: string;
 };
 
-const isToolSystemEntry = Type.isObjectOfFullTypeFn<ToolSystemEntry>({
-  size: Type.isString,
-  checksum: Type.isString,
-  host: Type.isString,
-  archiveFileName: Type.isString,
-  url: Type.isString,
+const isToolSystemEntry = chkObjectOfType<ToolSystemEntry>({
+  size: isString,
+  checksum: isString,
+  host: isString,
+  archiveFileName: isString,
+  url: isString,
 });
 
 export type ToolEntry = {
@@ -67,10 +74,10 @@ export type ToolEntry = {
   systems: ToolSystemEntry[];
 };
 
-const isToolEntry = Type.isObjectOfFullTypeFn<ToolEntry>({
-  name: Type.isString,
-  version: Type.isString,
-  systems: Type.isArrayOfFn(isToolSystemEntry),
+const isToolEntry = chkObjectOfType<ToolEntry>({
+  name: isString,
+  version: isString,
+  systems: chkArrayOf(isToolSystemEntry),
 });
 
 export type PackageEntry = {
@@ -82,18 +89,18 @@ export type PackageEntry = {
   tools: ToolEntry[];
 };
 
-const isPackageEntry = Type.isObjectOfFullTypeFn<PackageEntry>({
-  name: Type.isString,
-  maintainer: Type.isString,
-  websiteURL: Type.isString,
-  email: Type.isString,
+const isPackageEntry = chkObjectOfType<PackageEntry>({
+  name: isString,
+  maintainer: isString,
+  websiteURL: isString,
+  email: isString,
   platforms: isPlatformEntry,
   tools: isToolEntry,
 });
 
 export type PackageSpec = { packages: PackageEntry[] };
 
-export const isPackageSpec = Type.hasTypeFn(
+export const isPackageSpec = chkFieldType(
   'packages',
-  Type.isArrayOfFn(isPackageEntry),
+  chkArrayOf(isPackageEntry),
 );

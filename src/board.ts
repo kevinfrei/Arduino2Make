@@ -1,11 +1,11 @@
-import { Type } from '@freik/core-utils';
+import { isUndefined } from '@freik/typechk';
 import type { Board, BoardsList, ParsedFile, SimpleSymbol } from './types.js';
 
 // Get the menu "parent" from the parsed file
 // This is a map of "ID" to the actual title of the user menu
 function getMenus(parsedFile: ParsedFile): Map<string, string> {
   const menuSym = parsedFile.scopedTable.get('menu');
-  if (Type.isUndefined(menuSym)) {
+  if (isUndefined(menuSym)) {
     return new Map<string, string>();
   }
   return new Map<string, string>(

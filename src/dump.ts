@@ -1,18 +1,18 @@
-import { Type } from '@freik/core-utils';
+import { isString, isUndefined } from '@freik/typechk';
 import { promises as fsp } from 'fs';
 
 let outputFile: string[] | undefined;
 let outputName: string | undefined;
 
 export function SetOutputFile(dest: unknown) {
-  if (Type.isString(dest)) {
+  if (isString(dest)) {
     outputName = dest;
     outputFile = [];
   }
 }
 
 function dumpToFile(message: unknown): void {
-  if (outputFile !== undefined && Type.isString(message)) {
+  if (outputFile !== undefined && isString(message)) {
     outputFile.push(message);
   }
 }
@@ -22,7 +22,7 @@ export function Dump(which?: string): (message: unknown) => void {
   switch (which) {
     case undefined:
     case 'log':
-      return Type.isUndefined(outputFile) ? console.log : dumpToFile; // eslint-disable-line no-console
+      return isUndefined(outputFile) ? console.log : dumpToFile; // eslint-disable-line no-console
     case 'err':
       return console.error; // eslint-disable-line no-console
     default:
@@ -34,6 +34,6 @@ export function Dump(which?: string): (message: unknown) => void {
 }
 
 export async function FlushOutput(): Promise<void> {
-  if (!Type.isUndefined(outputFile) && Type.isString(outputName))
+  if (!isUndefined(outputFile) && isString(outputName))
     await fsp.writeFile(outputName, outputFile.join('\n'), 'utf-8');
 }

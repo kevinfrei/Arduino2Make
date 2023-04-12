@@ -1,4 +1,4 @@
-import { Type } from '@freik/core-utils';
+import { isString } from '@freik/typechk';
 import * as path from 'path';
 import type { Definition, Library } from '../types.js';
 import { QuoteIfNeeded } from '../utils.js';
@@ -61,7 +61,7 @@ export function GetLibDefs(
       ),
     );
   }
-  if (Type.hasStr(props, 'ldflags')) {
+  if (isString(props.ldflags)) {
     const flgVal = props.ldflags;
     defs.push(MakeAppend('COMPILER_LIBRARIES_LDFLAGS', flgVal, [], [libCond]));
   }

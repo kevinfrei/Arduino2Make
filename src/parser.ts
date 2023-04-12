@@ -1,4 +1,4 @@
-import { Type } from '@freik/core-utils';
+import { isUndefined } from '@freik/typechk';
 import * as fs from 'fs';
 import * as rl from 'readline';
 import { Dump } from './dump.js';
@@ -18,7 +18,7 @@ function parseVariable(line: string, table: DumbSymTbl): boolean {
   }
   const fullName = t.substring(0, eq);
   const value = t.substring(eq + 1);
-  return !Type.isUndefined(MakeSymbol(fullName, value, table));
+  return !isUndefined(MakeSymbol(fullName, value, table));
 }
 
 // Read in the text file, and spit out the parsed file

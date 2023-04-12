@@ -1,4 +1,4 @@
-import { Type } from '@freik/core-utils';
+import { isUndefined } from '@freik/typechk';
 import * as path from 'path';
 import { GetFileList } from '../files.js';
 import { GetNestedChild } from '../symbols.js';
@@ -154,7 +154,7 @@ function makeRecipes(rec: AllRecipes): GnuMakeRecipe[] {
   // more platforms...
   const hex = rec.objcopy.find((val) => val.name === 'hex');
   let hexDepVal: DependentValue | undefined;
-  if (!Type.isUndefined(hex)) {
+  if (!isUndefined(hex)) {
     hexDepVal = ResolveString(
       ResolveString(
         MakeDependentValue(hex.pattern.pattern),
@@ -174,7 +174,7 @@ function makeRecipes(rec: AllRecipes): GnuMakeRecipe[] {
   // dfu zip packager (recipe.objcopy.zip.pattern) .hex => .zip
   const zip = rec.objcopy.find((val) => val.name === 'zip');
   let zipDepVal: DependentValue | undefined;
-  if (!Type.isUndefined(zip)) {
+  if (!isUndefined(zip)) {
     zipDepVal = ResolveString(
       ResolveString(
         MakeDependentValue(zip.pattern.pattern),

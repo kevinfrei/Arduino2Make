@@ -1,4 +1,10 @@
-import { Type } from '@freik/core-utils';
+import {
+  hasFieldType,
+  hasStrField,
+  isNumber,
+  isString,
+  isUndefined,
+} from '@freik/typechk';
 import minimist from 'minimist';
 import path from 'path';
 import { EnumerateBoards } from './board.js';
@@ -24,8 +30,8 @@ import { BuildSystemHost } from './types.js';
 // configurable
 
 export function ShowHelp(message?: string | string[]) {
-  if (!Type.isUndefined(message)) {
-    const msg = Type.isString(message) ? [message] : message;
+  if (!isUndefined(message)) {
+    const msg = isString(message) ? [message] : message;
     msg.forEach(Dump('err'));
     Dump('err')('');
   }
@@ -54,14 +60,14 @@ async function parseCommandLine(args: string[]): Promise<string[]> {
     alias: { c: 'config', t: 'target', o: 'out', h: 'help', '?': 'help' },
     default: { target: 'gnumake' },
   });
-  if (Type.hasStr(argv, 'help')) {
+  if (hasStrField(argv, 'help')) {
     ShowHelp();
   }
-  if (Type.hasStr(argv, 'config')) {
+  if (hasStrField(argv, 'config')) {
     await ReadConfig(argv.config);
   }
   SetOutputFile(argv?.out);
-  if (Type.hasStr(argv, 'target')) {
+  if (hasStrField(argv, 'target')) {
     if (argv.target.toLocaleLowerCase() !== 'gnumake') {
       throw Error(`Command line error: Unsupported target ${argv.target}`);
     }
@@ -95,13 +101,10 @@ export default async function main(...args: string[]): Promise<void> {
     // Flush the output to disk...
     await FlushOutput();
   } catch (e) {
-    const name = Type.hasStr(e, 'name') ? e.name : '<unknown>';
-    const message = Type.hasStr(e, 'message') ? e.message : '<no message>';
-    const file = Type.hasStr(e, 'fileName') ? e.fileName : '<no filename>';
-    const line =
-      Type.has(e, 'lineNumber') && Type.isNumber(e.lineNumber)
-        ? e.lineNumber
-        : -1;
+    const name = hasStrField(e, 'name') ? e.name : '<unknown>';
+    const message = hasStrField(e, 'message') ? e.message : '<no message>';
+    const file = hasStrField(e, 'fileName') ? e.fileName : '<no filename>';
+    const line = hasFieldType(e, 'lineNumber', isNumber) ? e.lineNumber : -1;
     ShowHelp(`Error: ${name} @ ${file}#${line}:\n${message}`);
   }
 }

@@ -1,4 +1,4 @@
-import { Type } from '@freik/core-utils';
+import { isString, isUndefined } from '@freik/typechk';
 import { GetNestedChild } from './symbols.js';
 import {
   AllHooks,
@@ -14,12 +14,12 @@ import {
 function getString(syms: DumbSymTbl, key: string): string {
   const val = syms.get(key)?.value;
   if (!val) return '';
-  return Type.isString(val) ? val : val();
+  return isString(val) ? val : val();
 }
 
 function getRequiredSym(tbl: SimpleSymbol, ...args: string[]): SimpleSymbol {
   const sym = GetNestedChild(tbl, ...args);
-  if (Type.isUndefined(sym)) {
+  if (isUndefined(sym)) {
     throw new Error(
       `Required symbol missing from platform.txt: ${args.join('.')}`,
     );
@@ -29,7 +29,7 @@ function getRequiredSym(tbl: SimpleSymbol, ...args: string[]): SimpleSymbol {
 
 function getRequired(tbl: SimpleSymbol, ...args: string[]): string {
   const sym = getRequiredSym(tbl, ...args);
-  if (!Type.isString(sym.value)) {
+  if (!isString(sym.value)) {
     throw new Error(
       `Required symbol missing from platform.txt: ${args.join('.')}`,
     );
@@ -48,7 +48,7 @@ function getMaybePattern(
   ...patLoc: string[]
 ): Pattern | undefined {
   const theSym = GetNestedChild(tbl, ...patLoc);
-  if (Type.isUndefined(theSym)) {
+  if (isUndefined(theSym)) {
     return;
   }
   const pattern = getRequired(theSym, 'pattern');
@@ -60,7 +60,7 @@ function getPreproc(
   ...patLoc: string[]
 ): Pattern | undefined {
   const theSym = GetNestedChild(tbl, ...patLoc);
-  if (Type.isUndefined(theSym) || !Type.isString(theSym.value)) {
+  if (isUndefined(theSym) || !isString(theSym.value)) {
     return;
   }
   const pattern = theSym.value;
@@ -95,12 +95,12 @@ function getOldSize(tbl: SimpleSymbol): OldSizeType {
     pattern: '',
     other: new Map(),
   };
-  if (Type.isUndefined(sz)) {
+  if (isUndefined(sz)) {
     return res;
   }
   res.pattern = getRequired(sz, 'pattern');
   const rgx = getRequiredSym(sz, 'regex');
-  res.program = Type.isString(rgx.value) ? rgx.value : '';
+  res.program = isString(rgx.value) ? rgx.value : '';
   res.data = getRequired(rgx, 'data');
   res.other = getOther(sz, 'data');
   return res;
@@ -173,7 +173,7 @@ function fleshOutHooks(val: Partial<AllHooks>): AllHooks {
 
 function getHook(sym: SimpleSymbol, ...names: string[]): Pattern[] | undefined {
   const child = GetNestedChild(sym, ...names);
-  if (Type.isUndefined(child)) {
+  if (isUndefined(child)) {
     return;
   }
   const res: Pattern[] = [];
@@ -189,7 +189,7 @@ function getHook(sym: SimpleSymbol, ...names: string[]): Pattern[] | undefined {
 
 function getHooks(hooks?: SimpleSymbol): AllHooks {
   const res: Partial<AllHooks> = {};
-  if (Type.isUndefined(hooks)) {
+  if (isUndefined(hooks)) {
     return fleshOutHooks(res);
   }
   res.prebuild = getHook(hooks, 'prebuild');
@@ -213,7 +213,7 @@ function getRecipesAndHooks(recipeSymbol?: SimpleSymbol): {
   recipes: AllRecipes;
   hooks: AllHooks;
 } {
-  if (Type.isUndefined(recipeSymbol)) {
+  if (isUndefined(recipeSymbol)) {
     throw new Error('No recipes in platform.txt file. Unable to continue.');
   }
   const recipes = getRecipes(recipeSymbol);

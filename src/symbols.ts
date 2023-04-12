@@ -1,9 +1,9 @@
-import { Type } from '@freik/core-utils';
+import { isString, isUndefined } from '@freik/typechk';
 import { Dump } from './dump.js';
 import type {
   DumbSymTbl,
-  ScopedName,
   SFn,
+  ScopedName,
   SimpleSymbol,
   Sym,
   SymbolTable,
@@ -38,7 +38,7 @@ function makeSimpleSymbol(
   }
   const nm = pieces.getElement(index);
   let childSym = table.get(nm);
-  if (Type.isUndefined(childSym)) {
+  if (isUndefined(childSym)) {
     childSym = { name: nm, children: new Map(), parent };
     table.set(nm, childSym);
     if (index === pieces.length() - 1) {
@@ -75,10 +75,10 @@ export function LookupSymbol(
   fullName: string | ScopedName,
   table: DumbSymTbl,
 ): string | (() => string) | undefined {
-  const pieces = Type.isString(fullName) ? MakeScopedName(fullName) : fullName;
+  const pieces = isString(fullName) ? MakeScopedName(fullName) : fullName;
   for (let i = 0; i < pieces.length(); i++) {
     const sym = table.get(pieces.getElement(i));
-    if (Type.isUndefined(sym)) {
+    if (isUndefined(sym)) {
       return;
     }
     if (i === pieces.length() - 1) {
@@ -122,13 +122,13 @@ export function MakeSymbolTable(parentOptional?: Sym): SymbolTable {
   const self: SymbolTable = { add, get, check, parent };
 
   function add(name: string[] | string, value: string | SFn): Sym {
-    name = Type.isString(name) ? name.split('.') : name;
+    name = isString(name) ? name.split('.') : name;
     /* istanbul ignore if */
     if (name.length <= 0) {
       throw new Error('Invalid name add-attempt to SymbolTable');
     }
     let sub: Sym | undefined = nameMap.get(name[0]);
-    if (Type.isUndefined(sub)) {
+    if (isUndefined(sub)) {
       sub = MakeSym({ name: name[0], parent: self });
       nameMap.set(name[0], sub);
     }
@@ -142,7 +142,7 @@ export function MakeSymbolTable(parentOptional?: Sym): SymbolTable {
       return sub;
     } else {
       // recurse
-      if (Type.isUndefined(sub.children)) {
+      if (isUndefined(sub.children)) {
         sub.children = MakeSymbolTable(sub);
       }
       const shorter = [...name];
@@ -151,13 +151,13 @@ export function MakeSymbolTable(parentOptional?: Sym): SymbolTable {
     }
   }
   function check(lkup: string | string[]): Sym | undefined {
-    lkup = Type.isString(lkup) ? lkup.split('.') : lkup;
+    lkup = isString(lkup) ? lkup.split('.') : lkup;
     /* istanbul ignore if */
     if (lkup.length <= 0) {
       throw new Error('Bad symbol name passed to check');
     }
     const res = nameMap.get(lkup[0]);
-    if (Type.isUndefined(res)) {
+    if (isUndefined(res)) {
       return res;
     }
     if (lkup.length === 1) {
@@ -169,11 +169,9 @@ export function MakeSymbolTable(parentOptional?: Sym): SymbolTable {
   }
   function get(lkup: string | string[]): Sym {
     const res = check(lkup);
-    if (Type.isUndefined(res)) {
+    if (isUndefined(res)) {
       throw new Error(
-        `Required symbol "${
-          Type.isString(lkup) ? lkup : lkup.join('.')
-        }" not found`,
+        `Required symbol "${isString(lkup) ? lkup : lkup.join('.')}" not found`,
       );
     }
     return res;

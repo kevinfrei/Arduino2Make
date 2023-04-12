@@ -1,4 +1,4 @@
-import { Type } from '@freik/core-utils';
+import { isUndefined } from '@freik/typechk';
 import { Filter } from '../config.js';
 import {
   Condition,
@@ -153,8 +153,8 @@ export function prefixAndJoinFiles(
   prefixer?: (str: string) => string,
   trimmer?: string,
 ): string {
-  if (!Type.isUndefined(prefixer)) {
-    if (Type.isUndefined(trimmer)) {
+  if (!isUndefined(prefixer)) {
+    if (isUndefined(trimmer)) {
       filteredFiles = filteredFiles.map(prefixer);
     } else {
       const reAdd = new Set<number>();

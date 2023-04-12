@@ -1,4 +1,4 @@
-import { Type } from '@freik/core-utils';
+import { isString, isUndefined } from '@freik/typechk';
 import { GetTarget } from './main.js';
 import { LookupSymbol } from './symbols.js';
 import type {
@@ -27,13 +27,13 @@ function resolveValue(value: string, parsedFile: ParsedFile): DependentValue {
       const nextSym = value.substring(newloc + 1, close);
       // Get the value of that symbol
       const symVal = LookupSymbol(nextSym, parsedFile.scopedTable);
-      if (Type.isUndefined(symVal)) {
+      if (isUndefined(symVal)) {
         unresolved.add(nextSym);
         res = `${res}{${nextSym}}`;
       } else {
         // Potentially unbounded/mutual recursion here. That would be bad...
         const val = resolveValue(
-          Type.isString(symVal) ? symVal : symVal(),
+          isString(symVal) ? symVal : symVal(),
           parsedFile,
         );
         unresolved = new Set([...unresolved, ...val.unresolved]);
@@ -54,7 +54,7 @@ export function ResolvedValue(
   parsedFile: ParsedFile,
 ): string {
   if (vrbl.value) {
-    const val = Type.isString(vrbl.value) ? vrbl.value : vrbl.value();
+    const val = isString(vrbl.value) ? vrbl.value : vrbl.value();
     const res = resolveValue(val, parsedFile);
     return res.value;
   } else {
@@ -113,9 +113,7 @@ export function MakeResolve(
 
 export function GetPlainValue(vrbl: SimpleSymbol): DependentValue {
   if (vrbl.value) {
-    return MakeDependentValue(
-      Type.isString(vrbl.value) ? vrbl.value : vrbl.value(),
-    );
+    return MakeDependentValue(isString(vrbl.value) ? vrbl.value : vrbl.value());
   } else {
     return { value: '', unresolved: new Set() };
   }

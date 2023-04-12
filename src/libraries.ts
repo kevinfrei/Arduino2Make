@@ -1,4 +1,4 @@
-import { Type } from '@freik/core-utils';
+import { isString, isUndefined } from '@freik/typechk';
 import { promises as fsp } from 'fs';
 import * as path from 'path';
 import {
@@ -23,7 +23,7 @@ import { Unquote } from './utils.js';
 // https://arduino.github.io/arduino-cli/library-specification/
 
 function getSemanticVersion(verstr?: string): SemVer {
-  if (Type.isUndefined(verstr)) {
+  if (isUndefined(verstr)) {
     return '';
   }
   const match = /^(\d+)(?:\.(\d+)(?:\.(\d+))?)?$/.exec(verstr);
@@ -38,7 +38,7 @@ function getSemanticVersion(verstr?: string): SemVer {
 
 // TODO: Handle version stuff
 function getDependencies(deps?: string): LibDependency[] {
-  if (!Type.isString(deps)) return [];
+  if (!isString(deps)) return [];
   return [
     ...deps
       .split(',')
@@ -57,12 +57,12 @@ function getDependencies(deps?: string): LibDependency[] {
 }
 
 function getList(str?: string): string[] | undefined {
-  if (!Type.isString(str)) return;
+  if (!isString(str)) return;
   return [...str.split(',').map((v) => v.trim())];
 }
 
 function getPrecomp(pre?: string): boolean | 'full' {
-  if (!Type.isString(pre)) {
+  if (!isString(pre)) {
     return false;
   } else if (pre === 'full') {
     return pre;
@@ -90,7 +90,7 @@ function getCategory(str?: string): Categories {
 
 function getString(name: string, tbl: DumbSymTbl): string | undefined {
   const val = tbl.get(name)?.value;
-  if (Type.isString(val)) {
+  if (isString(val)) {
     return val;
   }
 }
