@@ -15,13 +15,8 @@
     "build": true,
     "dist": true,
     "yarn*.l*": true,
-    "LICENSE.md": true,
-    ".husky": true,
-    "*.tsbuildinfo": true,
-    ".gitmodules": true,
-    ".eslintcache": true,
-    ".yarn": true,
-    ".github": true
+    "LICENSE*": true,
+    ".*": true
   },
   "typescript.tsdk": ".yarn/sdks/typescript/lib",
   "editor.codeActionsOnSave": {
