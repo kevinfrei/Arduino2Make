@@ -1,6 +1,6 @@
 import { FileUtil } from '@freik/node-utils';
 import { promises } from 'fs';
-import main from '../main';
+import { main } from '../main';
 
 const outputFiles = [
   'src/__test__/avr.txt',

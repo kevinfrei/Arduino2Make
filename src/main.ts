@@ -52,7 +52,15 @@ export function GetTarget(): BuildSystemHost {
   return buildSysTarget;
 }
 
-async function parseCommandLine(args: string[]): Promise<string[]> {
+export type RunConfig = {
+  configFile?: string;
+  outputFile?: string;
+  target?: 'gnumake';
+  root: string;
+  libs?: string[];
+};
+
+function parseCommandLine(args: string[]): RunConfig {
   const argv = minimist(args, {
     // eslint-disable-next-line id-blacklist
     string: ['config', 'target', 'out', 'help'],
@@ -63,27 +71,37 @@ async function parseCommandLine(args: string[]): Promise<string[]> {
   if (hasStrField(argv, 'help')) {
     ShowHelp();
   }
-  if (hasStrField(argv, 'config')) {
-    await ReadConfig(argv.config);
+  const configFile = hasStrField(argv, 'config') ? argv.config : undefined;
+  // await ReadConfig(argv.config);
+  const outputFile = hasStrField(argv, 'out') ? argv.out : undefined;
+  const target =
+    hasStrField(argv, 'target') && argv.target.toLocaleLowerCase() === 'gnumake'
+      ? 'gnumake'
+      : undefined;
+  const root = argv._[0];
+  const libs = argv._.slice(1);
+  if (
+    hasStrField(argv, 'target') &&
+    argv.target.toLocaleLowerCase() !== 'gnumake'
+  ) {
+    throw Error(`Command line error: Unsupported target ${argv.target}`);
   }
-  SetOutputFile(argv?.out);
-  if (hasStrField(argv, 'target')) {
-    if (argv.target.toLocaleLowerCase() !== 'gnumake') {
-      throw Error(`Command line error: Unsupported target ${argv.target}`);
-    }
-  }
-  return argv._;
+  return { configFile, outputFile, target, root, libs };
 }
 
-export default async function main(...args: string[]): Promise<void> {
+async function applyConfig(config: RunConfig): Promise<void> {
+  if (config.configFile) {
+    await ReadConfig(config.configFile);
+  }
+  if (config.outputFile) {
+    SetOutputFile(config.outputFile);
+  }
+}
+
+export async function generate(config: RunConfig): Promise<void> {
   try {
-    // Get command line
-    const normalArgs = await parseCommandLine(args);
-    if (normalArgs.length === 0 && !IsConfigPresent()) {
-      ShowHelp('Missing command line or configuration');
-    }
-    const root = normalArgs[0];
-    const libLocs = normalArgs.slice(1);
+    await applyConfig(config);
+    const { root, libs } = config;
     // Parse the input files
     const boardPath = path.join(root, 'boards.txt');
     const boards = EnumerateBoards(await ParseFile(boardPath));
@@ -91,7 +109,7 @@ export default async function main(...args: string[]): Promise<void> {
     const platform = MakePlatform(await ParseFile(platformPath));
     // Scan the libraries:
     // TODO: Move Defs from Library into platformtTarget
-    const libraries = await GetLibraries(root, libLocs);
+    const libraries = libs ? await GetLibraries(root, libs) : [];
 
     // const globals = MakeGlobals(buildSysTarget);
 
@@ -106,5 +124,22 @@ export default async function main(...args: string[]): Promise<void> {
     const file = hasStrField(e, 'fileName') ? e.fileName : '<no filename>';
     const line = hasFieldType(e, 'lineNumber', isNumber) ? e.lineNumber : -1;
     ShowHelp(`Error: ${name} @ ${file}#${line}:\n${message}`);
+  }
+}
+
+export async function main(...args: string[]): Promise<void> {
+  try {
+    // Get command line
+    const cmdLnConfig = parseCommandLine(args);
+    if (
+      (!isString(cmdLnConfig.root) || cmdLnConfig.root.length === 0) &&
+      !IsConfigPresent()
+    ) {
+      ShowHelp('Missing command line or configuration');
+    } else {
+      await generate(cmdLnConfig);
+    }
+  } catch (e) {
+    ShowHelp(e as string);
   }
 }
