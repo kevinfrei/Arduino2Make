@@ -10,17 +10,19 @@
   "bin": "./ar2mak.js",
   "files": ["lib/**/*", "ar2mak.js"],
   "scripts": {
-    "release": "rimraf ./lib && tsc -p tsconfig.opt.json && yarn ftool minify -i -r lib",
+    "release": "rimraf ./lib && tsc -p tsconfig.opt.json && ftool minify -i -r lib",
     "build": "rimraf ./lib && tsc",
     "postinstall": "husky install",
-    "prepublishOnly": "yarn run chk && yarn pinst --disable",
-    "postpublish": "yarn pinst --enable",
-    "prepare": "yarn run build",
-    "format": "yarn ftool format",
+    "prepublishOnly": "bun run chk && pinst --disable",
+    "postpublish": "pinst --enable",
+    "prepare": "bun run build",
+    "format": "ftool format",
     "lint": "eslint src --fix --ext ts",
-    "chk": "yarn run build && yarn run lint && yarn run test",
+    "chk": "bun run build && bun run lint && bun run test",
     "test": "jest --config jestconfig.json",
-    "watch": "jest --config jestconfig.json --watch"
+    "watch": "jest --config jestconfig.json --watch",
+    "pre-commit": "bun run format",
+    "pre-push": "bun run chk"
   },
   "dependencies": {
     "@freik/typechk": "^0.5.12",
