@@ -42,7 +42,6 @@ Usage: {flags} rootDir {lib1Dir lib2Dir lib3Dir}
     --out|-o <filename> Spit the output into filename
     --target|-t <gnumake> Generate a project for the given target (only GNUMake currently...)
 `);
-  process.exit(0);
 }
 
 // Var def to match, substr to find, string to replace substr with
@@ -67,14 +66,14 @@ export type RunConfig = {
 
 function parseCommandLine(args: string[]): RunConfig {
   const argv = minimist(args, {
-     
     string: ['config', 'target', 'out', 'help'],
-     
+
     alias: { c: 'config', t: 'target', o: 'out', h: 'help', '?': 'help' },
     default: { target: 'gnumake' },
   });
   if (hasStrField(argv, 'help')) {
     ShowHelp();
+    process.exit(0);
   }
   const configFile = hasStrField(argv, 'config') ? argv.config : undefined;
   // await ReadConfig(argv.config);

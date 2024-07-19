@@ -1,6 +1,6 @@
 {
   "name": "@freik/arduino2proj",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "Arduino platform and library to Makefile conversion tool",
   "type": "module",
   "module": "./lib/main.js",
@@ -19,7 +19,7 @@
     "release": "rimraf ./lib && tsc -p tsconfig.opt.json && ftool minify -i -r lib",
     "build": "rimraf ./lib && tsc -p tsconfig.opt.json && ftool minify -i -r lib",
     "_build": "rimraf ./lib && tsc",
-    "_postinstall": "husky install",
+    "postinstall": "husky install",
     "prepublishOnly": "pinst --disable",
     "postpublish": "pinst --enable",
     "prepare": "bun run release",
