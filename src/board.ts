@@ -22,7 +22,7 @@ function makeBoard(val: SimpleSymbol, menus: Map<string, string>): Board {
   menuSyms.forEach((ss: SimpleSymbol, key: string) => {
     if (!menus.has(key)) {
       // TODO: Throw an error here? Make a 'warning' level?
-      // eslint-disable-next-line no-console
+       
       console.error(
         `Boards.txt file looks malformed: Missing ${key} from the menu list`,
       );

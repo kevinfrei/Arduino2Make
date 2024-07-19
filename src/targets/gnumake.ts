@@ -201,33 +201,33 @@ function emitRules(rules: GnuMakeRecipe[]) {
 # And now the build rules!
 
 # First, the phony rules that don't produce things
-.PHONY: $\{PROJ_NAME\} flash clean allclean
+.PHONY: $\{PROJ_NAME} flash clean allclean
 
 # Now the default target
-all: $\{BUILD_PATH\} $\{PROJ_NAME\}
+all: $\{BUILD_PATH} $\{PROJ_NAME}
 
 # Some house keeping
 clean:
-\t-rm $\{USER_OBJS\} $\{USER_EXTRA\}
+\t-rm $\{USER_OBJS} $\{USER_EXTRA}
 
 allclean: clean
-\t-rm -rf $\{BUILD_PATH\}
+\t-rm -rf $\{BUILD_PATH}
 
 # Make us rebuild user code if the makefile(s) change:
 # Needs to be above the deps thing, I think
-$\{USER_OBJS\} : $(MAKEFILE_LIST)
+$\{USER_OBJS} : $(MAKEFILE_LIST)
 
 # Let's start using the generated .d files...
 -include $(ALL_OBJS:.o=.d)
 
 # Next, the project name shortcut, because it's easier
-$\{PROJ_NAME\}: $\{BUILD_PATH\} $\{BUILD_PATH\}/$\{PROJ_NAME\}.${targetSuffix}
+$\{PROJ_NAME}: $\{BUILD_PATH} $\{BUILD_PATH}/$\{PROJ_NAME}.${targetSuffix}
 
 # Add a 'flash' target
-flash: $\{BUILD_PATH\}/$\{PROJ_NAME\}.flash
+flash: $\{BUILD_PATH}/$\{PROJ_NAME}.flash
 
 # And finally, create the directory
-$\{BUILD_PATH\}:
+$\{BUILD_PATH}:
 ifeq ($(RUNTIME_OS),windows)
 \t-@mkdir "$@"
 else
@@ -239,12 +239,12 @@ endif
   rules.forEach((rule: GnuMakeRecipe) => {
     Dump()('');
     if (rule.dst === 'o') {
-      Dump()(`$\{BUILD_PATH\}/%.${rule.src}.o : %.${rule.src}`);
+      Dump()(`$\{BUILD_PATH}/%.${rule.src}.o : %.${rule.src}`);
       const sfx = rule.src.toUpperCase();
       const cmd = tryToAddUserExtraFlag(sfx, '"$<"', rule.command);
       Dump()(`\t${cmd}\n`);
       // Also, let's make the .jsn compile_commands target
-      Dump()(`$\{BUILD_PATH\}/%.${rule.src}.jsn : %.${rule.src}`);
+      Dump()(`$\{BUILD_PATH}/%.${rule.src}.jsn : %.${rule.src}`);
       Dump()('\t$(file >$@,dir#$(<D))');
       Dump()('\t$(file >>$@,fil#$(<F))');
       Dump()(`\t$(file >>$@,cmd#${cmd})`);
@@ -276,7 +276,7 @@ $\{BUILD_PATH}/compile_commands.jsn: $\{USER_JSN} $\{SYS_JSN}
 compile_commands: $\{BUILD_PATH} $\{BUILD_PATH}/compile_commands.jsn`);
 }
 function tryToAddUserExtraFlag(sfx: string, srch: string, cmd: string) {
-  const flg = `$\{COMPILER_${sfx}_EXTRA_FLAGS\} `;
+  const flg = `$\{COMPILER_${sfx}_EXTRA_FLAGS} `;
   if (cmd.indexOf(flg) < 0) {
     const loc = cmd.indexOf(srch);
     if (loc > 0) cmd = cmd.substring(0, loc) + flg + cmd.substring(loc);

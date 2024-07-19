@@ -441,7 +441,7 @@ export async function BuildPlatform(
     $(patsubst %.c, %.c.${suffix}, \\
       $(patsubst %.cpp, %.cpp.${suffix}, \\
         $(patsubst %.ino, %.ino.${suffix}, \\
-          $(patsubst %.S, %.S.${suffix}, $(notdir $\{${varname}\}))))))`,
+          $(patsubst %.S, %.S.${suffix}, $(notdir $\{${varname}}))))))`,
       [],
       [],
     );

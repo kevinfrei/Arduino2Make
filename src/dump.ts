@@ -22,12 +22,12 @@ export function Dump(which?: string): (message: unknown) => void {
   switch (which) {
     case undefined:
     case 'log':
-      return isUndefined(outputFile) ? console.log : dumpToFile; // eslint-disable-line no-console
+      return isUndefined(outputFile) ? console.log : dumpToFile;  
     case 'err':
-      return console.error; // eslint-disable-line no-console
+      return console.error;  
     default:
       return (msg) => {
-        // eslint-disable-next-line no-console
+         
         console.error(which, ' is an invalid selector: ', msg);
       };
   }

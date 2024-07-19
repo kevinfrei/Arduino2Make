@@ -9,17 +9,7 @@ import {
 } from '@freik/typechk';
 import { promises as fs } from 'fs';
 import { Dump } from './dump.js';
-
-// Var def to match, substr to find, string to replace substr with
-type TransformItem = { defmatch: string; text: string; replace: string };
-// Var def to match, substring to filter out
-type FilterItem = { defmatch: string; remove: string };
-
-// This should grow with time, I think
-type Config = {
-  transforms: TransformItem[];
-  filters: FilterItem[];
-};
+import { Config, FilterItem, TransformItem } from './main.js';
 
 const isTransformItem = chkObjectOfType<TransformItem>({
   defmatch: isString,
@@ -41,24 +31,25 @@ function isConfig(i: unknown): i is Partial<Config> {
 
 let config: Partial<Config> | undefined;
 
-export function IsConfigPresent(): boolean {
-  return !isUndefined(config);
-}
-
-export async function ReadConfig(
-  cfgPath: string,
-): Promise<Partial<Config> | undefined> {
+export async function LoadConfig(cfgPath: string): Promise<void> {
   try {
     const cfg = await fs.readFile(cfgPath, 'utf-8');
-    const json = SafelyUnpickle(cfg, isConfig);
-    if (isUndefined(json)) {
-      Dump('err')('Invalid type for config file:');
-      Dump('err')(json);
+    config = SafelyUnpickle(cfg, isConfig);
+    if (isUndefined(config)) {
+      Dump('err')('Invalid config file:');
+      Dump('err')(config);
     }
-    return json;
   } catch (e) {
     Dump('err')('Unable to read config file:');
     Dump('err')(e);
+  }
+}
+
+export function AddConfig(cfg: Partial<Config>): void {
+  if (isUndefined(config)) {
+    config = cfg;
+  } else {
+    config = { ...config, ...cfg };
   }
 }
 

@@ -8,7 +8,7 @@ import {
 import minimist from 'minimist';
 import path from 'path';
 import { EnumerateBoards } from './board.js';
-import { IsConfigPresent, ReadConfig } from './config.js';
+import { AddConfig, LoadConfig } from './config.js';
 import { Dump, FlushOutput, SetOutputFile } from './dump.js';
 import { GetLibraries } from './libraries.js';
 import { ParseFile } from './parser.js';
@@ -45,8 +45,20 @@ Usage: {flags} rootDir {lib1Dir lib2Dir lib3Dir}
   process.exit(0);
 }
 
+// Var def to match, substr to find, string to replace substr with
+export type TransformItem = { defmatch: string; text: string; replace: string };
+// Var def to match, substring to filter out
+export type FilterItem = { defmatch: string; remove: string };
+
+// This should grow with time, I think
+export type Config = {
+  transforms: TransformItem[];
+  filters: FilterItem[];
+};
+
 export type RunConfig = {
   configFile?: string;
+  config?: Partial<Config>;
   outputFile?: string;
   target?: 'gnumake';
   root: string;
@@ -55,9 +67,9 @@ export type RunConfig = {
 
 function parseCommandLine(args: string[]): RunConfig {
   const argv = minimist(args, {
-    // eslint-disable-next-line id-blacklist
+     
     string: ['config', 'target', 'out', 'help'],
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     alias: { c: 'config', t: 'target', o: 'out', h: 'help', '?': 'help' },
     default: { target: 'gnumake' },
   });
@@ -84,7 +96,10 @@ function parseCommandLine(args: string[]): RunConfig {
 
 async function applyConfig(config: RunConfig): Promise<void> {
   if (config.configFile) {
-    await ReadConfig(config.configFile);
+    await LoadConfig(config.configFile);
+  }
+  if (config.config) {
+    AddConfig(config.config);
   }
   if (config.outputFile) {
     SetOutputFile(config.outputFile);
@@ -127,10 +142,7 @@ export async function main(...args: string[]): Promise<void> {
   try {
     // Get command line
     const cmdLnConfig = parseCommandLine(args);
-    if (
-      (!isString(cmdLnConfig.root) || cmdLnConfig.root.length === 0) &&
-      !IsConfigPresent()
-    ) {
+    if (!isString(cmdLnConfig.root) || cmdLnConfig.root.length === 0) {
       ShowHelp('Missing command line or configuration');
     } else {
       await generate(cmdLnConfig);
