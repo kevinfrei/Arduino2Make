@@ -13,8 +13,7 @@ import { Dump, FlushOutput, SetOutputFile } from './dump.js';
 import { GetLibraries } from './libraries.js';
 import { ParseFile } from './parser.js';
 import { MakePlatform } from './platform.js';
-import { GetGnuMakeTarget } from './targets/gnumake.js';
-import { BuildSystemHost } from './types.js';
+import { GetTarget } from './utils.js';
 
 // Overall structure:
 // Walk the platform.txt file, documented here:
@@ -29,7 +28,7 @@ import { BuildSystemHost } from './types.js';
 // Once that's done, then restructre the resulting makefile to be more
 // configurable
 
-export function ShowHelp(message?: string | string[]) {
+function ShowHelp(message?: string | string[]) {
   if (!isUndefined(message)) {
     const msg = isString(message) ? [message] : message;
     msg.forEach(Dump('err'));
@@ -44,12 +43,6 @@ Usage: {flags} rootDir {lib1Dir lib2Dir lib3Dir}
     --target|-t <gnumake> Generate a project for the given target (only GNUMake currently...)
 `);
   process.exit(0);
-}
-
-const buildSysTarget: BuildSystemHost = GetGnuMakeTarget();
-
-export function GetTarget(): BuildSystemHost {
-  return buildSysTarget;
 }
 
 export type RunConfig = {
@@ -96,6 +89,9 @@ async function applyConfig(config: RunConfig): Promise<void> {
   if (config.outputFile) {
     SetOutputFile(config.outputFile);
   }
+  if (config.target) {
+    // TODO: Do something here when we have more than one possible target
+  }
 }
 
 export async function generate(config: RunConfig): Promise<void> {
@@ -114,7 +110,7 @@ export async function generate(config: RunConfig): Promise<void> {
     // const globals = MakeGlobals(buildSysTarget);
 
     // Emit the build stuff:
-    await buildSysTarget.emit(platformPath, platform, boards, libraries);
+    await GetTarget().emit(platformPath, platform, boards, libraries);
 
     // Flush the output to disk...
     await FlushOutput();

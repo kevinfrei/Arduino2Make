@@ -1,13 +1,20 @@
 import { isString, isUndefined } from '@freik/typechk';
-import { GetTarget } from './main.js';
 import { LookupSymbol } from './symbols.js';
+import { GetGnuMakeTarget } from './targets/gnumake.js';
 import type {
+  BuildSystemHost,
   Definition,
   DependentUpon,
   DependentValue,
   ParsedFile,
   SimpleSymbol,
 } from './types.js';
+
+const buildSysTarget: BuildSystemHost = GetGnuMakeTarget();
+
+export function GetTarget(): BuildSystemHost {
+  return buildSysTarget;
+}
 
 // This takes a value, and returns the resolved value plus the list of
 // undefined names within the value
