@@ -10,7 +10,7 @@ export default [
   // pluginReactConfig,
   prettierConfig,
   {
-    ignores: ['/node_modules', 'src/__test__/*ts'],
+    ignores: ['src/__test__/**/*'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
     },

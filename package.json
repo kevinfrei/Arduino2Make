@@ -16,11 +16,11 @@
     "ar2mak.js"
   ],
   "scripts": {
-    "release": "bun rm ./lib && tsc -p tsconfig.opt.json && tools minify -i -r lib",
-    "build": "bun rm ./lib && tsc -p tsconfig.opt.json && tools minify -i -r lib",
+    "release": "bun rm ./lib && tsc -p tsconfig.opt.json && tools make-module --minify src/*.ts src/downloader/*.ts src/targets/*.ts",
+    "build": "bun rm ./lib && tsc -p tsconfig.opt.json && tools make-module --minify src/*.ts src/downloader/*.ts src/targets/*.ts",
     "_build": "bun rm ./lib && tsc",
     "format": "tools format",
-    "lint": "eslint src --fix src/**/*.ts",
+    "lint": "eslint --config eslint.config.mjs --fix src/*.ts src/downloader/*.ts src/targets/*.ts",
     "chk": "bun run build && bun run lint && bun run test",
     "test": "bun test",
     "watch": "bun test --watch",
@@ -46,7 +46,8 @@
     "eslint-plugin-prettier": "^5.2.1",
     "husky": "^9.1.7",
     "prettier": "^3.4.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
