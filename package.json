@@ -23,10 +23,9 @@
     "lint": "eslint src --fix src/**/*.ts",
     "chk": "bun run build && bun run lint && bun run test",
     "test": "bun test",
-    "watch": "jest --config jestconfig.json --watch",
+    "watch": "bun test --watch",
     "pre-commit": "bun run format",
-    "pre-push": "bun run chk",
-    "prepare": "husky install"
+    "pre-push": "bun run chk"
   },
   "dependencies": {
     "@freik/typechk": "^0.6.4",
