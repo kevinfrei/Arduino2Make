@@ -1,3 +1,5 @@
+import { expect, it } from 'bun:test';
+
 import { MakeSymbolTable } from '../symbols';
 
 it('Basic Symbol Table', () => {

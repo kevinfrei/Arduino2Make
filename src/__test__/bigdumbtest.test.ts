@@ -1,4 +1,5 @@
 import { FileUtil } from '@freik/node-utils';
+import { afterAll, beforeAll, expect, it } from 'bun:test';
 import { promises } from 'fs';
 import { main } from '../main';
 
