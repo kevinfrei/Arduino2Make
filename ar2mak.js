@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 // Call main with boards.txt platform.txt programmers.txt
 
 import { main } from './lib/main.js';

@@ -16,8 +16,8 @@
     "ar2mak.js"
   ],
   "scripts": {
-    "release": "bun rm ./lib && tools make-module --minify src/*.ts",
-    "build": "bun rm ./lib && tools make-module --minify src/*.ts",
+    "release": "bun rm ./lib && tools make-module -t tsconfig.opt.json --minify src/*.ts src/downloader/*.ts src/targets/*.ts",
+    "build": "bun rm ./lib && tools make-module -t tsconfig.opt.json --minify src/*.ts src/downloader/*.ts src/targets/*.ts",
     "_build": "bun rm ./lib && tsc",
     "format": "tools format bun",
     "lint": "eslint --config eslint.config.mjs --fix src/*.ts src/downloader/*.ts src/targets/*.ts",
