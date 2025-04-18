@@ -1,6 +1,7 @@
 import { isUndefined } from '@freik/typechk';
 import * as fs from 'fs';
 import * as rl from 'readline';
+
 import { Dump } from './dump.js';
 import { MakeSymbol } from './symbols.js';
 import type { DumbSymTbl, ParsedFile } from './types.js';

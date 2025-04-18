@@ -1,4 +1,4 @@
-# Arduino2Make
+# Arduino2Proj
 
 This is a tool to input Arduino platform configuration files and produce a GNU
 Makefile that can be include'd by your little project. It's been tested on
@@ -7,31 +7,26 @@ projects using:
 - Adafruit Feather nRF52832
 - Adafruit Feather nRF52840 Express
 - Adafruit ItsyBitsy nRF52840
+- Adafruit Feather RP2040
+- Adafruit Keeboar RP2040
 - Teensy 3.2
 - Teensy 4.0
 - Teensy 4.1
 
-> I'm in the process of switching this over to an NPM module, because I've been
-> using node to do some basic stuff (like auto-code formatting) and it's quite
-> convenient to just have a mostly self-contained scripting system wrapped
-> around a big ungainly collection of C++ code.
+## Usage
 
-Maybe I'll also get it tested with the Adafruit SAMD stuff, as I have a PyRuler
-(which is mostly an Adafruit Trinket M0). I'm trying to beat into something
-useful (and writing something useful in Python seems like not something I wanna
-do...).
+First, you need to install the [bun runtime](https://bun.sh). Once that's
+installed, create a makefile include-able file by doing this:
 
-Usage:
-
-`yarn build` (TypeScript transpilation)
-
-`./ar2mk.js folder/with/platform/board/txt/files other/folders with/libraries`
-`>` `include.win.mk` (You'll need to create different files for Windows, Linux,
-and MacOS)
-
-Then from your Makefile:
-
+```sh
+bunx @freik/arduino2proj folder/with/platform/board/txt/files other/folders with/libraries
+> include.win.mk
 ```
+
+(You'll need to create different files for Windows, Linux, and MacOS) Then from
+your Makefile:
+
+```makefile
 # Some 'location' details
 ifeq ($(OS),Windows_NT)
 	ARD=${HOME}/AppData/Local
@@ -106,8 +101,7 @@ It creates a `compile_commands.json` file that you can use to get fully accurate
 VS Code auto-complete, which is pretty excellent.
 
 I can build using 24 cores in a few seconds, and then I flash the firmware.
-Works like a charm from both my Windows AMD Ryzen 5900X box, i7 MacMini, and my
-M1 Pro MacBook Pro.
+Works like a charm from my Windows, Linux, and Mac systems.
 
 I don't intend to deal with the bootloader stuff. That happens rarely enough it
 doesn't seem worth the effort. Just use the Arduino IDE if you have to deal with

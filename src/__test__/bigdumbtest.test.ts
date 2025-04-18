@@ -14,7 +14,7 @@ async function deleteOutputs() {
   for (const file of outputFiles) {
     try {
       await promises.unlink(file);
-    } catch (err) {
+    } catch {
       /* */
     }
   }

@@ -1,4 +1,5 @@
 import { isUndefined } from '@freik/typechk';
+
 import { Filter } from '../config.js';
 import {
   Condition,

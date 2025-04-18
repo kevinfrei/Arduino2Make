@@ -7,6 +7,7 @@ import {
 } from '@freik/typechk';
 import minimist from 'minimist';
 import path from 'path';
+
 import { EnumerateBoards } from './board.js';
 import { AddConfig, LoadConfig } from './config.js';
 import { Dump, FlushOutput, SetOutputFile } from './dump.js';

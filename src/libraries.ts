@@ -1,6 +1,7 @@
 import { isString, isUndefined } from '@freik/typechk';
 import { promises as fsp } from 'fs';
 import * as path from 'path';
+
 import {
   EnumerateDirectory,
   EnumerateFiles,

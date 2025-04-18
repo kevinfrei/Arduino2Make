@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // Call main with boards.txt platform.txt programmers.txt
 
-import { main } from './lib/main.js';
+import { main } from './main.js';
 
 const args = process.argv.slice(2);
 if (args.length === 0) {
@@ -11,6 +11,6 @@ if (args.length === 0) {
   );
 } else {
   main(...args)
-    .then((a) => {})
+    .then(() => {})
     .catch((a) => console.log(`# error: ${a}`));
 }

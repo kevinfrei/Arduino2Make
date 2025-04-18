@@ -1,4 +1,5 @@
 import { isString, isUndefined } from '@freik/typechk';
+
 import { Dump } from './dump.js';
 import type {
   DumbSymTbl,
