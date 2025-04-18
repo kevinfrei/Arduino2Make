@@ -10,7 +10,7 @@ import {
 import { promises as fs } from 'fs';
 
 import { Dump } from './dump.js';
-import { Config, FilterItem, TransformItem } from './main.js';
+import { ConfigChanges, FilterItem, TransformItem } from './types.js';
 
 const isTransformItem = chkObjectOfType<TransformItem>({
   defmatch: isString,
@@ -23,19 +23,19 @@ const isFilterItem = chkObjectOfType<FilterItem>({
   remove: isString,
 });
 
-function isConfig(i: unknown): i is Partial<Config> {
+function isConfigChanges(i: unknown): i is Partial<ConfigChanges> {
   return (
     hasFieldType(i, 'transforms', chkArrayOf(isTransformItem)) ||
     hasFieldType(i, 'filters', chkArrayOf(isFilterItem))
   );
 }
 
-let config: Partial<Config> | undefined;
+let config: Partial<ConfigChanges> | undefined;
 
 export async function LoadConfig(cfgPath: string): Promise<void> {
   try {
     const cfg = await fs.readFile(cfgPath, 'utf-8');
-    config = SafelyUnpickle(cfg, isConfig);
+    config = SafelyUnpickle(cfg, isConfigChanges);
     if (isUndefined(config)) {
       Dump('err')('Invalid config file:');
       Dump('err')(config);
@@ -46,7 +46,7 @@ export async function LoadConfig(cfgPath: string): Promise<void> {
   }
 }
 
-export function AddConfig(cfg: Partial<Config>): void {
+export function AddConfig(cfg: Partial<ConfigChanges>): void {
   if (isUndefined(config)) {
     config = cfg;
   } else {

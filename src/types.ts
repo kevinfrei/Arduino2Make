@@ -205,3 +205,27 @@ export type BuildSystemHost = {
   expandName: (nm: string) => { name: string; expansion: string };
   globals: PlatformGlobalFuncs;
 };
+
+// Var def to match, substr to find, string to replace substr with
+export type TransformItem = { defmatch: string; text: string; replace: string };
+
+// Var def to match, substring to filter out
+export type FilterItem = { defmatch: string; remove: string };
+
+// This should grow with time, I think
+export type ConfigChanges = {
+  transforms: TransformItem[];
+  filters: FilterItem[];
+};
+
+export type GnuTargetConfig = {
+  target: 'gnumake';
+  outputFile: string;
+};
+
+export type RunConfig = GnuTargetConfig & {
+  root: string;
+  libs?: string[];
+  configFile?: string;
+  changes?: Partial<ConfigChanges>;
+};

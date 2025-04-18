@@ -14,6 +14,7 @@ import { Dump, FlushOutput, SetOutputFile } from './dump.js';
 import { GetLibraries } from './libraries.js';
 import { ParseFile } from './parser.js';
 import { MakePlatform } from './platform.js';
+import { RunConfig } from './types.js';
 import { GetTarget } from './utils.js';
 
 // Overall structure:
@@ -45,30 +46,9 @@ Usage: {flags} rootDir {lib1Dir lib2Dir lib3Dir}
 `);
 }
 
-// Var def to match, substr to find, string to replace substr with
-export type TransformItem = { defmatch: string; text: string; replace: string };
-// Var def to match, substring to filter out
-export type FilterItem = { defmatch: string; remove: string };
-
-// This should grow with time, I think
-export type Config = {
-  transforms: TransformItem[];
-  filters: FilterItem[];
-};
-
-export type RunConfig = {
-  configFile?: string;
-  config?: Partial<Config>;
-  outputFile?: string;
-  target?: 'gnumake';
-  root: string;
-  libs?: string[];
-};
-
 function parseCommandLine(args: string[]): RunConfig {
   const argv = minimist(args, {
     string: ['config', 'target', 'out', 'help'],
-
     alias: { c: 'config', t: 'target', o: 'out', h: 'help', '?': 'help' },
     default: { target: 'gnumake' },
   });
@@ -85,11 +65,13 @@ function parseCommandLine(args: string[]): RunConfig {
       : undefined;
   const root = argv._[0];
   const libs = argv._.slice(1);
-  if (
-    hasStrField(argv, 'target') &&
-    argv.target.toLocaleLowerCase() !== 'gnumake'
-  ) {
-    throw Error(`Command line error: Unsupported target ${argv.target}`);
+  if (target === undefined) {
+    ShowHelp(`Unsupported target ${argv.target}`);
+    process.exit(1);
+  }
+  if (outputFile === undefined) {
+    ShowHelp('Missing output file');
+    process.exit(1);
   }
   return { configFile, outputFile, target, root, libs };
 }
@@ -98,14 +80,14 @@ async function applyConfig(config: RunConfig): Promise<void> {
   if (config.configFile) {
     await LoadConfig(config.configFile);
   }
-  if (config.config) {
-    AddConfig(config.config);
+  if (config.changes) {
+    AddConfig(config.changes);
   }
   if (config.outputFile) {
     SetOutputFile(config.outputFile);
   }
-  if (config.target) {
-    // TODO: Do something here when we have more than one possible target
+  if (config.target && config.target !== 'gnumake') {
+    throw Error(`Unsupported target ${config.target}`);
   }
 }
 
@@ -119,7 +101,7 @@ export async function generate(config: RunConfig): Promise<void> {
     const platformPath = path.join(root, 'platform.txt');
     const platform = MakePlatform(await ParseFile(platformPath));
     // Scan the libraries:
-    // TODO: Move Defs from Library into platformtTarget
+    // TODO: Move Defs from Library into platformTarget
     const libraries = libs ? await GetLibraries(root, libs) : [];
 
     // const globals = MakeGlobals(buildSysTarget);
