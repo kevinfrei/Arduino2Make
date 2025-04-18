@@ -1,4 +1,4 @@
-import { FileUtil } from '@freik/node-utils';
+import { TextFileToArray } from '@freik/files';
 import { afterAll, beforeAll, expect, it } from 'bun:test';
 import { promises } from 'fs';
 import { main } from '../main';
@@ -21,8 +21,8 @@ async function deleteOutputs() {
 }
 
 async function fileCompare(file1: string, file2: string): Promise<boolean> {
-  const f1 = await FileUtil.textFileToArrayAsync(file1);
-  const f2 = await FileUtil.textFileToArrayAsync(file2);
+  const f1 = await TextFileToArray(file1);
+  const f2 = await TextFileToArray(file2);
   if (f1.length !== f2.length) {
     return false;
   }
