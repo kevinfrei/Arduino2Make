@@ -23,7 +23,7 @@
     "local_release": "rimraf ./lib && tools make-module --esm --minify --ts tsconfig.opt.json --platform node src/*.ts",
     "local_build": "rimraf ./lib && tools make-module --esm --minify --ts tsconfig.json --platform node src/*.ts",
     "local__build": "rimraf ./lib && tsc",
-    "prepare": "husky",
+    "prepare": "bun run husky",
     "local_lint": "eslint src --fix src/**/*.ts",
     "chk": "bun run build && bun run lint && bun run test",
     "test": "bun test",
