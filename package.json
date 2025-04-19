@@ -12,7 +12,7 @@
   "scripts": {
     "release": "bun build --entrypoints ./src/ar2mak.ts --outdir ./lib --target bun --minify",
     "dbg": "bun build --entrypoints ./src/ar2mak.ts --outdir ./lib --target bun",
-    "clean": "bun repl --eval \"Bun.$`rm -rf ./lib`\"",
+    "clean": "bun run scripts/clean.ts",
     "format": "tools format bun",
     "prepare": "bun run husky",
     "test": "bun test",
