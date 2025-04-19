@@ -1,5 +1,5 @@
 import { isUndefined } from '@freik/typechk';
-import * as path from 'path';
+import * as path from 'node:path';
 
 import { GetFileList } from '../files.js';
 import { GetNestedChild } from '../symbols.js';

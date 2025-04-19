@@ -7,7 +7,7 @@ import {
   isString,
   isUndefined,
 } from '@freik/typechk';
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 
 import { Dump } from './dump.js';
 import { ConfigChanges, FilterItem, TransformItem } from './types.js';

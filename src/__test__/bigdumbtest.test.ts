@@ -1,6 +1,7 @@
 import { TextFileToArray } from '@freik/files';
 import { afterAll, beforeAll, expect, it } from 'bun:test';
-import { promises } from 'fs';
+import { promises } from 'node:fs';
+
 import { main } from '../main';
 
 const outputFiles = [

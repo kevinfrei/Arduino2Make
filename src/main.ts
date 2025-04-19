@@ -6,7 +6,7 @@ import {
   isUndefined,
 } from '@freik/typechk';
 import minimist from 'minimist';
-import path from 'path';
+import path from 'node:path';
 
 import { EnumerateBoards } from './board.js';
 import { AddConfig, LoadConfig } from './config.js';

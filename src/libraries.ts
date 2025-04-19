@@ -1,6 +1,6 @@
 import { isString, isUndefined } from '@freik/typechk';
-import { promises as fsp } from 'fs';
-import * as path from 'path';
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
 
 import {
   EnumerateDirectory,
@@ -134,7 +134,7 @@ async function isLibrary(loc: string): Promise<boolean> {
   // If the folder contains a 'library.properties' file, it's a library
   // If it contains a 'keywords.txt' file, it's a library
   // If it contains any .h, .cpp, .c files, it's a library
-  if (!(await fsp.stat(loc)).isDirectory()) {
+  if (!(await fs.stat(loc)).isDirectory()) {
     return false;
   }
   for (const file of (await ReadDir(loc)).map((v) => v.toLocaleLowerCase())) {
@@ -168,7 +168,7 @@ async function getLibraryLocations(locs: string[]): Promise<string[]> {
       libLocs.push(lib);
     } else {
       for (const sub of await EnumerateDirectory(lib)) {
-        if ((await fsp.stat(sub)).isDirectory() && (await isLibrary(sub))) {
+        if ((await fs.stat(sub)).isDirectory() && (await isLibrary(sub))) {
           libLocs.push(sub);
         }
       }

@@ -1,5 +1,5 @@
-import { platform as osplatform } from 'os';
-import path from 'path';
+import { platform as osplatform } from 'node:os';
+import path from 'node:path';
 
 import { Transform } from '../config.js';
 import { Dump } from '../dump.js';

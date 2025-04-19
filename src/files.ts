@@ -1,5 +1,5 @@
-import { promises as fsp } from 'fs';
-import * as path from 'path';
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
 
 import { Files } from './types.js';
 import { QuoteIfNeeded, Unquote } from './utils.js';
@@ -15,14 +15,14 @@ function pathCompare(a: string | null, b: string | null): number {
 
 // Use this to keep things in a predictable order...
 export async function ReadDir(root: string): Promise<string[]> {
-  const files: string[] = await fsp.readdir(root);
+  const files: string[] = await fs.readdir(root);
   files.sort(pathCompare);
   return files;
 }
 
 // Gets all the files under a given directory
 export async function EnumerateFiles(root: string): Promise<string[]> {
-  if ((await fsp.stat(root)).isDirectory()) {
+  if ((await fs.stat(root)).isDirectory()) {
     const res = [];
     for (const f of await ReadDir(root)) {
       res.push(...(await EnumerateFiles(path.join(Unquote(root), f))));
@@ -34,7 +34,7 @@ export async function EnumerateFiles(root: string): Promise<string[]> {
 }
 
 export async function EnumerateDirectory(root: string): Promise<string[]> {
-  if ((await fsp.stat(root)).isDirectory()) {
+  if ((await fs.stat(root)).isDirectory()) {
     const r = Unquote(root);
     return (await ReadDir(root)).map((n) => path.join(r, n));
   } else {

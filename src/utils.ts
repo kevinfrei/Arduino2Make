@@ -1,6 +1,6 @@
 import { isString, isUndefined } from '@freik/typechk';
-import { LookupSymbol } from './symbols.js';
 
+import { LookupSymbol } from './symbols.js';
 import { GetGnuMakeTarget } from './targets/gnumake.js';
 import type {
   BuildSystemHost,
