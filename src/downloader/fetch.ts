@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 import { PackageSpec, isPackageSpec } from './package';
 
 export async function DownloadText(fileUrl: string): Promise<string> {

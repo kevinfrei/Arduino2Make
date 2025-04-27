@@ -28,8 +28,7 @@
   },
   "dependencies": {
     "@freik/typechk": "^0.6.7",
-    "minimist": "^1.2.8",
-    "node-fetch": "^3.3.2"
+    "minimist": "^1.2.8"
   },
   "devDependencies": {
     "@freik/files": "^0.1.3",
