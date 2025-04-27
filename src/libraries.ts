@@ -9,6 +9,7 @@ import {
   ReadDir,
 } from './files.js';
 import { ParseFile } from './parser.js';
+import { Unquote } from './quoting.js';
 import type {
   Categories,
   DumbSymTbl,
@@ -18,7 +19,6 @@ import type {
   ParsedFile,
   SemVer,
 } from './types.js';
-import { Unquote } from './utils.js';
 
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/

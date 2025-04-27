@@ -14,8 +14,9 @@ import { Dump, FlushOutput, SetOutputFile } from './dump.js';
 import { GetLibraries } from './libraries.js';
 import { ParseFile } from './parser.js';
 import { MakePlatform } from './platform.js';
+import { GetTarget, SetTarget } from './target.js';
+import { GetGnuMakeTarget } from './targets/gnumake.js';
 import { RunConfig } from './types.js';
-import { GetTarget } from './utils.js';
 
 // Overall structure:
 // Walk the platform.txt file, documented here:
@@ -89,6 +90,7 @@ async function applyConfig(config: RunConfig): Promise<void> {
   if (config.target && config.target !== 'gnumake') {
     throw Error(`Unsupported target ${config.target}`);
   }
+  SetTarget(GetGnuMakeTarget());
 }
 
 export async function generate(config: RunConfig): Promise<void> {

@@ -2,6 +2,7 @@ import { isUndefined } from '@freik/typechk';
 import * as path from 'node:path';
 
 import { GetFileList } from '../files.js';
+import { QuoteIfNeeded, Unquote } from '../quoting.js';
 import { GetNestedChild } from '../symbols.js';
 import type {
   AllRecipes,
@@ -15,12 +16,11 @@ import {
   GetPlainValue,
   MakeDependentValue,
   MakeResolve,
-  QuoteIfNeeded,
   ResolveString,
-  Unquote,
-} from '../utils.js';
+} from '../values.js';
 import { GetLibDefs } from './gmLibs.js';
 import { MakePrefixer } from './gmPrefixer.js';
+import { GnuMakeRecipe } from './gmTypes.js';
 import {
   MakeAppend,
   MakeDeclDef,
@@ -30,7 +30,6 @@ import {
   MakeSrcList,
   MakeUnDecl,
 } from './gmUtils.js';
-import { GnuMakeRecipe } from './gnumake.js';
 
 function cleanup(val: string): string {
   // there's a -DFOO="${VAR}" in the recipe text

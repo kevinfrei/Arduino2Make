@@ -3,18 +3,18 @@ import path from 'node:path';
 
 import { Transform } from '../config.js';
 import { Dump } from '../dump.js';
+import { CalculateChecksAndOrderDefinitions } from '../ordering.js';
 import type {
   BoardsList,
   BuildSystemHost,
   Condition,
   Definition,
-  DependentUpon,
   Library,
   Platform,
 } from '../types.js';
-import { CalculateChecksAndOrderDefinitions } from '../utils.js';
 import { GenBoardDefs } from './gmBoard.js';
 import { BuildPlatform } from './gmPlatform.js';
+import { GnuMakeRecipe } from './gmTypes.js';
 import {
   MakeDeclDef,
   MakeIfeq,
@@ -22,12 +22,6 @@ import {
   MakeUnDecl,
   MakifyName,
 } from './gmUtils.js';
-
-export type GnuMakeRecipe = DependentUpon & {
-  src: string;
-  dst: string;
-  command: string;
-};
 
 // Utilities for doing Makefile stuff
 

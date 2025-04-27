@@ -6,7 +6,7 @@ import type {
   FilterFunc,
   SimpleSymbol,
 } from '../types.js';
-import { GetPlainValue } from '../utils.js';
+import { GetPlainValue } from '../values.js';
 import { MakeDeclDef, MakeDefinitions, MakeIfeq } from './gmUtils.js';
 
 function makeMenuOption(toDump: SimpleSymbol, initConds: Condition[]) {

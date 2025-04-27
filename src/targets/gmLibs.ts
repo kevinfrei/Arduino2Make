@@ -1,8 +1,8 @@
 import { isString } from '@freik/typechk';
 import * as path from 'node:path';
 
-import type { Definition, Library } from '../types.js';
-import { QuoteIfNeeded } from '../utils.js';
+import { QuoteIfNeeded } from '../quoting.js';
+import { Definition, Library } from '../types.js';
 import { MakeAppend, MakeIfdef, MakeSrcList, MakifyName } from './gmUtils.js';
 
 // Details here:

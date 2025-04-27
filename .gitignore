@@ -70,3 +70,4 @@ lib
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+graph.svg
