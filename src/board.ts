@@ -1,6 +1,6 @@
 import { isUndefined } from '@freik/typechk';
 
-import { MakeSymbolTable } from './symbols.js';
+import { MakeSymbolTable } from './symbols';
 import type {
   Board,
   BoardsList,
