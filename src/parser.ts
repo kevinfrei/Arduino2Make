@@ -2,9 +2,9 @@ import { isUndefined } from '@freik/typechk';
 import * as fs from 'node:fs';
 import * as rl from 'node:readline';
 
-import { Dump } from './dump.js';
-import { MakeSymbol } from './symbols.js';
-import type { DumbSymTbl, ParsedFile } from './types.js';
+import { Dump } from './dump';
+import { MakeSymbol } from './symbols';
+import type { DumbSymTbl, ParsedFile } from './types';
 
 function isComment(line: string): boolean {
   return line.trim().startsWith('#');

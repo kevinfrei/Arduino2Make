@@ -1,9 +1,9 @@
 import { isString } from '@freik/typechk';
 import * as path from 'node:path';
 
-import { QuoteIfNeeded } from '../quoting.js';
-import { Definition, Library } from '../types.js';
-import { MakeAppend, MakeIfdef, MakeSrcList, MakifyName } from './gmUtils.js';
+import { QuoteIfNeeded } from '../quoting';
+import { Definition, Library } from '../types';
+import { MakeAppend, MakeIfdef, MakeSrcList, MakifyName } from './gmUtils';
 
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/

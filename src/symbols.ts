@@ -1,6 +1,6 @@
 import { isString, isUndefined } from '@freik/typechk';
 
-import { Dump } from './dump.js';
+import { Dump } from './dump';
 import type {
   DumbSymTbl,
   SFn,
@@ -8,7 +8,7 @@ import type {
   SimpleSymbol,
   Sym,
   SymbolTable,
-} from './types.js';
+} from './types';
 
 export function MakeScopedName(fullName: string): ScopedName {
   const names = fullName.split('.');

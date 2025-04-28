@@ -7,9 +7,9 @@ import {
   EnumerateFiles,
   GetFileList,
   ReadDir,
-} from './files.js';
-import { ParseFile } from './parser.js';
-import { Unquote } from './quoting.js';
+} from './files';
+import { ParseFile } from './parser';
+import { Unquote } from './quoting';
 import type {
   Categories,
   DumbSymTbl,
@@ -18,7 +18,7 @@ import type {
   Library,
   ParsedFile,
   SemVer,
-} from './types.js';
+} from './types';
 
 // Details here:
 // https://arduino.github.io/arduino-cli/library-specification/

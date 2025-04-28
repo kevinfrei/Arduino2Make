@@ -5,9 +5,9 @@ import type {
   Definition,
   FilterFunc,
   SimpleSymbol,
-} from '../types.js';
-import { GetPlainValue } from '../values.js';
-import { MakeDeclDef, MakeDefinitions, MakeIfeq } from './gmUtils.js';
+} from '../types';
+import { GetPlainValue } from '../values';
+import { MakeDeclDef, MakeDefinitions, MakeIfeq } from './gmUtils';
 
 function makeMenuOption(toDump: SimpleSymbol, initConds: Condition[]) {
   const defined: Definition[] = [];

@@ -9,8 +9,8 @@ import {
 } from '@freik/typechk';
 import { promises as fs } from 'node:fs';
 
-import { Dump } from './dump.js';
-import { ConfigChanges, FilterItem, TransformItem } from './types.js';
+import { Dump } from './dump';
+import { ConfigChanges, FilterItem, TransformItem } from './types';
 
 const isTransformItem = chkObjectOfType<TransformItem>({
   defmatch: isString,

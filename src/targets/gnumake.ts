@@ -1,9 +1,9 @@
 import { platform as osplatform } from 'node:os';
 import path from 'node:path';
 
-import { Transform } from '../config.js';
-import { Dump } from '../dump.js';
-import { CalculateChecksAndOrderDefinitions } from '../ordering.js';
+import { Transform } from '../config';
+import { Dump } from '../dump';
+import { CalculateChecksAndOrderDefinitions } from '../ordering';
 import type {
   BoardsList,
   BuildSystemHost,
@@ -11,17 +11,17 @@ import type {
   Definition,
   Library,
   Platform,
-} from '../types.js';
-import { GenBoardDefs } from './gmBoard.js';
-import { BuildPlatform } from './gmPlatform.js';
-import { GnuMakeRecipe } from './gmTypes.js';
+} from '../types';
+import { GenBoardDefs } from './gmBoard';
+import { BuildPlatform } from './gmPlatform';
+import { GnuMakeRecipe } from './gmTypes';
 import {
   MakeDeclDef,
   MakeIfeq,
   MakeIfneq,
   MakeUnDecl,
   MakifyName,
-} from './gmUtils.js';
+} from './gmUtils';
 
 // Utilities for doing Makefile stuff
 

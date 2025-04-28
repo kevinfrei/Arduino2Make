@@ -1,8 +1,8 @@
 import { isString, isUndefined } from '@freik/typechk';
 
-import { LookupSymbol } from './symbols.js';
-import { GetTarget } from './target.js';
-import type { DependentValue, ParsedFile, SimpleSymbol } from './types.js';
+import { LookupSymbol } from './symbols';
+import { GetTarget } from './target';
+import type { DependentValue, ParsedFile, SimpleSymbol } from './types';
 
 // This takes a value, and returns the resolved value plus the list of
 // undefined names within the value

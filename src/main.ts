@@ -8,15 +8,15 @@ import {
 import minimist from 'minimist';
 import path from 'node:path';
 
-import { EnumerateBoards } from './board.js';
-import { AddConfig, LoadConfig } from './config.js';
-import { Dump, FlushOutput, SetOutputFile } from './dump.js';
-import { GetLibraries } from './libraries.js';
-import { ParseFile } from './parser.js';
-import { MakePlatform } from './platform.js';
-import { GetTarget, SetTarget } from './target.js';
-import { GetGnuMakeTarget } from './targets/gnumake.js';
-import { RunConfig } from './types.js';
+import { EnumerateBoards } from './board';
+import { AddConfig, LoadConfig } from './config';
+import { Dump, FlushOutput, SetOutputFile } from './dump';
+import { GetLibraries } from './libraries';
+import { ParseFile } from './parser';
+import { MakePlatform } from './platform';
+import { GetTarget, SetTarget } from './target';
+import { GetGnuMakeTarget } from './targets/gnumake';
+import { RunConfig } from './types';
 
 // Overall structure:
 // Walk the platform.txt file, documented here:

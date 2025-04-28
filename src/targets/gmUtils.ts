@@ -1,13 +1,13 @@
 import { isUndefined } from '@freik/typechk';
 
-import { Filter } from '../config.js';
+import { Filter } from '../config';
 import {
   Condition,
   Definition,
   FilterFunc,
   SimpleSymbol,
   ValueMakerFunc,
-} from '../types.js';
+} from '../types';
 
 // Utilities for doing Makefile stuff
 

@@ -1,6 +1,6 @@
 import { isString, isUndefined } from '@freik/typechk';
 
-import { GetNestedChild } from './symbols.js';
+import { GetNestedChild } from './symbols';
 import {
   AllHooks,
   AllRecipes,
@@ -10,7 +10,7 @@ import {
   Pattern,
   Platform,
   SimpleSymbol,
-} from './types.js';
+} from './types';
 
 function getString(syms: DumbSymTbl, key: string): string {
   const val = syms.get(key)?.value;

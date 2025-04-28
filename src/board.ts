@@ -1,6 +1,6 @@
 import { isUndefined } from '@freik/typechk';
 
-import type { Board, BoardsList, ParsedFile, SimpleSymbol } from './types.js';
+import type { Board, BoardsList, ParsedFile, SimpleSymbol } from './types';
 
 // Get the menu "parent" from the parsed file
 // This is a map of "ID" to the actual title of the user menu

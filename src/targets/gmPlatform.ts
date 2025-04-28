@@ -1,9 +1,9 @@
 import { isUndefined } from '@freik/typechk';
 import * as path from 'node:path';
 
-import { GetFileList } from '../files.js';
-import { QuoteIfNeeded, Unquote } from '../quoting.js';
-import { GetNestedChild } from '../symbols.js';
+import { GetFileList } from '../files';
+import { QuoteIfNeeded, Unquote } from '../quoting';
+import { GetNestedChild } from '../symbols';
 import type {
   AllRecipes,
   Definition,
@@ -11,16 +11,16 @@ import type {
   Library,
   Platform,
   SimpleSymbol,
-} from '../types.js';
+} from '../types';
 import {
   GetPlainValue,
   MakeDependentValue,
   MakeResolve,
   ResolveString,
-} from '../values.js';
-import { GetLibDefs } from './gmLibs.js';
-import { MakePrefixer } from './gmPrefixer.js';
-import { GnuMakeRecipe } from './gmTypes.js';
+} from '../values';
+import { GetLibDefs } from './gmLibs';
+import { MakePrefixer } from './gmPrefixer';
+import { GnuMakeRecipe } from './gmTypes';
 import {
   MakeAppend,
   MakeDeclDef,
@@ -29,7 +29,7 @@ import {
   MakeSeqDef,
   MakeSrcList,
   MakeUnDecl,
-} from './gmUtils.js';
+} from './gmUtils';
 
 function cleanup(val: string): string {
   // there's a -DFOO="${VAR}" in the recipe text

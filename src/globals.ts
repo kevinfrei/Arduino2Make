@@ -1,5 +1,5 @@
-import { MakeSymbol } from './symbols.js';
-import { BuildSystemHost, DumbSymTbl, ParsedFile } from './types.js';
+import { MakeSymbol } from './symbols';
+import { BuildSystemHost, DumbSymTbl, ParsedFile } from './types';
 
 /*
 These are all the pre-defined symbols, per the specification:

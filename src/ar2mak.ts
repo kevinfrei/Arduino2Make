@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // Call main with boards.txt platform.txt programmers.txt
 
-import { main } from './main.js';
+import { main } from './main';
 
 const args = process.argv.slice(2);
 if (args.length === 0) {

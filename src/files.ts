@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 
-import { QuoteIfNeeded, Unquote } from './quoting.js';
-import { Files } from './types.js';
+import { QuoteIfNeeded, Unquote } from './quoting';
+import { Files } from './types';
 
 function pathCompare(a: string | null, b: string | null): number {
   if (a === null) return b !== null ? 1 : 0;
