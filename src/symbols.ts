@@ -132,7 +132,7 @@ export function MakeSymbolTable(parentOptional?: Sym): SymbolTable {
     get,
     check,
     parent,
-    [Symbol.iterator]: nameMap[Symbol.iterator],
+    [Symbol.iterator]: () => nameMap[Symbol.iterator](),
   };
   function add(name: string[] | string, value: string | SFn): Sym {
     name = isString(name) ? name.split('.') : name;

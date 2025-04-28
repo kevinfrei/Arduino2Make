@@ -19,14 +19,14 @@ export type DumbSymTbl = Map<string, SimpleSymbol>;
 // A better interface for my needs: a "get" that throws with a 'check' that doesn't
 // plus a constructor that adds a filter on top, instead of recreating the table
 
-export type SymbolTable = {
+export interface SymbolTable {
   add: (name: string | string[], value: string | SFn) => Sym;
   get: (lkup: string | string[]) => Sym;
   check: (lkup: string | string[]) => Sym | undefined;
   parent: () => Sym | undefined;
-  // The table iterator
-  [Symbol.iterator](): Iterator<[string, Sym]>;
-};
+  [Symbol.iterator]: () => Iterator<[string, Sym]>;
+}
+
 // A parsed file as something fancier than a SymbolTable, mostly for historical reasons
 export type ParsedFile = { scopedTable: DumbSymTbl };
 export type ParsedSymbols = { symTable: SymbolTable };
