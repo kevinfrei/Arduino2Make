@@ -33,8 +33,8 @@ export type ParsedSymbols = { symTable: SymbolTable };
 
 export type DependentValue = { value: string; unresolved: Set<string> };
 
-export type FilterFunc = (str: SimpleSymbol) => boolean;
-export type ValueMakerFunc = (vrbl: SimpleSymbol) => DependentValue;
+export type FilterFunc<TSym> = (str: TSym) => boolean;
+export type ValueMakerFunc<TSym> = (vrbl: TSym) => DependentValue;
 
 export interface Condition {
   op: 'eq' | 'neq' | 'def' | 'ndef' | 'raw';
@@ -108,92 +108,78 @@ export type Library = {
   files: Files;
 };
 
-export type Board = {
+export type Board<TSym> = {
   // The 'top level' symbol. This includes the menu options, cuz I'm lazy
-  symbols: SimpleSymbol;
+  symbols: TSym;
   // The list of menu options for this board
-  menuSelections: SimpleSymbol[];
+  menuSelections: TSym[];
 };
 
-export type BoardSymTab = {
-  // The 'top level' symbol. This includes the menu options, cuz I'm lazy
-  symbols: Sym;
-  // The list of menu options for this board
-  menuSelections: Sym[];
-};
-
-export type BoardsList = {
+export type BoardsList<TSym> = {
   // Each board gets an item in here:
-  boards: Map<string, Board>;
+  boards: Map<string, Board<TSym>>;
   // The list of menu items (with their pleasant names)
   menus: Map<string, string>;
 };
 
-export type OldSizeType = {
+export type OldSizeType<TTable> = {
   program: string;
   data: string;
   pattern: string;
-  other: DumbSymTbl;
+  other: TTable;
 };
 
-export type BoardsListSymTab = {
-  // Each board gets an item in here:
-  boards: Map<string, BoardSymTab>;
-  // The list of menu items (with their pleasant names)
-  menus: Map<string, string>;
-};
+export type Pattern<TTable> = { pattern: string; other: TTable };
 
-export type Pattern = { pattern: string; other: DumbSymTbl };
-
-export type AllRecipes = {
+export type AllRecipes<TTable, TSym> = {
   // c.o
-  c: Pattern;
+  c: Pattern<TTable>;
   // cpp.o
-  cpp: Pattern;
+  cpp: Pattern<TTable>;
   // S.o
-  s: Pattern;
+  s: Pattern<TTable>;
   // just 'ar'
-  ar: Pattern;
+  ar: Pattern<TTable>;
   // c.combine
-  link: Pattern;
+  link: Pattern<TTable>;
   // objcopy.<name>
-  objcopy: { name: string; pattern: Pattern }[];
+  objcopy: { name: string; pattern: Pattern<TTable> }[];
   // recipe.size.regex and regex.data
-  size: OldSizeType;
+  size: OldSizeType<TTable>;
   // This is a tool that returns some json blob
-  advancedSize?: Pattern;
+  advancedSize?: Pattern<TTable>;
   // preproc.macros (auto-gen'd from cpp.o if not defined)
-  preprocess?: Pattern;
+  preprocess?: Pattern<TTable>;
   // preproc.include (optional and old, apparently?)
-  include?: Pattern;
+  include?: Pattern<TTable>;
 
-  others: SimpleSymbol[];
+  others: TSym[];
 };
 
-export type AllHooks = {
-  prebuild: Pattern[];
-  postbuild: Pattern[]; // This one isn't in the spec, but Teensy uses it
-  sketchPrebuild: Pattern[];
-  skechPostbuild: Pattern[];
-  libPrebuild: Pattern[];
-  libPostbuild: Pattern[];
-  corePrebuild: Pattern[];
-  corePostbuild: Pattern[];
-  prelink: Pattern[];
-  postlink: Pattern[];
-  precopy: Pattern[];
-  postcopy: Pattern[];
-  prehex: Pattern[];
-  posthex: Pattern[];
+export type AllHooks<TTable> = {
+  prebuild: Pattern<TTable>[];
+  postbuild: Pattern<TTable>[]; // This one isn't in the spec, but Teensy uses it
+  sketchPrebuild: Pattern<TTable>[];
+  skechPostbuild: Pattern<TTable>[];
+  libPrebuild: Pattern<TTable>[];
+  libPostbuild: Pattern<TTable>[];
+  corePrebuild: Pattern<TTable>[];
+  corePostbuild: Pattern<TTable>[];
+  prelink: Pattern<TTable>[];
+  postlink: Pattern<TTable>[];
+  precopy: Pattern<TTable>[];
+  postcopy: Pattern<TTable>[];
+  prehex: Pattern<TTable>[];
+  posthex: Pattern<TTable>[];
 };
 
-export type Platform = {
+export type Platform<TTable, TSym> = {
   name: string;
   version: string;
-  tools?: SimpleSymbol;
-  misc: DumbSymTbl;
-  recipes: AllRecipes;
-  hooks: AllHooks;
+  tools?: TSym;
+  misc: TTable;
+  recipes: AllRecipes<TTable, TSym>;
+  hooks: AllHooks<TTable>;
   // upload.maximum_size and upload.maximum_data_size
   maxSize: { program: number; data: number };
 };
@@ -213,11 +199,11 @@ export type PlatformGlobalFuncs = {
   getTimeUtc: (tzAdjust?: boolean, dstAdjust?: boolean) => SFn;
 };
 
-export type BuildSystemHost = {
+export type BuildSystemHost<TTable, TSym> = {
   emit: (
     platformPath: string,
-    platform: Platform,
-    board: BoardsList,
+    platform: Platform<TTable, TSym>,
+    board: BoardsList<TSym>,
     libraries: Library[],
   ) => Promise<void>;
   expandName: (nm: string) => { name: string; expansion: string };

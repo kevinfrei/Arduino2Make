@@ -4,12 +4,7 @@ import * as rl from 'node:readline';
 
 import { Dump } from './dump';
 import { MakeSymbol, MakeSymbolTable } from './symbols';
-import type {
-  DumbSymTbl,
-  ParsedFile,
-  ParsedSymbols,
-  SymbolTable,
-} from './types';
+import type { DumbSymTbl, ParsedFile, SymbolTable } from './types';
 
 function isComment(line: string): boolean {
   return line.trim().startsWith('#');
@@ -60,9 +55,7 @@ function parseVar(line: string, table: SymbolTable): boolean {
 }
 
 // Read in the text file, and spit out the parsed file
-export async function ParseSymbolTable(
-  filepath: string,
-): Promise<ParsedSymbols> {
+export async function ParseSymbolTable(filepath: string): Promise<SymbolTable> {
   const symTable = MakeSymbolTable();
 
   const read = rl.createInterface({ input: fs.createReadStream(filepath) });
@@ -78,5 +71,5 @@ export async function ParseSymbolTable(
       Dump('err')(`Error ${num}: ${line}`);
     }
   }
-  return { symTable };
+  return symTable;
 }

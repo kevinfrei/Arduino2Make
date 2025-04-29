@@ -122,6 +122,7 @@ export async function generate(config: RunConfig): Promise<void> {
     const message = hasStrField(e, 'message') ? e.message : '<no message>';
     const file = hasStrField(e, 'fileName') ? e.fileName : '<no filename>';
     const line = hasFieldType(e, 'lineNumber', isNumber) ? e.lineNumber : -1;
+    Dump('err')(e);
     ShowHelp(`Error: ${name} @ ${file}#${line}:\n${message}`);
   }
 }
