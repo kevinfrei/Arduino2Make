@@ -8,6 +8,7 @@ import type {
   AllRecipes,
   Definition,
   DependentValue,
+  DumbSymTbl,
   Library,
   Platform,
   SimpleSymbol,
@@ -69,7 +70,9 @@ function cleanup(val: string): string {
 
 // For reference, stuff like $@, $^, and $< are called 'automatic variables'
 // in the GNU Makefile documentation
-function makeRecipes(rec: AllRecipes): GnuMakeRecipe[] {
+function makeRecipes(
+  rec: AllRecipes<DumbSymTbl, SimpleSymbol>,
+): GnuMakeRecipe[] {
   function makefileRule(
     pattern: string,
     lhs: string,
@@ -212,7 +215,9 @@ function makeRecipes(rec: AllRecipes): GnuMakeRecipe[] {
   return result;
 }
 
-function makeToolDefs(platform: Platform) {
+function makeToolDefs(
+  platform: Platform<DumbSymTbl, SimpleSymbol>,
+): Definition[] {
   function parentTool(a: SimpleSymbol): boolean {
     for (; a.parent; a = a.parent) {
       if (a.name === 'tools') {
@@ -304,7 +309,7 @@ function makeToolDefs(platform: Platform) {
 export async function BuildPlatform(
   initialDefs: Definition[],
   boardDefs: Definition[],
-  platform: Platform,
+  platform: Platform<DumbSymTbl, SimpleSymbol>,
   rootpath: string,
   libs: Library[],
 ): Promise<{ defs: Definition[]; rules: GnuMakeRecipe[] }> {

@@ -7,11 +7,9 @@ import {
   DumbSymTbl,
   OldSizeType,
   ParsedFile,
-  ParsedSymbols,
   Pattern,
   Platform,
   SimpleSymbol,
-  Sym,
 } from './types';
 
 function getString(syms: DumbSymTbl, key: string): string {
@@ -40,7 +38,10 @@ function getRequired(tbl: SimpleSymbol, ...args: string[]): string {
   return sym.value;
 }
 
-function getPattern(tbl: SimpleSymbol, ...patLoc: string[]): Pattern {
+function getPattern(
+  tbl: SimpleSymbol,
+  ...patLoc: string[]
+): Pattern<DumbSymTbl> {
   const theSym = getRequiredSym(tbl, ...patLoc);
   const pattern = getRequired(theSym, 'pattern');
   return { pattern, other: getOther(theSym, 'pattern') };
@@ -49,7 +50,7 @@ function getPattern(tbl: SimpleSymbol, ...patLoc: string[]): Pattern {
 function getMaybePattern(
   tbl: SimpleSymbol,
   ...patLoc: string[]
-): Pattern | undefined {
+): Pattern<DumbSymTbl> | undefined {
   const theSym = GetNestedChild(tbl, ...patLoc);
   if (isUndefined(theSym)) {
     return;
@@ -61,7 +62,7 @@ function getMaybePattern(
 function getPreproc(
   tbl: SimpleSymbol,
   ...patLoc: string[]
-): Pattern | undefined {
+): Pattern<DumbSymTbl> | undefined {
   const theSym = GetNestedChild(tbl, ...patLoc);
   if (isUndefined(theSym) || !isString(theSym.value)) {
     return;
@@ -72,7 +73,7 @@ function getPreproc(
 
 function getObjCopyTargets(
   tbl: SimpleSymbol,
-): { name: string; pattern: Pattern }[] {
+): { name: string; pattern: Pattern<DumbSymTbl> }[] {
   const theSym = getRequiredSym(tbl, 'objcopy');
   return [...theSym.children.entries()].map(([name, sym]) => ({
     name,
@@ -90,7 +91,7 @@ function getOther(sym: SimpleSymbol, ...skips: string[]): DumbSymTbl {
   );
 }
 
-function getOldSize(tbl: SimpleSymbol): OldSizeType {
+function getOldSize(tbl: SimpleSymbol): OldSizeType<DumbSymTbl> {
   const sz = tbl.children.get('size');
   const res = {
     program: '',
@@ -122,7 +123,9 @@ const recipeSkip = new Set([
 ]);
 
 // Just broken out to keep it in a single place...
-function getRecipes(recipeSymbol: SimpleSymbol): AllRecipes {
+function getRecipes(
+  recipeSymbol: SimpleSymbol,
+): AllRecipes<DumbSymTbl, SimpleSymbol> {
   // The .O producers:
   const c = getPattern(recipeSymbol, 'c', 'o');
   const cpp = getPattern(recipeSymbol, 'cpp', 'o');
@@ -155,7 +158,9 @@ function getRecipes(recipeSymbol: SimpleSymbol): AllRecipes {
   };
 }
 
-function fleshOutHooks(val: Partial<AllHooks>): AllHooks {
+function fleshOutHooks(
+  val: Partial<AllHooks<DumbSymTbl>>,
+): AllHooks<DumbSymTbl> {
   return {
     prebuild: val.prebuild || [],
     postbuild: val.postbuild || [],
@@ -174,12 +179,15 @@ function fleshOutHooks(val: Partial<AllHooks>): AllHooks {
   };
 }
 
-function getHook(sym: SimpleSymbol, ...names: string[]): Pattern[] | undefined {
+function getHook(
+  sym: SimpleSymbol,
+  ...names: string[]
+): Pattern<DumbSymTbl>[] | undefined {
   const child = GetNestedChild(sym, ...names);
   if (isUndefined(child)) {
     return;
   }
-  const res: Pattern[] = [];
+  const res: Pattern<DumbSymTbl>[] = [];
   child.children.forEach((val, key) => {
     const index = Number.parseInt(key, 10);
     // Ah, NaN, you're my favorite Not-a-Number...
@@ -190,8 +198,8 @@ function getHook(sym: SimpleSymbol, ...names: string[]): Pattern[] | undefined {
   return res;
 }
 
-function getHooks(hooks?: SimpleSymbol): AllHooks {
-  const res: Partial<AllHooks> = {};
+function getHooks(hooks?: SimpleSymbol): AllHooks<DumbSymTbl> {
+  const res: Partial<AllHooks<DumbSymTbl>> = {};
   if (isUndefined(hooks)) {
     return fleshOutHooks(res);
   }
@@ -213,8 +221,8 @@ function getHooks(hooks?: SimpleSymbol): AllHooks {
 }
 
 function getRecipesAndHooks(recipeSymbol?: SimpleSymbol): {
-  recipes: AllRecipes;
-  hooks: AllHooks;
+  recipes: AllRecipes<DumbSymTbl, SimpleSymbol>;
+  hooks: AllHooks<DumbSymTbl>;
 } {
   if (isUndefined(recipeSymbol)) {
     throw new Error('No recipes in platform.txt file. Unable to continue.');
@@ -224,7 +232,9 @@ function getRecipesAndHooks(recipeSymbol?: SimpleSymbol): {
   return { recipes, hooks };
 }
 
-export function MakePlatform(pf: ParsedFile): Platform {
+export function MakePlatform(
+  pf: ParsedFile,
+): Platform<DumbSymTbl, SimpleSymbol> {
   const name: string = getString(pf.scopedTable, 'name');
   const version: string = getString(pf.scopedTable, 'version');
   const patterns = getRecipesAndHooks(pf.scopedTable.get('recipe'));
@@ -234,24 +244,6 @@ export function MakePlatform(pf: ParsedFile): Platform {
     symbols.filter(([val]) => val !== 'tools' && val !== 'recipe'),
   );
 
-  return {
-    ...patterns,
-    name,
-    version,
-    tools,
-    misc,
-    maxSize: { program: -1, data: -1 },
-  };
-}
-
-export function MakePlatformFromSymbols({ symTable }: ParsedSymbols): Platform {
-  const name = symTable.get('name');
-  const version = symTable.get('version');
-  const patterns = getRecipesAndHooksFromSymbol(symTable.get('recipe'));
-  const tools = symTable.get('tools');
-  const misc = new Map<string, Sym>(
-    [...symTable].filter(([val]) => val !== 'tools' && val !== 'recipe'),
-  );
   return {
     ...patterns,
     name,
