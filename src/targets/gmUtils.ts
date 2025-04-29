@@ -111,9 +111,9 @@ function getMakeName(vrbl: SimpleSymbol, top: SimpleSymbol) {
 
 export function MakeDefinitions(
   top: SimpleSymbol,
-  valueMaker: ValueMakerFunc,
+  valueMaker: ValueMakerFunc<SimpleSymbol>,
   condition: Condition[] | undefined | null,
-  filter?: FilterFunc,
+  filter?: FilterFunc<SimpleSymbol>,
 ): Definition[] {
   const defined: Definition[] = [];
   const toDef: SimpleSymbol[] = [...top.children.values()];

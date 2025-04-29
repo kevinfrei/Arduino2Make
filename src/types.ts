@@ -27,14 +27,19 @@ export interface SymbolTable {
   [Symbol.iterator]: () => Iterator<[string, Sym]>;
 }
 
+export type ASymTable = SymbolTable | DumbSymTbl;
+export type ASymbol = Sym | SimpleSymbol;
+
 // A parsed file as something fancier than a SymbolTable, mostly for historical reasons
 export type ParsedFile = { scopedTable: DumbSymTbl };
 export type ParsedSymbols = { symTable: SymbolTable };
 
 export type DependentValue = { value: string; unresolved: Set<string> };
 
-export type FilterFunc<TSym> = (str: TSym) => boolean;
-export type ValueMakerFunc<TSym> = (vrbl: TSym) => DependentValue;
+export type FilterFunc<TSym extends ASymbol> = (str: TSym) => boolean;
+export type ValueMakerFunc<TSym extends ASymbol> = (
+  vrbl: TSym,
+) => DependentValue;
 
 export interface Condition {
   op: 'eq' | 'neq' | 'def' | 'ndef' | 'raw';
@@ -108,30 +113,33 @@ export type Library = {
   files: Files;
 };
 
-export type Board<TSym> = {
+export type Board<TSym extends ASymbol> = {
   // The 'top level' symbol. This includes the menu options, cuz I'm lazy
   symbols: TSym;
   // The list of menu options for this board
   menuSelections: TSym[];
 };
 
-export type BoardsList<TSym> = {
+export type BoardsList<TSym extends ASymbol> = {
   // Each board gets an item in here:
   boards: Map<string, Board<TSym>>;
   // The list of menu items (with their pleasant names)
   menus: Map<string, string>;
 };
 
-export type OldSizeType<TTable> = {
+export type OldSizeType<TTable extends ASymTable> = {
   program: string;
   data: string;
   pattern: string;
   other: TTable;
 };
 
-export type Pattern<TTable> = { pattern: string; other: TTable };
+export type Pattern<TTable extends ASymTable> = {
+  pattern: string;
+  other: TTable;
+};
 
-export type AllRecipes<TTable, TSym> = {
+export type AllRecipes<TTable extends ASymTable, TSym extends ASymbol> = {
   // c.o
   c: Pattern<TTable>;
   // cpp.o
@@ -156,7 +164,7 @@ export type AllRecipes<TTable, TSym> = {
   others: TSym[];
 };
 
-export type AllHooks<TTable> = {
+export type AllHooks<TTable extends ASymTable> = {
   prebuild: Pattern<TTable>[];
   postbuild: Pattern<TTable>[]; // This one isn't in the spec, but Teensy uses it
   sketchPrebuild: Pattern<TTable>[];
@@ -173,7 +181,7 @@ export type AllHooks<TTable> = {
   posthex: Pattern<TTable>[];
 };
 
-export type Platform<TTable, TSym> = {
+export type Platform<TTable extends ASymTable, TSym extends ASymbol> = {
   name: string;
   version: string;
   tools?: TSym;
@@ -199,7 +207,7 @@ export type PlatformGlobalFuncs = {
   getTimeUtc: (tzAdjust?: boolean, dstAdjust?: boolean) => SFn;
 };
 
-export type BuildSystemHost<TTable, TSym> = {
+export type BuildSystemHost<TTable extends ASymTable, TSym extends ASymbol> = {
   emit: (
     platformPath: string,
     platform: Platform<TTable, TSym>,
