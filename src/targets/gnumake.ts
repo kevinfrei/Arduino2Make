@@ -9,8 +9,10 @@ import type {
   BuildSystemHost,
   Condition,
   Definition,
+  DumbSymTbl,
   Library,
   Platform,
+  SimpleSymbol,
 } from '../types';
 import { GenBoardDefs } from './gmBoard';
 import { BuildPlatform } from './gmPlatform';
@@ -392,8 +394,8 @@ function makeInitialDefs(platformPath: string) {
 
 async function emit(
   platformPath: string,
-  platform: Platform,
-  boards: BoardsList,
+  platform: Platform<DumbSymTbl, SimpleSymbol>,
+  boards: BoardsList<SimpleSymbol>,
   libraries: Library[],
 ): Promise<void> {
   const boardDefined = GenBoardDefs(boards);
@@ -416,7 +418,7 @@ function expandName(nm: string): { name: string; expansion: string } {
   return { name, expansion };
 }
 
-export function GetGnuMakeTarget(): BuildSystemHost {
+export function GetGnuMakeTarget(): BuildSystemHost<DumbSymTbl, SimpleSymbol> {
   return {
     emit,
     expandName,

@@ -4,12 +4,10 @@ import { MakeSymbolTable } from './symbols';
 import type {
   Board,
   BoardsList,
-  BoardsListSymTab,
-  BoardSymTab,
   ParsedFile,
-  ParsedSymbols,
   SimpleSymbol,
   Sym,
+  SymbolTable,
 } from './types';
 
 // Get the menu "parent" from the parsed file
@@ -25,7 +23,10 @@ function getMenus(parsedFile: ParsedFile): Map<string, string> {
 }
 
 // Create an individual board from the symbols we've got.
-function makeBoard(val: SimpleSymbol, menus: Map<string, string>): Board {
+function makeBoard(
+  val: SimpleSymbol,
+  menus: Map<string, string>,
+): Board<SimpleSymbol> {
   const menuSyms =
     val.children.get('menu')?.children || new Map<string, SimpleSymbol>();
   // Validate that the menu selections are available in the menu options enumerated
@@ -45,9 +46,9 @@ function makeBoard(val: SimpleSymbol, menus: Map<string, string>): Board {
 }
 
 // Create a board for each board in the parsed file
-export function EnumerateBoards(board: ParsedFile): BoardsList {
+export function EnumerateBoards(board: ParsedFile): BoardsList<SimpleSymbol> {
   const menus = getMenus(board);
-  const boards = new Map<string, Board>();
+  const boards = new Map<string, Board<SimpleSymbol>>();
   board.scopedTable.forEach((val: SimpleSymbol, key: string) => {
     if (key !== 'menu') {
       const boardId = key;
@@ -58,11 +59,11 @@ export function EnumerateBoards(board: ParsedFile): BoardsList {
 }
 
 export function EnumerateBoardsFromSymbolTable(
-  board: ParsedSymbols,
-): BoardsListSymTab {
-  const menus = getMenusSymTab(board);
-  const boards = new Map<string, BoardSymTab>(
-    [...board.symTable]
+  symTable: SymbolTable,
+): BoardsList<Sym> {
+  const menus = getMenusSymTab(symTable);
+  const boards = new Map<string, Board<Sym>>(
+    [...symTable]
       .filter(([st]) => st !== 'menu')
       .map(([st, sy]) => [st, makeBoardFromSym(sy, menus)]),
   );
@@ -71,8 +72,8 @@ export function EnumerateBoardsFromSymbolTable(
 
 // Get the menu "parent" from the parsed file
 // This is a map of "ID" to the actual title of the user menu
-function getMenusSymTab(parsedFile: ParsedSymbols): Map<string, string> {
-  const menuSym = parsedFile.symTable.get('menu');
+function getMenusSymTab(symTable: SymbolTable): Map<string, string> {
+  const menuSym = symTable.get('menu');
   return new Map<string, string>(
     [...menuSym].map(([id, sym]) => [id, sym.name]),
   );
@@ -82,7 +83,7 @@ function getMenusSymTab(parsedFile: ParsedSymbols): Map<string, string> {
 function makeBoardFromSym(
   symbols: Sym,
   menus: Map<string, string>,
-): BoardSymTab {
+): Board<Sym> {
   // We *could* have a board with no menu, so use check, not get
   const menuSyms =
     symbols.children?.check('menu')?.children || MakeSymbolTable(symbols);

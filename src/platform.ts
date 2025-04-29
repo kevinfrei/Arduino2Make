@@ -7,9 +7,11 @@ import {
   DumbSymTbl,
   OldSizeType,
   ParsedFile,
+  ParsedSymbols,
   Pattern,
   Platform,
   SimpleSymbol,
+  Sym,
 } from './types';
 
 function getString(syms: DumbSymTbl, key: string): string {
@@ -232,6 +234,24 @@ export function MakePlatform(pf: ParsedFile): Platform {
     symbols.filter(([val]) => val !== 'tools' && val !== 'recipe'),
   );
 
+  return {
+    ...patterns,
+    name,
+    version,
+    tools,
+    misc,
+    maxSize: { program: -1, data: -1 },
+  };
+}
+
+export function MakePlatformFromSymbols({ symTable }: ParsedSymbols): Platform {
+  const name = symTable.get('name');
+  const version = symTable.get('version');
+  const patterns = getRecipesAndHooksFromSymbol(symTable.get('recipe'));
+  const tools = symTable.get('tools');
+  const misc = new Map<string, Sym>(
+    [...symTable].filter(([val]) => val !== 'tools' && val !== 'recipe'),
+  );
   return {
     ...patterns,
     name,
