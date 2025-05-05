@@ -1,13 +1,14 @@
 import { isString, isUndefined } from '@freik/typechk';
 
 import { Dump } from './dump';
-import type {
-  DumbSymTbl,
-  SFn,
-  ScopedName,
-  SimpleSymbol,
-  Sym,
-  SymbolTable,
+import {
+  isSimpleSymbol,
+  type DumbSymTbl,
+  type SFn,
+  type ScopedName,
+  type SimpleSymbol,
+  type Sym,
+  type SymbolTable
 } from './types';
 
 export function MakeScopedName(fullName: string): ScopedName {
@@ -89,18 +90,33 @@ export function LookupSymbol(
   }
 }
 
+
+export function GetNestedChild(vrbl: Sym, ...children: string[]): Sym | undefined;
+export function GetNestedChild(vrbl: SimpleSymbol, ...children: string[]): SimpleSymbol | undefined;
+
 export function GetNestedChild(
-  vrbl: SimpleSymbol,
+  vrbl: SimpleSymbol | Sym,
   ...children: string[]
-): SimpleSymbol | undefined {
-  let v: SimpleSymbol | undefined = vrbl;
-  for (const child of children) {
-    if (!v) {
-      return;
+): SimpleSymbol | Sym | undefined {
+  if (isSimpleSymbol(vrbl)) {
+    let v: SimpleSymbol | undefined = vrbl;
+    for (const child of children) {
+      if (!v) {
+        return;
+      }
+      v = v.children.get(child);
     }
-    v = v.children.get(child);
+    return v;
+  } else {
+    let v: Sym | undefined = vrbl;
+    for (const child of children) {
+      if (!v) {
+        return;
+      }
+      v = v.children?.get(child);
+    }
+    return v;
   }
-  return v;
 }
 
 export function MakeSym({

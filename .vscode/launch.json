@@ -31,6 +31,15 @@
       "console": "integratedTerminal",
       "preLaunchTask": "build",
       "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "type": "bun",
+      "request": "launch",
+      "name": "Debug Bun",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": true,
+      "args": []
     }
   ]
 }

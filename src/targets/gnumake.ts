@@ -13,6 +13,8 @@ import type {
   Library,
   Platform,
   SimpleSymbol,
+  Sym,
+  SymbolTable,
 } from '../types';
 import { GenBoardDefs } from './gmBoard';
 import { BuildPlatform } from './gmPlatform';
@@ -252,16 +254,16 @@ endif
     } else if (rule.dst === 'elf') {
       Dump()(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.elf : ' +
-          '${BUILD_PATH}/system.a ${USER_OBJS}',
+        '${BUILD_PATH}/system.a ${USER_OBJS}',
       );
       const cmd = tryToAddUserExtraFlag('ELF', '-o "$@"', rule.command);
       Dump()(`\t${cmd}\n`);
     } else {
       Dump()(
         '${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
-          rule.dst +
-          ' : ${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
-          rule.src,
+        rule.dst +
+        ' : ${BUILD_PATH}/${BUILD_PROJECT_NAME}.' +
+        rule.src,
       );
       Dump()(`\t${rule.command}`);
     }
@@ -436,4 +438,14 @@ export function GetGnuMakeTarget(): BuildSystemHost<DumbSymTbl, SimpleSymbol> {
       getTimeUtc,
     },
   };
+}
+
+async function emitNew(
+  platformPath: string, platform: Platform<SymbolTable, Sym>, boards: BoardsList<Sym>, libraries: Library[]): Promise<void> {
+  console.log('NYI: emitNew', platformPath, platform, boards, libraries);
+  throw new Error('NYI: emitNew');
+}
+
+export function GetGnewMakeTarget(): BuildSystemHost<SymbolTable, Sym> {
+  return { ...GetGnuMakeTarget(), emit: emitNew };
 }

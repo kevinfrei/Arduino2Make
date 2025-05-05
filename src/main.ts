@@ -8,14 +8,14 @@ import {
 import minimist from 'minimist';
 import path from 'node:path';
 
-import { EnumerateBoards, EnumerateBoardsFromSymbolTable } from './board';
+import { EnumerateBoards } from './board';
 import { AddConfig, LoadConfig } from './config';
 import { Dump, FlushOutput, SetOutputFile } from './dump';
 import { GetLibraries } from './libraries';
 import { ParseFile, ParseSymbolTable } from './parser';
 import { MakePlatform } from './platform';
-import { GetTarget, SetTarget } from './target';
-import { GetGnuMakeTarget } from './targets/gnumake';
+import { GetNewTarget, GetTarget, SetNewTarget, SetTarget } from './target';
+import { GetGnewMakeTarget, GetGnuMakeTarget } from './targets/gnumake';
 import { RunConfig } from './types';
 
 // Overall structure:
@@ -91,6 +91,7 @@ async function applyConfig(config: RunConfig): Promise<void> {
     throw Error(`Unsupported target ${config.target}`);
   }
   SetTarget(GetGnuMakeTarget());
+  SetNewTarget(GetGnewMakeTarget());
 }
 
 export async function generate(config: RunConfig): Promise<void> {
@@ -99,13 +100,11 @@ export async function generate(config: RunConfig): Promise<void> {
     const { root, libs } = config;
     // Parse the input files
     const boardPath = path.join(root, 'boards.txt');
-    const boardSymTab = await ParseSymbolTable(boardPath);
-    const boards2 = EnumerateBoardsFromSymbolTable(boardSymTab);
     const boards = EnumerateBoards(await ParseFile(boardPath));
+    const boards2 = EnumerateBoards(await ParseSymbolTable(boardPath));
     const platformPath = path.join(root, 'platform.txt');
-    const platSyms = await ParseFile(platformPath);
-    const platSymTab = await ParseSymbolTable(platformPath);
-    const platform = MakePlatform(platSyms);
+    const platform = MakePlatform(await ParseFile(platformPath));
+    const platform2 = MakePlatform(await ParseSymbolTable(platformPath));
     // Scan the libraries:
     // TODO: Move Defs from Library into platformTarget
     const libraries = libs ? await GetLibraries(root, libs) : [];
@@ -114,6 +113,8 @@ export async function generate(config: RunConfig): Promise<void> {
 
     // Emit the build stuff:
     await GetTarget().emit(platformPath, platform, boards, libraries);
+
+    await GetNewTarget().emit(platformPath, platform2, boards2, libraries);
 
     // Flush the output to disk...
     await FlushOutput();
