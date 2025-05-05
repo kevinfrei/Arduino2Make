@@ -1,13 +1,14 @@
 import { isUndefined } from '@freik/typechk';
 
 import { MakeSymbolTable } from './symbols';
-import type {
-  Board,
-  BoardsList,
-  ParsedFile,
-  SimpleSymbol,
-  Sym,
-  SymbolTable,
+import {
+  isParsedFile,
+  type Board,
+  type BoardsList,
+  type ParsedFile,
+  type SimpleSymbol,
+  type Sym,
+  type SymbolTable,
 } from './types';
 
 // Get the menu "parent" from the parsed file
@@ -45,8 +46,9 @@ function makeBoard(
   return { menuSelections, symbols: val };
 }
 
-// Create a board for each board in the parsed file
-export function EnumerateBoards(board: ParsedFile): BoardsList<SimpleSymbol> {
+function EnumerateBoardsFromParsedFile(
+  board: ParsedFile,
+): BoardsList<SimpleSymbol> {
   const menus = getMenus(board);
   const boards = new Map<string, Board<SimpleSymbol>>();
   board.scopedTable.forEach((val: SimpleSymbol, key: string) => {
@@ -58,7 +60,7 @@ export function EnumerateBoards(board: ParsedFile): BoardsList<SimpleSymbol> {
   return { menus, boards };
 }
 
-export function EnumerateBoardsFromSymbolTable(
+function EnumerateBoardsFromSymbolTable(
   symTable: SymbolTable,
 ): BoardsList<Sym> {
   const menus = getMenusSymTab(symTable);
@@ -69,6 +71,22 @@ export function EnumerateBoardsFromSymbolTable(
   );
   return { menus, boards };
 }
+
+// Overloads...
+export function EnumerateBoards(board: ParsedFile): BoardsList<SimpleSymbol>;
+export function EnumerateBoards(
+  symTable: SymbolTable,
+): BoardsList<Sym>;
+
+// Create a board for each board in the parsed file
+export function EnumerateBoards(board: ParsedFile | SymbolTable): BoardsList<SimpleSymbol> | BoardsList<Sym> {
+  if (isParsedFile(board)) {
+    return EnumerateBoardsFromParsedFile(board);
+  } else {
+    return EnumerateBoardsFromSymbolTable(board);
+  }
+}
+
 
 // Get the menu "parent" from the parsed file
 // This is a map of "ID" to the actual title of the user menu

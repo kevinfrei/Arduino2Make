@@ -1,3 +1,5 @@
+import { hasField } from "@freik/typechk";
+
 export type SFn = () => string;
 // The basic types for a parsed file:
 export type SimpleSymbol = {
@@ -32,6 +34,27 @@ export type ASymbol = Sym | SimpleSymbol;
 
 // A parsed file as something fancier than a SymbolTable, mostly for historical reasons
 export type ParsedFile = { scopedTable: DumbSymTbl };
+
+export function isParsedFile(
+  parsed: ParsedFile | SymbolTable,
+): parsed is ParsedFile {
+  return hasField(parsed, 'scopedTable');
+}
+
+export function isSymbolTable(
+  parsed: ParsedFile | SymbolTable,
+): parsed is SymbolTable {
+  return !isParsedFile(parsed);
+}
+
+export function isSym(sym: Sym | SimpleSymbol): sym is Sym {
+  return hasField(sym, Symbol.iterator);
+}
+
+export function isSimpleSymbol(sym: Sym | SimpleSymbol): sym is SimpleSymbol {
+  return !isSym(sym)
+}
+
 export type ParsedSymbols = { symTable: SymbolTable };
 
 export type DependentValue = { value: string; unresolved: Set<string> };

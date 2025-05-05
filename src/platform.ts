@@ -5,11 +5,15 @@ import {
   AllHooks,
   AllRecipes,
   DumbSymTbl,
+  isParsedFile,
+  isSym,
   OldSizeType,
   ParsedFile,
   Pattern,
   Platform,
   SimpleSymbol,
+  Sym,
+  SymbolTable
 } from './types';
 
 function getString(syms: DumbSymTbl, key: string): string {
@@ -18,8 +22,17 @@ function getString(syms: DumbSymTbl, key: string): string {
   return isString(val) ? val : val();
 }
 
-function getRequiredSym(tbl: SimpleSymbol, ...args: string[]): SimpleSymbol {
-  const sym = GetNestedChild(tbl, ...args);
+function lookupString(syms: SymbolTable, key: string): string {
+  const val = syms.get(key)?.value;
+  if (!val) return '';
+  return isString(val) ? val : val();
+}
+
+function getRequiredSym(tbl: Sym, ...args: string[]): Sym;
+function getRequiredSym(tbl: SimpleSymbol, ...args: string[]): SimpleSymbol;
+function getRequiredSym(tbl: Sym | SimpleSymbol, ...args: string[]): Sym | SimpleSymbol {
+  // HURRAY FOR TYPESCRIPT! :P
+  const sym = isSym(tbl) ? GetNestedChild(tbl, ...args) : GetNestedChild(tbl, ...args);
   if (isUndefined(sym)) {
     throw new Error(
       `Required symbol missing from platform.txt: ${args.join('.')}`,
@@ -27,9 +40,10 @@ function getRequiredSym(tbl: SimpleSymbol, ...args: string[]): SimpleSymbol {
   }
   return sym;
 }
-
-function getRequired(tbl: SimpleSymbol, ...args: string[]): string {
-  const sym = getRequiredSym(tbl, ...args);
+function getRequired(tbl: Sym, ...args: string[]): string;
+function getRequired(tbl: SimpleSymbol, ...args: string[]): string;
+function getRequired(tbl: Sym | SimpleSymbol, ...args: string[]): string {
+  const sym = isSym(tbl) ? getRequiredSym(tbl, ...args) : getRequiredSym(tbl, ...args);
   if (!isString(sym.value)) {
     throw new Error(
       `Required symbol missing from platform.txt: ${args.join('.')}`,
@@ -44,6 +58,12 @@ function getPattern(
 ): Pattern<DumbSymTbl> {
   const theSym = getRequiredSym(tbl, ...patLoc);
   const pattern = getRequired(theSym, 'pattern');
+  return { pattern, other: getOther(theSym, 'pattern') };
+}
+
+function lookupPattern(tbl: Sym, ...patLoc: string[]): Pattern<SymbolTable> {
+  const theSym = lookupRequiredSym(tbl, ...patLoc);
+  const pattern = lookupRequired(theSym, 'pattern');
   return { pattern, other: getOther(theSym, 'pattern') };
 }
 
@@ -158,6 +178,39 @@ function getRecipes(
   };
 }
 
+function lookupRecipes(recipeSymbol: Sym): AllRecipes<SymbolTable, Sym> {
+  // The .O producers:
+  const c = lookupPattern(recipeSymbol, 'c', 'o');
+  const cpp = lookupPattern(recipeSymbol, 'cpp', 'o');
+  const s = lookupPattern(recipeSymbol, 'S', 'o');
+  // Static link:
+  const ar = lookupPattern(recipeSymbol, 'ar');
+  // Image link:
+  const link = lookupPattern(recipeSymbol, 'c', 'combine');
+  // ObjCopy targets:
+  const objcopy = lookupObjCopyTargets(recipeSymbol);
+  const size = lookupOldSize(recipeSymbol);
+  const advancedSize = lookupMaybePattern(recipeSymbol, 'advanced_size');
+  const preprocess = lookupPreproc(recipeSymbol, 'preproc', 'macros');
+  const include = lookupPreproc(recipeSymbol, 'preproc', 'includes');
+  const others = [...recipeSymbol.children.values()].filter(
+    (ss) => !recipeSkip.has(ss.name),
+  );
+  return {
+    c,
+    cpp,
+    s,
+    ar,
+    link,
+    objcopy,
+    size,
+    advancedSize,
+    preprocess,
+    include,
+    others,
+  };
+}
+
 function fleshOutHooks(
   val: Partial<AllHooks<DumbSymTbl>>,
 ): AllHooks<DumbSymTbl> {
@@ -232,7 +285,19 @@ function getRecipesAndHooks(recipeSymbol?: SimpleSymbol): {
   return { recipes, hooks };
 }
 
-export function MakePlatform(
+function lookupRecipesAndHooks(recipeSymbol?: Sym): {
+  recipes: AllRecipes<SymbolTable, Sym>;
+  hooks: AllHooks<SymbolTable>;
+} {
+  if (isUndefined(recipeSymbol)) {
+    throw new Error('No recipes in platform.txt file. Unable to continue.');
+  }
+  const recipes = lookupRecipes(recipeSymbol);
+  const hooks = lookupHooks(recipeSymbol.children?.get('hooks'));
+  return { recipes, hooks };
+}
+
+function MakePlatformFromParsedFile(
   pf: ParsedFile,
 ): Platform<DumbSymTbl, SimpleSymbol> {
   const name: string = getString(pf.scopedTable, 'name');
@@ -252,4 +317,38 @@ export function MakePlatform(
     misc,
     maxSize: { program: -1, data: -1 },
   };
+}
+
+function MakePlatformFromSymbolTable(
+  symTab: SymbolTable,
+): Platform<SymbolTable, Sym> {
+  const name = lookupString(symTab, 'name');
+  const version = lookupString(symTab, 'version');
+  const patterns = getRecipesAndHooks(symTab.get('recipe'));
+  const tools = symTab.get('tools');
+  const misc = new Map<string, Sym>(
+    [...symTab.entries()].filter(([val]) => val !== 'tools' && val !== 'recipe'),
+  );
+
+  return {
+    ...patterns,
+    name,
+    version,
+    tools,
+    misc,
+    maxSize: { program: -1, data: -1 },
+  };
+}
+
+export function MakePlatform(pf: ParsedFile): Platform<DumbSymTbl, SimpleSymbol>;
+export function MakePlatform(symTab: SymbolTable): Platform<SymbolTable, Sym>;
+
+export function MakePlatform(
+  pf: ParsedFile | SymbolTable,
+): Platform<DumbSymTbl, SimpleSymbol> | Platform<SymbolTable, Sym> {
+  if (isParsedFile(pf)) {
+    return MakePlatformFromParsedFile(pf);
+  } else {
+    throw new Error("NYI: MakePlatform for SymbolTable");
+  }
 }
