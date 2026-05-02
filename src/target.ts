@@ -1,4 +1,6 @@
 import type {
+  ASymbol,
+  ASymTable,
   BuildSystemHost,
   DumbSymTbl,
   SimpleSymbol,
@@ -10,7 +12,7 @@ let buildSysTarget: BuildSystemHost<DumbSymTbl, SimpleSymbol> | null = null;
 
 let newBuildTarget: BuildSystemHost<SymbolTable, Sym> | null = null;
 
-export function GetTarget(): BuildSystemHost<DumbSymTbl, SimpleSymbol> {
+export function GetTarget(): BuildSystemHost<ASymTable, ASymbol> {
   if (buildSysTarget === null) {
     throw new Error('Build system target not set');
   }

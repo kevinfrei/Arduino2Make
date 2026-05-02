@@ -1,7 +1,10 @@
 import { isUndefined } from '@freik/typechk';
 
+import { UseNew } from './config';
+import { ParseFile, ParseSymbolTable } from './parser';
 import { MakeSymbolTable } from './symbols';
 import type {
+  ASymbol,
   Board,
   BoardsList,
   ParsedFile,
@@ -45,6 +48,30 @@ function makeBoard(
   return { menuSelections, symbols: val };
 }
 
+// Get the menu "parent" from the parsed file
+// This is a map of "ID" to the actual title of the user menu
+function getMenusSymTab(symTable: SymbolTable): Map<string, string> {
+  const menuSym = symTable.get('menu');
+  return new Map<string, string>(
+    [...menuSym].map(([id, sym]) => [id, sym.name]),
+  );
+}
+
+// Create an individual board from the symbols we've got.
+function makeBoardFromSym(
+  symbols: Sym,
+  menus: Map<string, string>,
+): Board<Sym> {
+  // We *could* have a board with no menu, so use check, not get
+  const menuSyms =
+    symbols.children?.check('menu')?.children || MakeSymbolTable(symbols);
+  // TODO: Validate that the menu selections are available in the menu options enumerated
+  const menuSelections: Sym[] = [
+    ...[...menuSyms].filter(([name]) => menus.has(name)).map(([, sym]) => sym),
+  ];
+  return { menuSelections, symbols };
+}
+
 // Create a board for each board in the parsed file
 export function EnumerateBoards(board: ParsedFile): BoardsList<SimpleSymbol> {
   const menus = getMenus(board);
@@ -70,26 +97,11 @@ export function EnumerateBoardsFromSymbolTable(
   return { menus, boards };
 }
 
-// Get the menu "parent" from the parsed file
-// This is a map of "ID" to the actual title of the user menu
-function getMenusSymTab(symTable: SymbolTable): Map<string, string> {
-  const menuSym = symTable.get('menu');
-  return new Map<string, string>(
-    [...menuSym].map(([id, sym]) => [id, sym.name]),
-  );
-}
-
-// Create an individual board from the symbols we've got.
-function makeBoardFromSym(
-  symbols: Sym,
-  menus: Map<string, string>,
-): Board<Sym> {
-  // We *could* have a board with no menu, so use check, not get
-  const menuSyms =
-    symbols.children?.check('menu')?.children || MakeSymbolTable(symbols);
-  // TODO: Validate that the menu selections are available in the menu options enumerated
-  const menuSelections: Sym[] = [
-    ...[...menuSyms].filter(([name]) => menus.has(name)).map(([, sym]) => sym),
-  ];
-  return { menuSelections, symbols };
+export async function ParseBoardsFromFile(
+  boardPath: string,
+): Promise<BoardsList<ASymbol>> {
+  const boardSymTab = await ParseSymbolTable(boardPath);
+  const boardsNew = EnumerateBoardsFromSymbolTable(boardSymTab);
+  const boards = EnumerateBoards(await ParseFile(boardPath));
+  return UseNew() ? boardsNew : boards;
 }

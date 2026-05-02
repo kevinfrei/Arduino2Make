@@ -81,3 +81,7 @@ export function Filter(name: string, files: string[]): string[] {
   }
   return files;
 }
+
+export function UseNew(): boolean {
+  return false;
+}

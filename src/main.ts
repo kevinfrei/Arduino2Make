@@ -8,7 +8,7 @@ import {
 import minimist from 'minimist';
 import path from 'node:path';
 
-import { EnumerateBoards, EnumerateBoardsFromSymbolTable } from './board';
+import { ParseBoardsFromFile } from './board';
 import { AddConfig, LoadConfig } from './config';
 import { Dump, FlushOutput, SetOutputFile } from './dump';
 import { GetLibraries } from './libraries';
@@ -99,9 +99,7 @@ export async function generate(config: RunConfig): Promise<void> {
     const { root, libs } = config;
     // Parse the input files
     const boardPath = path.join(root, 'boards.txt');
-    const boardSymTab = await ParseSymbolTable(boardPath);
-    const boards2 = EnumerateBoardsFromSymbolTable(boardSymTab);
-    const boards = EnumerateBoards(await ParseFile(boardPath));
+    const boards = await ParseBoardsFromFile(boardPath);
     const platformPath = path.join(root, 'platform.txt');
     const platSyms = await ParseFile(platformPath);
     const platSymTab = await ParseSymbolTable(platformPath);
